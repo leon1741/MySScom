@@ -96,6 +96,10 @@ SOURCE=.\DialogAbout.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DialogSrSend.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\MySScom.cpp
 # End Source File
 # Begin Source File
@@ -122,6 +126,10 @@ SOURCE=.\Basetsd.h
 # Begin Source File
 
 SOURCE=.\DialogAbout.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DialogSrSend.h
 # End Source File
 # Begin Source File
 
@@ -170,12 +178,12 @@ SOURCE=".\ÐÞ¸ÄÉý¼¶¼ÇÂ¼.txt"
 # End Source File
 # End Target
 # End Project
-# Section MySScom : {648A5600-2C6E-101B-82B6-000000000014}
-# 	2:21:DefaultSinkHeaderFile:mscomm.h
-# 	2:16:DefaultSinkClass:CMSComm
-# End Section
 # Section MySScom : {E6E17E90-DF38-11CF-8E74-00A0C90F26F8}
 # 	2:5:Class:CMSComm
 # 	2:10:HeaderFile:mscomm.h
 # 	2:8:ImplFile:mscomm.cpp
+# End Section
+# Section MySScom : {648A5600-2C6E-101B-82B6-000000000014}
+# 	2:21:DefaultSinkHeaderFile:mscomm.h
+# 	2:16:DefaultSinkClass:CMSComm
 # End Section

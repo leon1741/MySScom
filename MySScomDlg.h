@@ -3,6 +3,8 @@
 //{{AFX_INCLUDES()
 //}}AFX_INCLUDES
 
+#include "DialogSrSend.h"
+
 #if !defined(AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_)
 #define AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_
 
@@ -17,12 +19,9 @@
 #define  Timer_No_RecvData             0x01                          // 接收串口数据定时器
 #define  Timer_No_StatusBar            0x02                          // 状态栏定时更新定时器
 #define  Timer_No_AutoSend             0x03                          // 自动发送数据定时器
-#define  Timer_No_LoopSend             0x04                          // 高级发送功能的循环定时器
 
 #define  MAX_SEND_BYTE                 1024                          // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
-
-#define  MIN_FRAME_OFFSET              0x00000225                    // 不同主题下边框偏移的最小值(仅限于XP)
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
 
@@ -46,34 +45,12 @@ public:
 	CComboBox	m_Combo_ComNo;
 	BOOL	m_Check_AutoSave;
 	BOOL	m_Check_AutoSend;
-	BOOL	m_Check_LoopSend;
 	BOOL	m_Check_HexDspl;
 	BOOL	m_Check_HexSend;
 	BOOL	m_Check_AutoClear;
 	CString	m_Edit_Recv;
 	CString	m_Edit_Send;
 	CString	m_Edit_AutoTimer;
-	CString	m_Edit_LoopTimer;
-	BOOL	m_Check_SrSend_01;
-	BOOL	m_Check_SrSend_02;
-	BOOL	m_Check_SrSend_03;
-	BOOL	m_Check_SrSend_04;
-	BOOL	m_Check_SrSend_05;
-	BOOL	m_Check_SrSend_06;
-	BOOL	m_Check_SrSend_07;
-	BOOL	m_Check_SrSend_08;
-	BOOL	m_Check_SrSend_09;
-	BOOL	m_Check_SrSend_10;
-	BOOL	m_Check_SrSend_11;
-	BOOL	m_Check_SrSend_12;
-	BOOL	m_Check_SrSend_13;
-	BOOL	m_Check_SrSend_14;
-	BOOL	m_Check_SrSend_15;
-	BOOL	m_Check_SrSend_16;
-	BOOL	m_Check_SrSend_17;
-	BOOL	m_Check_SrSend_18;
-	BOOL	m_Check_SrSend_19;
-	BOOL	m_Check_SrSend_20;
 	CString	m_Edit_Lines;
 	BOOL	m_Check_Return;
 	BOOL	m_Check_ShowTime;
@@ -87,7 +64,6 @@ public:
 
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
 	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
-	bool           m_SrSendEnable;                                   // 判断是否启用高级发送功能
 	bool           m_NeedTime;                                       // 判断是否需要显示时间标志
 	bool           m_DataRecvd;                                      // 是否已经收到串口数据
 
@@ -109,61 +85,43 @@ public:
 	volatile HANDLE m_hSPCom;
 	OVERLAPPED     m_osRead, m_osWrite;
 
-	BOOL  EnumComm(void);
-	//UINT  SPCommProc(LPVOID pParam);
-	DWORD WriteComm(char *buf,DWORD dwLength);
-	DWORD ReadComm(char *buf,DWORD dwLength);
+	CDialogSrSend *p_DlgSrSend;
 
-	CString TransformtoHex(CString InputStr);
-	char ConvertHexChar(char ch);
-	int  String2Hex(CString str, CByteArray &senddata);
-
+	BOOL EnumComm();
+	DWORD ReadComm(char *buf, DWORD dwLength);
+	DWORD WriteComm(char *buf, DWORD dwLength);
+	
 	void SetControlStatus(bool Enable);
 	void SetSendButtonStatus(bool Enable);
-	void SetSrSendCtrlStatus(bool Enable);
 	void SetSendingStatus(bool Enable);
 	void SwitchSendStatus(bool IsNormal);
 	
+	char ConvertHexChar(char ch);
+	int String2Hex(CString str, CByteArray &senddata);
+	CString TransformtoHex(CString InputStr);
+	bool CharisValid(unsigned char inchar);
+
+	void InformDlgClose(void);
 	void SaveEditContent(void);
 	void UpdateEditDisplay(void);
 	void HandleUSARTData(char *ptr, DWORD len);
 	void NeedAutoSendData(void);
-	void NeedLoopSendData(void);
 	void UpdateStatusBarNow(void);
-
+	bool SendDatatoComm(CString datastr, BOOL needhex);
+	
 	void CreateSettingFile(void);
 	void InitiateAllParas(void);
 	void RecordAllParas(void);
-
+	
 	void InitiateStatusBar(void);
-
 	void InitiateComboComs(void);
 	void InitiateComboBaud(void);
 	void InitiateComboData(void);
 	void InitiateComboCheck(void);
 	void InitiateComboStop(void);
 
-	void InitiateMainFrame(void);
-	void InitiateSrSendArea(void);
-
-	void SendEditDatatoComm(void);
-	void ContinueToSendFile(void);
-
-	void ShowSrSendCheck(bool Enable);	
-	void ShowSrSendEdit(bool Enable);
-	void ShowSrSendButton(bool Enable);
-	void ShowSrSendOthers(bool Enable);
-
-	void HideSrSendArea(void);
-	void ShowSrSendArea(void);
-
-	bool SrEditDataValid(int EditID);
-	int  GetSrValidDataNo(void);
-	void TrytoSrSendData(CString InputStr, BOOL NeedHex);
-	void ContinueLoopSrSend(void);
-
-	BOOL TaskBarDeleteIcon(HWND hwnd, UINT uID);
 	BOOL TaskBarAddIcon(HWND hwnd, UINT uID, HICON hicon, LPSTR lpszTip);
+	BOOL TaskBarDeleteIcon(HWND hwnd, UINT uID);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)
@@ -198,48 +156,6 @@ protected:
 	afx_msg void OnOnCommMscomm();
 	afx_msg void OnButtonCount();
 	afx_msg void OnCheckAutoClear();
-	afx_msg void OnButtonSrSend();
-	afx_msg void OnCheckSrAuto();
-	afx_msg void OnButtonSrSend01();
-	afx_msg void OnButtonSrSend02();
-	afx_msg void OnButtonSrSend03();
-	afx_msg void OnButtonSrSend04();
-	afx_msg void OnButtonSrSend05();
-	afx_msg void OnButtonSrSend06();
-	afx_msg void OnButtonSrSend07();
-	afx_msg void OnButtonSrSend08();
-	afx_msg void OnButtonSrSend09();
-	afx_msg void OnButtonSrSend10();
-	afx_msg void OnButtonSrSend11();
-	afx_msg void OnButtonSrSend12();
-	afx_msg void OnButtonSrSend13();
-	afx_msg void OnButtonSrSend14();
-	afx_msg void OnButtonSrSend15();
-	afx_msg void OnButtonSrSend16();
-	afx_msg void OnButtonSrSend17();
-	afx_msg void OnButtonSrSend18();
-	afx_msg void OnButtonSrSend19();
-	afx_msg void OnButtonSrSend20();
-	afx_msg void OnCheckSrSend01();
-	afx_msg void OnCheckSrSend02();
-	afx_msg void OnCheckSrSend03();
-	afx_msg void OnCheckSrSend04();
-	afx_msg void OnCheckSrSend05();
-	afx_msg void OnCheckSrSend06();
-	afx_msg void OnCheckSrSend07();
-	afx_msg void OnCheckSrSend08();
-	afx_msg void OnCheckSrSend09();
-	afx_msg void OnCheckSrSend10();
-	afx_msg void OnCheckSrSend11();
-	afx_msg void OnCheckSrSend12();
-	afx_msg void OnCheckSrSend13();
-	afx_msg void OnCheckSrSend14();
-	afx_msg void OnCheckSrSend15();
-	afx_msg void OnCheckSrSend16();
-	afx_msg void OnCheckSrSend17();
-	afx_msg void OnCheckSrSend18();
-	afx_msg void OnCheckSrSend19();
-	afx_msg void OnCheckSrSend20();
 	afx_msg void OnClose();
 	afx_msg void OnMenuTrayExit();
 	afx_msg void OnMenuTrayHide();
@@ -249,6 +165,7 @@ protected:
 	afx_msg void OnCheckShowTime();
 	afx_msg void OnMenuTrayAbout();
 	afx_msg void OnButtonHelp();
+	afx_msg void OnButtonSrSend();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

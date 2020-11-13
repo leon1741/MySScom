@@ -19,8 +19,7 @@
 #define  SEND_SHORT_DATA          0x01                               // 处于发送短数据的状态
 #define  SEND_LONG_FILE           0x02                               // 处于发送长文件的状态
 
-#define  MAX_RECV_LINE            500                                // 最多允许接收的数据行数，大于此数则清屏
-#define  MAX_RECV_CHAR            (MAX_RECV_LINE * 3 * 100)          // 最多允许接收的字符个数，大于此数则清屏
+#define  MAX_RECV_CHAR(n)         (n * 3 * 100)                      // 最多允许接收的字符个数，根据行数来计算
 
 #define  MAX_SEND_BYTE            500                                // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE            50                                 // 循环发送区每一次允许发送的最大字节数
@@ -74,6 +73,7 @@ public:
 	BOOL	m_Check_SrSend_18;
 	BOOL	m_Check_SrSend_19;
 	BOOL	m_Check_SrSend_20;
+	CString	m_Edit_Lines;
 	//}}AFX_DATA
 
 	CEdit*         s_Edit_Recv;                                      // 调试消息显示控件
@@ -96,6 +96,8 @@ public:
 
 	int            RecvedData;                                       // 已经接收的字节数
 	int            SendedData;                                       // 已经发送的字节数
+
+    int            MaxRecvLines;                                     // 最多允许接收的行数(超过则清空内容)
 
 	CStatusBar     m_StatusBar;                                      // 定义状态栏控制
 

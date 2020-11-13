@@ -32,6 +32,7 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	m_Check_AutoClear = FALSE;
 	m_Edit_Recv = _T("");
 	m_Edit_Send = _T("");
+    m_Edit_Lines = _T("1000");
 	m_Edit_AutoTimer = _T("");
 	m_Edit_LoopTimer = _T("");
 	m_Check_SrSend_01 = FALSE;
@@ -98,6 +99,7 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_SR18, m_Check_SrSend_18);
 	DDX_Check(pDX, IDC_CHECK_SR19, m_Check_SrSend_19);
 	DDX_Check(pDX, IDC_CHECK_SR20, m_Check_SrSend_20);
+	DDX_Text(pDX, IDC_EDIT_LINES, m_Edit_Lines);
 	//}}AFX_DATA_MAP
 }
 
@@ -338,6 +340,10 @@ void CMySScomDlg::SetControlStatus(bool Enable)
     GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
+
+    GetDlgItem(IDC_STATIC_OVER)->EnableWindow(Enable);
+    GetDlgItem(IDC_STATIC_LINES)->EnableWindow(Enable);
+    GetDlgItem(IDC_EDIT_LINES)->EnableWindow(Enable);
 	
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
@@ -471,7 +477,7 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
 
-			if (m_Edit_Recv.GetLength() >= MAX_RECV_CHAR) {          // 在16进制模式下，对数据内容长度进行判断
+			if (m_Edit_Recv.GetLength() >= MAX_RECV_CHAR(MaxRecvLines)) {      // 在16进制模式下，对数据内容长度进行判断
 				
 				if (m_Check_AutoSave) {
 
@@ -492,7 +498,7 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
 			
-			if (s_Edit_Recv->GetLineCount() >= MAX_RECV_LINE) {      // 在字符模式下，对数据行数进行判断
+            if (s_Edit_Recv->GetLineCount() >= MaxRecvLines) {       // 在字符模式下，对数据行数进行判断
 				
 				if (m_Check_AutoSave) {
 					
@@ -2103,12 +2109,36 @@ void CMySScomDlg::OnCheckHexDisplay()
 
 void CMySScomDlg::OnCheckAutoClear() 
 {
-	m_Check_AutoClear = !m_Check_AutoClear;
+    int     TempData;
+    CString TempStr;
+    
+    m_Check_AutoClear = !m_Check_AutoClear;
+    
+    GetDlgItemText(IDC_EDIT_LINES, TempStr);
 
-	if (m_Check_AutoClear) {
-		GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(TRUE);
-	} else {
-		GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
+    TempData = atoi((LPSTR)(LPCTSTR)TempStr);
+    
+    if ((TempData < 1) || (TempData > 10000)) {        
+        MessageBox("您设置的行数值超出系统允许范围，请设置在1-10000行之间    ", "提示", MB_OK + MB_ICONINFORMATION);
+        SetDlgItemText(IDC_EDIT_LINES, m_Edit_Lines);                // 还原编辑框内容
+        m_Check_AutoClear = FALSE;        
+        UpdateData(FALSE);
+        return;
+    }
+
+    GetDlgItemText(IDC_EDIT_LINES, m_Edit_Lines);                    // 读取数据并保存
+    MaxRecvLines = atoi((LPSTR)(LPCTSTR)m_Edit_Lines);
+
+    if (m_Check_AutoClear) {
+        GetDlgItem(IDC_STATIC_OVER)->EnableWindow(FALSE);
+        GetDlgItem(IDC_STATIC_LINES)->EnableWindow(FALSE);
+        GetDlgItem(IDC_EDIT_LINES)->EnableWindow(FALSE);
+        GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(TRUE);
+    } else {
+        GetDlgItem(IDC_STATIC_OVER)->EnableWindow(TRUE);
+        GetDlgItem(IDC_STATIC_LINES)->EnableWindow(TRUE);
+        GetDlgItem(IDC_EDIT_LINES)->EnableWindow(TRUE);
+        GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
 	}
 }
 
@@ -2234,6 +2264,8 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	RecvedData = 0;
 	SendedData = 0;
+
+    MaxRecvLines = 0;
 
 	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
 

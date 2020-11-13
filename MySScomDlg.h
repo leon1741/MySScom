@@ -14,6 +14,7 @@
 #define  Timer_No_StatusBar       0x01                               // 状态栏定时更新定时器
 #define  Timer_No_AutoSend        0x02                               // 自动发送数据定时器
 #define  Timer_No_SendFile        0x03                               // 发送长文件时的间隔定时器
+#define  Timer_No_LoopSend        0x04                               // 高级发送功能的循环定时器
 
 #define  SEND_SHORT_DATA          0x01                               // 处于发送短数据的状态
 #define  SEND_LONG_FILE           0x02                               // 处于发送长文件的状态
@@ -43,15 +44,15 @@ public:
 	CComboBox	m_Combo_ComNo;
 	BOOL	m_Check_AutoSave;
 	BOOL	m_Check_AutoSend;
+	BOOL	m_Check_LoopSend;
 	BOOL	m_Check_HexDspl;
 	BOOL	m_Check_HexSend;
+	BOOL	m_Check_AutoClear;
 	CString	m_Edit_Recv;
 	CString	m_Edit_Send;
-	CString	m_Edit_Timer;
-	CMSComm	m_ctrlComm;
-	BOOL	m_Check_AutoClear;
-	BOOL	m_Check_SrAuto;
-	CString	m_Edit_SrAuto;
+	CString	m_Edit_AutoTimer;
+	CString	m_Edit_LoopTimer;
+	CMSComm	m_ctrlComm;	
 	//}}AFX_DATA
 
 	CEdit*         s_Edit_Recv;                                      // 调试消息显示控件
@@ -89,6 +90,7 @@ public:
 	void SaveEditContent(void);
 	void UpdateEditDisplay(void);
 	void NeedAutoSendData(void);
+	void NeedLoopSendData(void);
 	void UpdateStatusBarNow(void);
 
 	void InitiateStatusBar(void);
@@ -111,6 +113,8 @@ public:
 
 	void HideSrSendArea(void);
 	void ShowSrSendArea(void);
+
+	bool CheckDataIsValid(void);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)

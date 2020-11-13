@@ -30,10 +30,10 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	m_Check_HexSend = FALSE;
 	m_Edit_Recv = _T("");
 	m_Edit_Send = _T("");
-	m_Edit_Timer = _T("1000");
+	m_Edit_AutoTimer = _T("1000");
+	m_Edit_LoopTimer = _T("1000");
 	m_Check_AutoClear = FALSE;
-	m_Check_SrAuto = FALSE;
-	m_Edit_SrAuto = _T("");
+	m_Check_LoopSend = FALSE;	
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -53,11 +53,11 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_HEXSEND, m_Check_HexSend);
 	DDX_Text(pDX, IDC_EDIT_RECV, m_Edit_Recv);
 	DDX_Text(pDX, IDC_EDIT_SEND, m_Edit_Send);
-	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_Timer);
+	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_AutoTimer);
 	DDX_Control(pDX, IDC_MSCOMM1, m_ctrlComm);
 	DDX_Check(pDX, IDC_CHECK_AUTOCLEAR, m_Check_AutoClear);
-	DDX_Check(pDX, IDC_CHECK_SRAUTO, m_Check_SrAuto);
-	DDX_Text(pDX, IDC_EDIT_SRAUTO, m_Edit_SrAuto);
+	DDX_Check(pDX, IDC_CHECK_SRAUTO, m_Check_LoopSend);
+	DDX_Text(pDX, IDC_EDIT_SRAUTO, m_Edit_LoopTimer);
 	//}}AFX_DATA_MAP
 }
 
@@ -441,11 +441,11 @@ void CMySScomDlg::NeedAutoSendData(void)
 
 		SetTimer(Timer_No_AutoSend, Timer, NULL);                    // 启动定时器
 
-		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(false);
-		GetDlgItem(IDC_STATIC_MS)->EnableWindow(false);
+		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(FALSE);
+		GetDlgItem(IDC_STATIC_MS)->EnableWindow(FALSE);
 
-		m_Edit_Timer = TempStr;                                      // 更新编辑框内容
-		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_Timer);
+		m_Edit_AutoTimer = TempStr;                                  // 更新编辑框内容
+		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);
 
 		SetSendButtonStatus(FALSE);                                  // 禁用发送区各个按钮
 
@@ -453,11 +453,43 @@ void CMySScomDlg::NeedAutoSendData(void)
 
 		MessageBox("定时时间必须在0至10秒钟之间，请确认！     ", "提示", MB_OK + MB_ICONEXCLAMATION);
 
-		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_Timer);                // 还原编辑框内容
+		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);            // 还原编辑框内容
 
-		m_Check_AutoSend = false;
-		UpdateData(false);                                           // 取消复选框被选中的状态
+		m_Check_AutoSend = FALSE;
+		UpdateData(FALSE);                                           // 取消复选框被选中的状态
 
+		return;
+	}
+}
+
+void CMySScomDlg::NeedLoopSendData(void)
+{
+	int Timer;
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SRAUTO, TempStr);
+	
+	Timer = atoi((LPSTR)(LPCTSTR)TempStr);
+	
+	if ((Timer > 0) && (Timer <= 10000)) {
+		
+		SetTimer(Timer_No_LoopSend, Timer, NULL);                    // 启动定时器
+		
+		GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(FALSE);
+		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(FALSE);
+		
+		m_Edit_LoopTimer = TempStr;                                  // 更新编辑框内容
+		SetDlgItemText(IDC_EDIT_SRAUTO, m_Edit_AutoTimer);
+		
+	} else {
+		
+		MessageBox("定时时间必须在0至10秒钟之间，请确认！     ", "提示", MB_OK + MB_ICONEXCLAMATION);
+		
+		SetDlgItemText(IDC_EDIT_SRAUTO, m_Edit_AutoTimer);           // 还原编辑框内容
+		
+		m_Check_LoopSend = FALSE;
+		UpdateData(FALSE);                                           // 取消复选框被选中的状态
+		
 		return;
 	}
 }
@@ -837,6 +869,11 @@ void CMySScomDlg::ShowSrSendArea(void)
 										  (SendEdit.Height()));
 }
 
+bool CMySScomDlg::CheckDataIsValid(void)
+{
+	return FALSE;
+}
+
 
 /* ==================================== 自定义函数区--结束 ===================================== */
 
@@ -855,7 +892,7 @@ void CMySScomDlg::OnButtonONOFF()
 {
 	CString TempStr, SettingStr;
     
-	if (m_PortOpened == true) {                                      // 如果串口已经打开，那么执行关闭操作
+	if (m_PortOpened == TRUE) {                                      // 如果串口已经打开，那么执行关闭操作
 
 		if (m_Check_AutoSend) {
 			MessageBox("请首先停用自动发送功能再尝试关闭串口    ", "提示", MB_OK + MB_ICONEXCLAMATION);
@@ -1114,22 +1151,41 @@ void CMySScomDlg::OnButtonCount()
 void CMySScomDlg::OnButtonSrSend() 
 {
 	if (m_SrSendEnable == TRUE) {                                    // 如果已经启用高级发送功能，则禁用之
-		HideSrSendArea();
-		m_SrSendEnable = FALSE;
-		SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
-		SwitchSendStatus(TRUE);
-	} else {                                                         // 如果没有启用高级发送功能，则启用之
-		if (m_Check_AutoSend) {
+
+		if (m_Check_LoopSend) {
+
 			MessageBox("自动发送功能已开启，请先停用之！    ", "提示", MB_OK + MB_ICONINFORMATION);
 			return;
 		}
+
+		HideSrSendArea();
+
+		m_SrSendEnable = FALSE;
+
+		SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
+
+		SwitchSendStatus(TRUE);
+
+	} else {                                                         // 如果没有启用高级发送功能，则启用之
+
+		if (m_Check_AutoSend) {
+
+			MessageBox("自动发送功能已开启，请先停用之！    ", "提示", MB_OK + MB_ICONINFORMATION);
+			return;
+		}
+
 		if (Send_Status == SEND_LONG_FILE) {
+
 			MessageBox("当前缓冲区的数据尚未发送完成，请稍后再操作！     ", "提示", MB_OK + MB_ICONINFORMATION);
 			return;
 		}
+
 		ShowSrSendArea();
+
 		m_SrSendEnable = TRUE;
+
 		SetDlgItemText(IDC_BUTTON_SRSEND, "普通发送");
+
 		SwitchSendStatus(FALSE);
 	}
 	
@@ -1192,8 +1248,8 @@ void CMySScomDlg::OnCheckAutoSend()
 	} else {
 
 		KillTimer(Timer_No_AutoSend);                                // 否则，用户取消了自动发送的功能
-		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(true);
-		GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
+		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
+		GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
 
 		SetSendButtonStatus(TRUE);                                   // 重新启用发送区各个按钮
 	}
@@ -1266,7 +1322,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
 
-	SetControlStatus(false);                                         // 首先禁用各个按钮控件
+	SetControlStatus(FALSE);                                         // 首先禁用各个按钮控件
 
 	m_bRecvPause = TRUE;
 	m_bSendPause  = FALSE;
@@ -1404,18 +1460,26 @@ void CMySScomDlg::OnOnCommMscomm()
 
 void CMySScomDlg::OnCheckSrAuto() 
 {
-	m_Check_SrAuto = !m_Check_SrAuto;
+	m_Check_LoopSend = !m_Check_LoopSend;
 	
-	if (m_Check_AutoSend) {
+	if (m_Check_LoopSend) {
+
+		if (!CheckDataIsValid()) {
+
+			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~     ", "提示", MB_OK + MB_ICONINFORMATION);
+			
+			m_Check_LoopSend = FALSE;
+			UpdateData(FALSE);                                       // 取消复选框被选中的状态
+			
+			return;
+		}
 				
-		//NeedAutoSendData();                                          // 开始尝试自动发送数据
+		NeedLoopSendData();
 		
 	} else {
 		
-		//KillTimer(Timer_No_AutoSend);                                // 否则，用户取消了自动发送的功能
-		//GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(true);
-		//GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
-		
-		//SetSendButtonStatus(TRUE);                                   // 重新启用发送区各个按钮
+		KillTimer(Timer_No_LoopSend);                                // 取消自动发送功能
+		GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(TRUE);
+		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(TRUE);
 	}
 }

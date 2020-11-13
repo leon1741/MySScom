@@ -1,0 +1,275 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\MySScom.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.chs\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\MySScom.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MYSSCOM_DIALOG DIALOGEX 0, 0, 550, 318
+STYLE DS_3DLOOK | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | 
+    WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "MySScom"
+FONT 9, "宋体"
+BEGIN
+    EDITTEXT        IDC_EDIT_RECV,126,18,411,234,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY | ES_WANTRETURN | 
+                    WS_VSCROLL
+    EDITTEXT        IDC_EDIT_SEND,126,276,411,29,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL
+    COMBOBOX        IDC_COMBO_COMNO,48,19,54,155,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_BAUD,48,38,54,152,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_DATA,48,57,54,158,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_STOP,48,76,54,145,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "打开串口",IDC_BUTTON_ONOFF,11,99,42,19
+    PUSHBUTTON      "暂停接收",IDC_BUTTON_PAUSE,60,99,42,19
+    PUSHBUTTON      "清空窗口",IDC_BUTTON_CLEAR,11,127,42,19
+    PUSHBUTTON      "保存数据",IDC_BUTTON_SAVE,60,127,42,19
+    CONTROL         "16进制显示数据",IDC_CHECK_HEXRECV,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,21,
+                    157,72,8
+    CONTROL         "清空前自动保存",IDC_CHECK_AUTOSAVE,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,21,
+                    173,72,8
+    PUSHBUTTON      "选择文件",IDC_BUTTON_READ,11,202,42,19,WS_DISABLED
+    PUSHBUTTON      "暂停发送",IDC_BUTTON_RESPITE,60,202,42,19,WS_DISABLED
+    PUSHBUTTON      "重新输入",IDC_BUTTON_REIPUT,11,230,42,19
+    PUSHBUTTON      "发送数据",IDC_BUTTON_SEND,60,230,42,19
+    CONTROL         "16进制发送数据",IDC_CHECK_HEXSEND,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,21,
+                    260,72,8
+    CONTROL         "自动的定时发送",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFT | BS_VCENTER | WS_TABSTOP,21,275,72,8
+    EDITTEXT        IDC_EDIT_TIMER,55,289,31,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    GROUPBOX        "控制区",IDC_STATIC_CONTROL,4,5,107,306
+    GROUPBOX        "接收区",IDC_STATIC_RECEIVE,119,5,425,253
+    GROUPBOX        "发送区",IDC_STATIC_SEND,119,264,425,47
+    LTEXT           "串口号：",IDC_STATIC,11,22,33,8
+    LTEXT           "波特率：",IDC_STATIC,11,41,33,8
+    LTEXT           "数据位：",IDC_STATIC,11,60,33,8
+    LTEXT           "停止位：",IDC_STATIC,11,79,33,8
+    LTEXT           "ms",IDC_STATIC_MS,89,291,9,8
+    LTEXT           "间隔",IDC_STATIC_INTERVAL,35,291,16,8
+    CONTROL         "",IDC_STATIC_DEVIDE,"Static",SS_ETCHEDHORZ,4,190,107,1
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "MySScom Microsoft 基础类应用程序\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "MySScom\0"
+            VALUE "LegalCopyright", "版权所有 (C) 2009\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "MySScom.EXE\0"
+            VALUE "ProductName", "MySScom 应用程序\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_MYSSCOM_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 544
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 311
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_MYSSCOM_DIALOG DLGINIT
+BEGIN
+    IDC_COMBO_BAUD, 0x403, 5, 0
+0x3231, 0x3030, "\000" 
+    IDC_COMBO_BAUD, 0x403, 5, 0
+0x3432, 0x3030, "\000" 
+    IDC_COMBO_BAUD, 0x403, 5, 0
+0x3834, 0x3030, "\000" 
+    IDC_COMBO_BAUD, 0x403, 5, 0
+0x3639, 0x3030, "\000" 
+    IDC_COMBO_BAUD, 0x403, 6, 0
+0x3931, 0x3032, 0x0030, 
+    IDC_COMBO_BAUD, 0x403, 6, 0
+0x3833, 0x3034, 0x0030, 
+    IDC_COMBO_BAUD, 0x403, 6, 0
+0x3735, 0x3036, 0x0030, 
+    IDC_COMBO_BAUD, 0x403, 6, 0
+0x3637, 0x3038, 0x0030, 
+    IDC_COMBO_BAUD, 0x403, 7, 0
+0x3131, 0x3235, 0x3030, "\000" 
+    IDC_COMBO_BAUD, 0x403, 7, 0
+0x3531, 0x3633, 0x3030, "\000" 
+    IDC_COMBO_BAUD, 0x403, 7, 0
+0x3332, 0x3430, 0x3030, "\000" 
+    IDC_COMBO_DATA, 0x403, 5, 0
+0x2035, 0xbbce, "\000" 
+    IDC_COMBO_DATA, 0x403, 5, 0
+0x2036, 0xbbce, "\000" 
+    IDC_COMBO_DATA, 0x403, 5, 0
+0x2037, 0xbbce, "\000" 
+    IDC_COMBO_DATA, 0x403, 5, 0
+0x2038, 0xbbce, "\000" 
+    IDC_COMBO_STOP, 0x403, 6, 0
+0x2031, 0xce20, 0x00bb, 
+    IDC_COMBO_STOP, 0x403, 6, 0
+0x2e31, 0xce35, 0x00bb, 
+    IDC_COMBO_STOP, 0x403, 6, 0
+0x2032, 0xce20, 0x00bb, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败。"
+END
+
+#endif    // Chinese (中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE 4, 2
+#pragma code_page(936)
+#endif //_WIN32
+#include "res\MySScom.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.chs\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

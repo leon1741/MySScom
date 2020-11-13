@@ -1748,7 +1748,7 @@ void CMySScomDlg::OnButtonSend()
     }
 	
 	if (SendDatatoComm(m_Edit_Send, m_Check_HexSend) == FALSE) {
-		MessageBox("您输入的CAN数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
+		MessageBox("您输入的数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
 		return;
 	}
 }
@@ -2221,7 +2221,7 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 			if (SendDatatoComm(m_Edit_Send, m_Check_HexSend) == FALSE) {       /* 数据非法，则停止定时器 */
 				OnCheckAutoSend();
 				UpdateData(FALSE);
-				MessageBox("您输入的CAN数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
+				MessageBox("您输入的数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
 			}
             break;
             

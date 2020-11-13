@@ -751,6 +751,8 @@ void CMySScomDlg::OnButtonReiput()
 
 void CMySScomDlg::OnButtonSend() 
 {
+	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+	
 	if (m_Edit_Send.GetLength() <= 0) {
 		MessageBox("发送窗口内容为空，未发送任何数据！    ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;

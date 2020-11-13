@@ -13,6 +13,10 @@ static char THIS_FILE[] = __FILE__;
 
 static const CString RecordPath = "Record\\";                        // 定义存放数据文件的文件夹的路径
 
+static const int Combo_Baud[9] = {2400, 4800, 9600, 19200, 38400, 57600, 76800, 115200, 153600};
+static const int Combo_Data[4] = {5,    6,    7,    8};
+static const int Combo_Stop[4] = {0,    1,    2,    3};
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -277,6 +281,52 @@ void CMySScomDlg::NeedClearWindow(void)
 	}
 }
 
+void CMySScomDlg::InitiateComboComs(void)
+{
+	EnumComm();                                                      // 枚举可用的串口
+
+	for (int i = 0; i < sPorts.GetSize(); i++) {
+		m_Combo_ComNo.AddString(sPorts.GetAt(i));
+	}
+}
+
+void CMySScomDlg::InitiateComboBaud(void)
+{
+	CString TempStr;
+	
+	for (int i = 0; i < (sizeof(Combo_Baud) / sizeof(Combo_Baud[0])); i++) {
+
+		TempStr.Format("%d bps", Combo_Baud[i]);
+
+		m_Combo_Baud.AddString(TempStr);
+	}
+}
+
+void CMySScomDlg::InitiateComboData(void)
+{
+	CString TempStr;
+	
+	for (int i = 0; i < (sizeof(Combo_Data) / sizeof(Combo_Data[0])); i++) {
+		
+		TempStr.Format("%d 位", Combo_Data[i]);
+		
+		m_Combo_Data.AddString(TempStr);
+	}
+}
+
+void CMySScomDlg::InitiateComboStop(void)
+{
+	CString TempStr;
+	
+	for (int i = 0; i < (sizeof(Combo_Stop) / sizeof(Combo_Stop[0])); i++) {
+		
+		TempStr.Format("%d 位", Combo_Stop[i]);
+		
+		m_Combo_Stop.AddString(TempStr);
+	}
+}
+
+
 /* ==================================== 自定义函数区--结束 ===================================== */
 
 
@@ -292,7 +342,7 @@ void CMySScomDlg::NeedClearWindow(void)
 
 void CMySScomDlg::OnButtonONOFF() 
 {
-	CString ComNo;
+	CString TempStr, SettingStr;
     
 	if (m_PortOpened == true) {                                      // 如果串口已经打开，那么执行关闭操作
 
@@ -320,7 +370,7 @@ void CMySScomDlg::OnButtonONOFF()
 	int Number = m_Combo_ComNo.GetCurSel();                          // 得到串口号
 	
 	if (Number == 0) {
-		MessageBox("尚未选择串口号      ", "注意", MB_OK + MB_ICONEXCLAMATION);
+		MessageBox("串口号都没有选择，你叫我打开什么东东？      ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 	
@@ -328,19 +378,47 @@ void CMySScomDlg::OnButtonONOFF()
         m_ctrlComm.SetPortOpen(FALSE);
 	}
 	
-	m_Combo_ComNo.GetLBText(Number, ComNo);
-	ComNo.TrimLeft("COM");                                           // 删除"COM"字段
+	m_Combo_ComNo.GetLBText(Number, TempStr);
+	TempStr.TrimLeft("COM");                                         // 删除"COM"字段
 	
-	m_ctrlComm.SetCommPort(atoi(ComNo.Mid(0)));
+	m_ctrlComm.SetCommPort(atoi(TempStr.Mid(0)));
 	
     if (!m_ctrlComm.GetPortOpen()) {
+
         m_ctrlComm.SetPortOpen(TRUE);                                // 尝试打开串口
+
+		SettingStr = "";
 		
-		MessageBox("※※※ 成功打开串口! ※※※    ", "通知", MB_OK + MB_ICONINFORMATION);
+		int ComBaudSel = m_Combo_Baud.GetCurSel();                   // 获取波特率的选择项
+		TempStr.Format("%d", Combo_Baud[ComBaudSel]);
+		SettingStr += TempStr;
+		
+		SettingStr += ",n,";
+		
+		int ComDataSel = m_Combo_Data.GetCurSel();                   // 获取数据位的选择项
+		TempStr.Format("%d", Combo_Data[ComDataSel]);
+		SettingStr += TempStr;
+		
+		SettingStr += ",";
+		
+		int ComStopSel = m_Combo_Stop.GetCurSel();                   // 获取停止位的选择项
+		TempStr.Format("%d", Combo_Stop[ComStopSel]);
+		SettingStr += TempStr;
+		
+		m_ctrlComm.SetSettings(SettingStr);                          // 波特率(XXXX)，无校验，8个数据位，1个停止位 
+		
+		m_ctrlComm.SetInputMode(1);                                  // 1表示以二进制方式检取数据
+		m_ctrlComm.SetRThreshold(1);                                 // 参数1表示每当串口接收缓冲区中有多于或等于1个字符时将引发一个接收数据的OnComm事件
+		m_ctrlComm.SetInputLen(0);                                   // 设置当前接收区数据长度为0
+		m_ctrlComm.GetInput();                                       // 先预读缓冲区以清除残留数据
+		
+		m_PortOpened = TRUE;
+		
+		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
 		
 		SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
 		
-		SetControlStatus(TRUE);
+		SetControlStatus(TRUE);                                      // 启用各个按钮控件
 		
 		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
 		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
@@ -349,57 +427,8 @@ void CMySScomDlg::OnButtonONOFF()
 
 	} else {
 
-        MessageBox("打开指定串口失败!  ", "抱歉", MB_OK + MB_ICONERROR);
+        MessageBox("打开串口失败，该串口可能正在使用中...  ", "提示", MB_OK + MB_ICONERROR);
 	}
-	
-    CString TempStr;
-    int BaudRate = m_Combo_Baud.GetCurSel();                         // 获取波特率的选择项
-	
-	switch (BaudRate)
-	{
-	case 0:
-		TempStr = "2400,n,8,1";
-		break;
-	case 1:
-		TempStr = "4800,n,8,1";
-		break;
-	case 2:
-		TempStr = "9600,n,8,1";
-		break;
-	case 3:
-		TempStr = "19200,n,8,1";
-		break;
-	case 4:
-		TempStr = "38400,n,8,1";
-		break;
-	case 5:
-		TempStr = "57600,n,8,1";
-		break;
-	case 6:
-		TempStr = "76800,n,8,1";
-		break;
-	case 7:
-		TempStr = "115200,n,8,1";
-		break;
-	case 8:
-		TempStr = "153600,n,8,1";
-		break;
-	case 9:
-		TempStr = "230400,n,8,1";
-		break;
-	default:
-		TempStr = "9600,n,8,1";
-		break;
-	}
-	
-	m_ctrlComm.SetSettings(TempStr);                                 // 波特率(XXXX)，无校验，8个数据位，1个停止位 
-	
-    m_ctrlComm.SetInputMode(1);                                      // 1表示以二进制方式检取数据
-    m_ctrlComm.SetRThreshold(1);                                     // 参数1表示每当串口接收缓冲区中有多于或等于1个字符时将引发一个接收数据的OnComm事件
-    m_ctrlComm.SetInputLen(0);                                       // 设置当前接收区数据长度为0
-    m_ctrlComm.GetInput();                                           // 先预读缓冲区以清除残留数据
-
-	m_PortOpened = TRUE;
 }
 
 void CMySScomDlg::OnButtonPause() 
@@ -535,22 +564,22 @@ BOOL CMySScomDlg::OnInitDialog()
 	s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
 	s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
 
-	EnumComm();                                                      // 枚举可用的串口
-	for (int i = 0; i < sPorts.GetSize(); i++) {
-		m_Combo_ComNo.AddString(sPorts.GetAt(i));
-	}
+	InitiateComboComs();                                             // 初始化选择串口号的列表框
+	InitiateComboBaud();                                             // 初始化选择波特率的列表框
+	InitiateComboData();                                             // 初始化选择数据位的列表框
+	InitiateComboStop();                                             // 初始化选择停止位的列表框
 
 	m_Combo_ComNo.SetCurSel(0);
 	m_Combo_Baud.SetCurSel(2);
 	m_Combo_Data.SetCurSel(3);
-	m_Combo_Stop.SetCurSel(2);
+	m_Combo_Stop.SetCurSel(1);
 
-	GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
+	GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);                 // 暂不提供数据位和停止位的选择
 	GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);
 
 	GetDlgItem(IDC_BUTTON_SAVE)->EnableWindow(FALSE);
 
-	SetControlStatus(false);
+	SetControlStatus(false);                                         // 首先禁用各个按钮控件
 
 	m_bCanDisplay = TRUE;                                            // 默认允许显示数据
 
@@ -587,12 +616,7 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 
 BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	// CG: The following block was added by the ToolTips component.
-	{
-		// Let the ToolTip process this message.
-		m_tooltip.RelayEvent(pMsg);
-	}
-	// TODO: Add your specialized code here and/or call the base class
+	m_tooltip.RelayEvent(pMsg);                                      // The following block was added by the ToolTips component.
 	
 	return CDialog::PreTranslateMessage(pMsg);
 }

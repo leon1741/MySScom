@@ -50,6 +50,11 @@ public:
 	void RePaintWindows(void);
 	void SetControlStatus(bool Enable);
 	void NeedClearWindow(void);
+
+	void InitiateComboComs(void);
+	void InitiateComboBaud(void);
+	void InitiateComboData(void);
+	void InitiateComboStop(void);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)

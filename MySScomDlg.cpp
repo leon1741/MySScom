@@ -2305,6 +2305,10 @@ void CMySScomDlg::OnButtonClear()
 	m_Edit_Recv = "";
 	SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 
+	if (m_Check_ShowTime == TRUE) {
+		m_NeedTime = TRUE;                                           // 下一次收到数据时显示时间
+	}
+
 	RecvedData = 0;
 	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }

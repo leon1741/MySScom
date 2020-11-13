@@ -76,6 +76,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSEND, OnCheckAutoSend)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
+	ON_WM_SIZING()
 	ON_BN_CLICKED(IDC_BUTTON_COUNT, OnButtonCount)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
 	//}}AFX_MSG_MAP
@@ -954,6 +955,13 @@ void CMySScomDlg::OnSize(UINT nType, int cx, int cy)
 	CDialog::OnSize(nType, cx, cy);
 	
 	UPDATE_EASYSIZE;
+}
+
+void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect) 
+{
+	CDialog::OnSizing(fwSide, pRect);
+
+	EASYSIZE_MINSIZE(810, 528, fwSide, pRect);
 }
 
 void CMySScomDlg::OnOnCommMscomm() 

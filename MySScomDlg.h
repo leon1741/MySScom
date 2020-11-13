@@ -126,6 +126,7 @@ protected:
 	afx_msg void OnCheckAutoSend();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
 	afx_msg void OnOnCommMscomm();
 	afx_msg void OnButtonCount();
 	afx_msg void OnCheckAutoClear();

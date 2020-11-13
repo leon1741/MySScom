@@ -46,10 +46,10 @@ END_MESSAGE_MAP()
 
 void CDialogAbout::ReadandDisplayFile(bool fileshown)
 {
-    CFile myFile;
+    CFile   myFile;
 	CString FileName;
 	
-	if (fileshown) {						                         // 设置文件名
+	if (fileshown) {						                                   // 设置文件名
 		FileName = "功能简要说明.txt";
 	} else {
 		FileName = "修改升级记录.txt";
@@ -60,21 +60,21 @@ void CDialogAbout::ReadandDisplayFile(bool fileshown)
 		SetDlgItemText(IDC_EDIT_ABOUT, "信息文件读取失败，请确认路径正确且文件未处于打开状态！");
 
 	} else {
+
 		myFile.SeekToBegin();
 		
-		int nLength = (int)myFile.GetLength();
-		char * TempStr = new char[nLength];							     // 分配空间
-		CString ResultStr;
+		int nLength = (int)(myFile.GetLength());
+		char * TempStr = new char[nLength];							           // 分配空间
 		
-		myFile.Read(TempStr, nLength);								     // 读取文件内容
-		m_Edit_About.Format(_T("%s"), TempStr);
-		m_Edit_About = m_Edit_About.Left(nLength);
-		
+		myFile.Read(TempStr, nLength);								           // 读取文件内容
+
+        m_Edit_About = TempStr;
+        m_Edit_About = m_Edit_About.Left(nLength);
 		SetDlgItemText(IDC_EDIT_ABOUT, m_Edit_About);
 		
-		myFile.Close();												     // 关闭文件
+		myFile.Close();												           // 关闭文件
 		
-		delete []TempStr;											     // 释放空间
+		delete []TempStr;											           // 释放空间
 	}
 	
 	GetDlgItem(IDC_STATIC_ABOUT)->SetFocus();
@@ -113,6 +113,8 @@ void CDialogAbout::OnButtonSwitch()
 		s_Edit_Show->ShowScrollBar(1, FALSE);
 		ReadandDisplayFile(m_showfuncfile);
 	}
+
+    UpdateData(FALSE);
 }
 
 void CDialogAbout::OnButtonReadOK() 
@@ -135,11 +137,10 @@ void CDialogAbout::OnButtonReadOK()
 
 BOOL CDialogAbout::OnInitDialog() 
 {
-	CDialog::OnInitDialog();
+    CDialog::OnInitDialog();
 	
     OnButtonSwitch();
 	
 	return TRUE;
 }
-
 

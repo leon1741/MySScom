@@ -37,7 +37,6 @@
 #define IDS_STRING_024                  131
 #define IDD_DIALOG_ABOUT                132
 #define IDS_STRING_025                  132
-#define IDB_BITMAP_YAXON                133
 #define IDS_STRING_026                  133
 #define IDS_STRING_027                  134
 #define IDS_STRING_028                  135
@@ -59,6 +58,7 @@
 #define IDB_BITMAP_GSM4                 149
 #define IDB_BITMAP_SMS                  150
 #define IDB_BITMAP_LINE                 152
+#define IDB_BITMAP_LEON                 153
 #define IDC_STATIC_CONTROL              1000
 #define IDC_STATIC_RECEIVE              1001
 #define IDC_STATIC_SEND                 1002
@@ -322,6 +322,7 @@
 #define IDC_BUTTON_HANDSET              1348
 #define IDC_EDIT1                       1349
 #define IDC_EDIT_DISP                   1349
+#define IDC_EDIT_INPUT                  1349
 #define IDC_BUTTON4                     1350
 #define IDC_BUTTON_120R                 1350
 #define IDC_BUTTONO                     1351
@@ -369,7 +370,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        153
+#define _APS_NEXT_RESOURCE_VALUE        154
 #define _APS_NEXT_COMMAND_VALUE         32780
 #define _APS_NEXT_CONTROL_VALUE         1383
 #define _APS_NEXT_SYMED_VALUE           101

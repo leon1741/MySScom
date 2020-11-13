@@ -92,7 +92,6 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
 	ON_WM_SIZING()
-	ON_BN_CLICKED(IDC_BUTTON_COUNT, OnButtonCount)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
 	ON_WM_CLOSE()
 	ON_COMMAND(IDC_MENU_TRAY_EXIT, OnMenuTrayExit)
@@ -105,7 +104,6 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSrSend)
 	ON_BN_CLICKED(IDC_CHECK_FRAMEDSPL, OnCheckFrameDspl)
 	ON_BN_CLICKED(IDC_BUTTON_EXFUNCT, OnButtonExfunct)
-	ON_BN_CLICKED(IDC_BUTTON_ABOUTME, OnButtonAboutMe)
 	ON_BN_CLICKED(IDC_BUTTON_OPENFILE, OnButtonOpenFile)
 	ON_BN_CLICKED(IDC_BUTTON_SENDFILE, OnButtonSendFile)
 	//}}AFX_MSG_MAP
@@ -145,14 +143,10 @@ UINT SPCommProc(LPVOID pParam)
 {
     OVERLAPPED os;
     DWORD dwMask, dwTrans;
-    COMSTAT ComStat;
-    DWORD dwErrorFlags;
-    char buf[MAX_RECV_BYTE];
-    DWORD length;
-    CString str;
     
     CMySScomDlg *pDlg = (CMySScomDlg *)pParam;
     
+    dwMask = 0;
     memset(&os, 0, sizeof(OVERLAPPED));
     
     os.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);                          /* 创建事件内核对象 */
@@ -163,18 +157,9 @@ UINT SPCommProc(LPVOID pParam)
     }
     
     while (pDlg->s_PortOpened) {
-        
-        ClearCommError(pDlg->s_FileHandle, &dwErrorFlags, &ComStat);           /* 探询串口缓冲区 */
-        
-        if (ComStat.cbInQue) {                                                 /* 如果接收队列不为空 */
-            
-            length = pDlg->ReadComm(buf, sizeof(buf));                         /* 读取数据内容 */
-            
-            pDlg->HandleUSARTData(buf, length);                                /* 通知主进程处理串口数据 */
-        }
-        
-        dwMask = 0;
-        
+
+        pDlg->ReadHandleUartData();
+
         if (!WaitCommEvent(pDlg->s_FileHandle, &dwMask, &os)) {                /* 判断串口通信事件是否已经发生 */
             
             if (GetLastError() == ERROR_IO_PENDING) {                          /* 判断是否存在数据等待操作 */
@@ -280,9 +265,7 @@ DWORD CMySScomDlg::ReadComm(char *buf, DWORD dwLength)
 
     ClearCommError(s_FileHandle, &dwErrorFlags, &ComStat);                     /* 首先清除错误标志 */
 
-    length = min(dwLength, ComStat.cbInQue);
-
-    ReadFile(s_FileHandle, buf, length, &length, &s_EventoRead);               /* 读取串口数据 */
+    ReadFile(s_FileHandle, buf, dwLength, &length, &s_EventoRead);             /* 读取串口数据 */
 
     return length;
 }
@@ -442,6 +425,193 @@ bool CMySScomDlg::CharisValid(unsigned char inchar)
 }
 
 /**************************************************************************************************
+**  函数名称:  GetKeyValue
+**  功能描述:  转换按键键值
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+char CMySScomDlg::GetKeyValue(unsigned int keyvalue)
+{
+    char result;
+
+    if ((keyvalue >= 48) && (keyvalue <= 57)) {                                /* 大键盘的数字键 */
+
+        if (GetKeyState(VK_SHIFT) < 0) {                                       /* Shift键有效 */
+
+            switch (keyvalue)
+            {
+                case 49:                                                       /* "!"键 */
+                    return '!';
+
+                case 50:                                                       /* "@"键 */
+                    return '@';
+
+                case 51:                                                       /* "#"键 */
+                    return '#';
+
+                case 52:                                                       /* "$"键 */
+                    return '$';
+
+                case 53:                                                       /* "%"键 */
+                    return '%';
+
+                case 54:                                                       /* "^"键 */
+                    return '^';
+
+                case 55:                                                       /* "&"键 */
+                    return '&';
+
+                case 56:                                                       /* "*"键 */
+                    return '*';
+
+                case 57:                                                       /* "("键 */
+                    return '(';
+
+                case 48:                                                       /* ")"键 */
+                    return ')';
+            }
+
+        } else {                                                               /* Shift键无效 */
+            return (keyvalue - 48 + '0');
+        }
+    }
+
+    if ((keyvalue >= 96) && (keyvalue <= 105)) {                               /* 小键盘的数字键 */
+        return (keyvalue - 96 + '0');
+    }
+
+    if ((keyvalue >= 65) && (keyvalue <= 90)) {                                /* 按下了字母键 */
+
+        if (GetKeyState(VK_CAPITAL) > 0) {                                     /* 大写键有效 */
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* Shift键有效 */
+                result = keyvalue - 65 + 'a';
+            } else {                                                           /* Shift键无效 */
+                result = keyvalue - 65 + 'A';
+            }
+        } else {                                                               /* 大写键无效 */
+            if (::GetKeyState(VK_SHIFT) < 0) {                                 /* Shift键有效 */
+                result = keyvalue - 65 + 'A';
+            } else {                                                           /* Shift键无效 */
+                result = keyvalue - 65 + 'a';
+            }
+        }
+
+        return result;
+    }
+
+    switch (keyvalue)
+    {
+        case 32:                                                               /* 空格键 */
+            return ' ';
+
+        case 106:                                                              /* 小键盘"*"键 */
+            return '*';
+
+        case 107:                                                              /* 小键盘"+"键 */
+            return '+';
+
+        case 109:                                                              /* 小键盘"-"键 */
+            return '-';
+
+        case 110:                                                              /* 小键盘"."键 */
+            return '.';
+
+        case 111:                                                              /* 小键盘"/"键 */
+            return '/';
+
+        case 186:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* ":"键 */
+                return ':';
+            } else {                                                           /* ";"键 */
+                return ';';
+            }
+            break;
+
+        case 187:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "+"键 */
+                return '+';
+            } else {                                                           /* "="键 */
+                return '=';
+            }
+            break;
+
+        case 188:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "<"键 */
+                return '<';
+            } else {                                                           /* ","键 */
+                return ',';
+            }
+            break;
+
+        case 189:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "_"键 */
+                return '_';
+            } else {                                                           /* "-"键 */
+                return '-';
+            }
+            break;
+
+        case 190:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* ">"键 */
+                return '>';
+            } else {                                                           /* "."键 */
+                return '.';
+            }
+            break;
+
+        case 191:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "?"键 */
+                return '?';
+            } else {                                                           /* "/"键 */
+                return '/';
+            }
+            break;
+
+        case 192:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "~"键 */
+                return '~';
+            } else {                                                           /* "`"键 */
+                return '`';
+            }
+            break;
+
+        case 219:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "{"键 */
+                return '{';
+            } else {                                                           /* "["键 */
+                return '[';
+            }
+            break;
+
+        case 220:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "|"键 */
+                return '|';
+            } else {                                                           /* "\"键 */
+                return '\\';
+            }
+            break;
+
+        case 221:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "}"键 */
+                return '}';
+            } else {                                                           /* "]"键 */
+                return ']';
+            }
+            break;
+
+        case 222:
+            if (GetKeyState(VK_SHIFT) < 0) {                                   /* """键 */
+                return '\"';
+            } else {                                                           /* "'"键 */
+                return '\'';
+            }
+            break;
+    }
+
+    return 0;
+}
+
+/**************************************************************************************************
 **  函数名称:  SetControlStatus
 **  功能描述:  设置控件的状态
 **  输入参数:  
@@ -522,6 +692,32 @@ void CMySScomDlg::SetSendCtrlArea(bool Enable)
 }
 
 /**************************************************************************************************
+**  函数名称:  CloseAllChildWin
+**  功能描述:  关闭所有子窗口
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::CloseAllChildWin(void)
+{
+    if (s_PDlgSrSend->IsWindowVisible()) {                                     /* 关闭高级发送窗口 */
+        s_PDlgSrSend->ShowHideSrDlgWindow(FALSE);
+        InformSrDlgClose();
+    }
+
+    if (s_PDlgExfunc->IsWindowVisible()) {                                     /* 关闭附加功能窗口 */
+        s_PDlgExfunc->ShowHideExDlgWindow(FALSE);
+        InformExDlgClose();
+    }
+
+    #if EN_HANDSET > 0
+    if (s_PDlgHandset->IsWindowVisible()) {                                    /* 关闭模拟手柄窗口 */
+        s_PDlgHandset->ShowHideHstWindow(FALSE);
+        InformHstDlgClose();
+    }
+    #endif
+}
+
+/**************************************************************************************************
 **  函数名称:  InformSrDlgClose
 **  功能描述:  处理高级发送窗口的消息
 **  输入参数:  
@@ -560,7 +756,8 @@ void CMySScomDlg::InformExDlgClose(void)
 **************************************************************************************************/
 void CMySScomDlg::InformHstDlgClose(void)
 {
-	GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
+	#if EN_HANDSET > 0
+    GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
 
 	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
@@ -572,6 +769,7 @@ void CMySScomDlg::InformHstDlgClose(void)
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(TRUE);
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
+    #endif
 }
 
 /**************************************************************************************************
@@ -605,11 +803,18 @@ bool CMySScomDlg::SaveEditContent(void)
 **************************************************************************************************/
 void CMySScomDlg::UpdateEditStr(CString showstr)
 {
-    CWnd   *hwnd;
 	int     linecnt;
 	CString TimeStr, TempStr;
 
-	if (m_Check_HexDspl == TRUE) {                                             /* 16进制模式下 */
+    /* 如果没有开启自动清空数据的功能，同时窗口内已经接收了太多的内容，为了防止CPU占用率过高，因此需要强制清空 */
+    if ((m_Check_AutoClear == FALSE) && (s_RecvedByte >= MAX_DISP_BYTE)) {
+        s_RecvedLine = 0;                                                      /* 首先清空变量值 */
+        s_RecvedByte = 0;
+        m_Edit_Recv = "";
+        SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);                            /* 清空编辑框内容 */
+    }
+    
+    if (m_Check_HexDspl == TRUE) {                                             /* 16进制模式下 */
 		linecnt = s_RecvedByte;                                                /* 以字符数来判断结果 */
 	} else {                                                                   /* 字符模式下 */
         linecnt = s_RecvedLine;                                                /* 以行数来判断结果 */
@@ -625,13 +830,14 @@ void CMySScomDlg::UpdateEditStr(CString showstr)
 	{
 		m_Edit_Recv += showstr;                                                /* 添加本次的内容显示 */
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+        s_Edit_Recv->SetSel(-1, -1);
 		s_Edit_Recv->PostMessage(WM_VSCROLL, SB_BOTTOM, 0);                    /* 让编辑框内容滚动到最后一行 */
 	}
 	#endif
 
 	if (showstr.Right(1) == "\n") {                                            /* 如果接收到了回车符 */
 
-		if (m_Check_AutoClear) {                                               /* 如果需要自动清空内容 */
+		if (m_Check_AutoClear == TRUE) {                                       /* 如果需要自动清空内容 */
 			
 			GetDlgItemText(IDC_EDIT_LINES, m_Edit_Lines);                      /* 读取数据并保存 */
 			
@@ -654,10 +860,8 @@ void CMySScomDlg::UpdateEditStr(CString showstr)
     |                          以下语句实现对接收编辑框的闪屏现象的屏蔽作用                           |
     \*************************************************************************************************/
     
-    hwnd = GetDlgItem(IDC_EDIT_RECV);                                          /* 获取接收编辑框的控件ID */
-
-    if (GetFocus() == hwnd) {                                                  /* 将窗口焦点转移至发送编辑框 */
-        GetDlgItem(IDC_EDIT_SEND)->SetFocus();
+    if (GetFocus() == GetDlgItem(IDC_EDIT_RECV)) {                             /* 将窗口焦点转移至发送编辑框 */
+        GetDlgItem(IDC_EDIT_INPUT)->SetFocus();
     }
 
 	UpdateStatusBarNow();                                                      /* 更新状态栏统计数据的显示 */
@@ -699,30 +903,6 @@ void CMySScomDlg::UpdateEditDisplay(void)
 }
 
 /**************************************************************************************************
-**  函数名称:  ShowSendData
-**  功能描述:  显示发出去的数据
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::ShowSendData(CString sstr)
-{
-	CString TempStr, TimeStr;
-    CTime   NowTime;
-    
-	TempStr = "";
-
-	if (m_Check_ShowTime == TRUE) {                                            /* 启用时间显示功能 */
-		NowTime = CTime::GetCurrentTime();                                     /* 获取现在时间 */
-		TimeStr = NowTime.Format("[%H:%M:%S] ");
-		TempStr += TimeStr;                                                    /* 在行头显示时间 */
-	}
-
-	TempStr += sstr + "\r\n";
-
-	UpdateEditStr(TempStr);                                                    /* 更新显示接收到的字符 */
-}
-
-/**************************************************************************************************
 **  函数名称:  HandleUSARTData
 **  功能描述:  接收串口数据
 **  输入参数:  
@@ -741,9 +921,11 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 	TempStr = "";
 	ShowStr = "";
 
-	if (s_PDlgHandset->IsWindowVisible() == TRUE) {                            /* 在模拟手柄已经开启的情况下 */
+	#if EN_HANDSET > 0
+    if (s_PDlgHandset->IsWindowVisible() == TRUE) {                            /* 在模拟手柄已经开启的情况下 */
 		s_PDlgHandset->HandleUSARTData(ptr, len);
 	}
+    #endif
 
     for (i = 0; i < len; i++) {                                                /* 将数组转换为Cstring型变量 */
 
@@ -767,12 +949,6 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 			}
 			
 		} else {                                                               /* 当前处于字符显示模式 */
-
-			if ((ptr[i] < 0x20) || (ptr[i] > 0x7F)) {                          /* 字符模式下，非可见字符不显示 */
-				if ((ptr[i] != 0x0A) && (ptr[i] != 0x0D)) {
-					continue;
-				}
-			}
 
 			if (s_NeedChgLne == TRUE) {                                        /* 如果需要换行显示 */
 				
@@ -801,6 +977,24 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 	s_RecvString += ShowStr;                                                   /* 注意这里要用加号，不然会造成之前的数据丢失 */
 
 	s_datahdling = FALSE;                                                      /* 这里表示串口数据处理完毕 */
+}
+
+/**************************************************************************************************
+**  函数名称:  ReadHandleUartData
+**  功能描述:  处理所接收到的数据
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::ReadHandleUartData(void)
+{
+    char buf[MAX_RECV_BYTE];
+    DWORD length = 0;
+
+    length = ReadComm(buf, MAX_RECV_BYTE);
+
+    if (length > 0) {
+        HandleUSARTData(buf, length);
+    }
 }
 
 /**************************************************************************************************
@@ -858,6 +1052,7 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 
     this->GetWindowRect(&DialogMain);                                          /* 获取主界面在屏幕上的位置 */
 
+#if VERSION_CTRL == VERSION_YAXON
 	if (DialogMain.Width() > 1320) {
 		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
 	} else if (DialogMain.Width() > 1190) {
@@ -879,6 +1074,23 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 	} else {
 		DisplayStr = "";
 	}
+#else
+    if (DialogMain.Width() > 1200) {
+        DisplayStr = " 欢迎使用MySScom - Designed By LEON (LEON1741@126.com) - Welcome to Email me!!";
+    } else if (DialogMain.Width() > 1100) {
+        DisplayStr = " 欢迎使用MySScom - Designed By LEON (LEON1741@126.com)";
+    } else if (DialogMain.Width() > 1000) {
+        DisplayStr = " 欢迎使用MySScom - Designed By LEON";
+    } else if (DialogMain.Width() > 850) {
+        DisplayStr = " 欢迎使用MySScom - LEON";
+    } else if (DialogMain.Width() > 800) {
+        DisplayStr = " 欢迎使用MySScom";
+    } else if (DialogMain.Width() > 720) {
+        DisplayStr = " 欢迎使用";
+    } else {
+        DisplayStr = "";
+    }
+#endif
 
 	s_CStatusBar.SetPaneText(0, DisplayStr);
         
@@ -1107,7 +1319,7 @@ void CMySScomDlg::CreateSettingFile(void)
         ::WritePrivateProfileString("PortConfig", "BaudRate",  "4",    ".\\Settings.ini");
         ::WritePrivateProfileString("PortConfig", "DataBits",  "3",    ".\\Settings.ini");
         ::WritePrivateProfileString("PortConfig", "CheckBits", "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "StopBits",  "1",    ".\\Settings.ini");
+        ::WritePrivateProfileString("PortConfig", "StopBits",  "0",    ".\\Settings.ini");
 
         ::WritePrivateProfileString("RecvConfig", "ShowSData", "1",    ".\\Settings.ini");
         ::WritePrivateProfileString("RecvConfig", "ShowDirec", "1",    ".\\Settings.ini");
@@ -1282,7 +1494,7 @@ void CMySScomDlg::InitiateAllParas(void)
     m_Combo_Data.SetCurSel(TempData);
     TempData = (::GetPrivateProfileInt("PortConfig", "CheckBits", 0, ".\\Settings.ini"));
     m_Combo_Check.SetCurSel(TempData);
-    TempData = (::GetPrivateProfileInt("PortConfig", "StopBits",  1, ".\\Settings.ini"));
+    TempData = (::GetPrivateProfileInt("PortConfig", "StopBits",  0, ".\\Settings.ini"));
     m_Combo_Stop.SetCurSel(TempData);
 
     m_Check_HexDspl    = (::GetPrivateProfileInt("RecvConfig", "HexDispl", 0, ".\\Settings.ini")) ? TRUE : FALSE;
@@ -1728,7 +1940,10 @@ void CMySScomDlg::InitiateAllParas(void)
 
 	s_PDlgSrSend->UpdateData(FALSE);
 	s_PDlgExfunc->UpdateData(FALSE);
+
+    #if EN_HANDSET > 0
 	s_PDlgHandset->UpdateData(FALSE);
+    #endif
 }
 
 /**************************************************************************************************
@@ -2104,10 +2319,15 @@ void CMySScomDlg::InitiateStatusBar(void)
 
     time = CTime::GetCurrentTime();
     m_strTime = " 当前时间: " + time.Format("%Y-%m-%d") + " " + time.Format("%H:%M:%S");
-    
+
+#if VERSION_CTRL == VERSION_YAXON
     s_CStatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 1);
     s_CStatusBar.SetPaneText(0, " 欢迎使用MySScom - 雅迅网络");
-    
+#else
+    s_CStatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 1);
+    s_CStatusBar.SetPaneText(0, " 欢迎使用MySScom - LEON");
+#endif
+
     s_CStatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 90);
     s_CStatusBar.SetPaneText(1, " 串口未打开");
 
@@ -2288,7 +2508,7 @@ void CMySScomDlg::OnButtonONOFF()
         
         SetCommMask(s_FileHandle, 0);                                          /* 设置过滤掩码 */
         
-        WaitForSingleObject(s_ThreadHdle->m_hThread, INFINITE);                /* 关闭线程 */
+        WaitForSingleObject(s_ThreadHdle->m_hThread, IGNORE);                  /* 关闭线程 */
         
         s_ThreadHdle = NULL;
         
@@ -2314,10 +2534,12 @@ void CMySScomDlg::OnButtonONOFF()
 			InformExDlgClose();
 		}
 
-		if (s_PDlgHandset->IsWindowVisible()) {                                    /* 关闭模拟手柄窗口 */
+		#if EN_HANDSET > 0
+        if (s_PDlgHandset->IsWindowVisible()) {                                /* 关闭模拟手柄窗口 */
 			s_PDlgHandset->ShowHideHstWindow(FALSE);
 			InformHstDlgClose();
 		}
+        #endif
 
         s_PortOpened = FALSE;
 
@@ -2364,8 +2586,8 @@ void CMySScomDlg::OnButtonONOFF()
     TimeOuts.ReadIntervalTimeout         = MAXDWORD;                           /* 读间隔超时 */
     TimeOuts.ReadTotalTimeoutConstant    = 0;                                  /* 读时间常量 */
     TimeOuts.ReadTotalTimeoutMultiplier  = 0;                                  /* 读时间系数 */
-    TimeOuts.WriteTotalTimeoutConstant   = 2000;                               /* 写时间常量 */
-    TimeOuts.WriteTotalTimeoutMultiplier = 50;                                 /* 写时间系数 */
+    TimeOuts.WriteTotalTimeoutConstant   = 50;                                 /* 写时间常量 */
+    TimeOuts.WriteTotalTimeoutMultiplier = 2000;                               /* 写时间系数 */
 
     SetCommTimeouts(s_FileHandle, &TimeOuts);                                  /* 设置超时参数 */
 
@@ -2459,6 +2681,9 @@ void CMySScomDlg::OnButtonClear()
     m_Edit_Recv = "";
     SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 
+    s_RecvedLine = 0;
+    s_RecvedByte = 0;
+    s_SendedByte = 0;
     s_RecvString = "";
     s_NeedChgLne = TRUE;                                                       /* 下次需要换行显示 */
 
@@ -2512,21 +2737,6 @@ void CMySScomDlg::OnButtonSend()
 }
 
 /**************************************************************************************************
-**  函数名称:  OnButtonCount
-**  功能描述:  清除计数器
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::OnButtonCount() 
-{
-    s_RecvedLine = 0;
-    s_RecvedByte = 0;
-    s_SendedByte = 0;
-
-    UpdateStatusBarNow();                                                      /* 更新状态栏的统计数据显示 */
-}
-
-/**************************************************************************************************
 **  函数名称:  OnButtonSrSend
 **  功能描述:  显示高级发送窗口
 **  输入参数:  
@@ -2551,7 +2761,9 @@ void CMySScomDlg::OnButtonSrSend()
 			GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
 			GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
 
+            #if EN_HANDSET > 0
 			GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
+            #endif
 		}
 		
 	} else {                                                                   /* 高级发送窗口尚未打开，尝试打开 */
@@ -2571,7 +2783,9 @@ void CMySScomDlg::OnButtonSrSend()
 			GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(FALSE);
 			GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(FALSE);
 
+            #if EN_HANDSET > 0
 			GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(FALSE);
+            #endif
 		}
 	}
 }
@@ -2598,7 +2812,9 @@ void CMySScomDlg::OnButtonExfunct()
 **************************************************************************************************/
 void CMySScomDlg::OnBnClickedButtonHandset()
 {
-	if (s_PDlgHandset->IsWindowVisible() == FALSE) {                            /* 模拟手柄窗口尚未打开，尝试打开 */
+	#if EN_HANDSET > 0
+    
+    if (s_PDlgHandset->IsWindowVisible() == FALSE) {                            /* 模拟手柄窗口尚未打开，尝试打开 */
 		s_PDlgHandset->ShowHideHstWindow(TRUE);
 		GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(FALSE);
 
@@ -2613,6 +2829,12 @@ void CMySScomDlg::OnBnClickedButtonHandset()
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(FALSE);
 		GetDlgItem(IDC_STATIC_MS)->EnableWindow(FALSE);
 	}
+
+    #else
+
+    MessageBox("功能尚未实现，敬请关注！    ", "提示", MB_OK + MB_ICONINFORMATION);
+
+    #endif
 }
 
 /**************************************************************************************************
@@ -2624,19 +2846,6 @@ void CMySScomDlg::OnBnClickedButtonHandset()
 void CMySScomDlg::OnBnClickedButton120r()
 {
 	MessageBox("功能尚未实现，敬请关注！    ", "提示", MB_OK + MB_ICONINFORMATION);
-}
-
-/**************************************************************************************************
-**  函数名称:  OnButtonAboutMe
-**  功能描述:  显示自我介绍窗口
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::OnButtonAboutMe() 
-{
-	CDialogAbout Dlgabout;
-    
-    Dlgabout.DoModal();
 }
 
 /**************************************************************************************************
@@ -2810,8 +3019,11 @@ void CMySScomDlg::OnCheckAutoSend()
 
         NeedAutoSendData();                                                    /* 开始尝试自动发送数据 */
 
-		GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(FALSE);
+
+        #if EN_HANDSET > 0
+        GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(FALSE);
+        #endif
 
     } else {
 
@@ -2820,10 +3032,12 @@ void CMySScomDlg::OnCheckAutoSend()
         GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
 
         GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);                       /* 重新启用发送按钮 */
-
-		GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(TRUE);
+
+        #if EN_HANDSET > 0
+        GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
+        #endif
     }
 }
 
@@ -2893,6 +3107,8 @@ void CMySScomDlg::OnMenuTrayShow()
 void CMySScomDlg::OnMenuTrayHide()
 {
     ShowWindow(SW_HIDE);
+
+    CloseAllChildWin();                                                        /* 关闭各个子窗体 */
 }
 
 /**************************************************************************************************
@@ -2903,21 +3119,11 @@ void CMySScomDlg::OnMenuTrayHide()
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayExit()
 {
-    if (s_PDlgSrSend->IsWindowVisible()) {                                     /* 关闭高级发送窗口 */
-		s_PDlgSrSend->ShowHideSrDlgWindow(FALSE);
-	}
-
-	if (s_PDlgExfunc->IsWindowVisible()) {                                     /* 关闭附加功能窗口 */
-		s_PDlgExfunc->ShowHideExDlgWindow(FALSE);
-	}
-
-	if (s_PDlgHandset->IsWindowVisible()) {                                     /* 关闭模拟手柄窗口 */
-		s_PDlgHandset->ShowHideHstWindow(FALSE);
-	}
+    CloseAllChildWin();                                                        /* 关闭各个子窗体 */
 	
 	RecordAllParas();                                                          /* 保存各个参数数据 */
     
-    TaskBarDeleteIcon(GetSafeHwnd(), 120);                                     /* 删除任务栏的图标 */
+    TaskBarDeleteIcon(GetSafeHwnd(), IDR_MAINFRAME);                           /* 删除任务栏的图标 */
     
     ::PostQuitMessage(0);                                                      /* 程序退出的唯一方式 */
 }
@@ -3021,6 +3227,8 @@ BOOL CMySScomDlg::OnInitDialog()
 		s_PDlgExfunc->ShowWindow(SW_HIDE);
 	}
 
+    #if EN_HANDSET > 0
+
 	/* 以下语句创建模拟手柄窗体，并隐藏待用 */
 
 	s_PDlgHandset = new CDialogHandset();
@@ -3036,6 +3244,12 @@ BOOL CMySScomDlg::OnInitDialog()
 
 		s_PDlgHandset->ShowWindow(SW_HIDE);
 	}
+
+    #else
+
+    SetDlgItemText(IDC_BUTTON_HANDSET, "尚待添加");
+
+    #endif
 
     s_ThreadHdle = NULL;
     s_RecvPaused = FALSE;
@@ -3079,7 +3293,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
     SetControlStatus(FALSE);                                                   /* 首先禁用各个按钮控件 */
 
-    SetTimer(Timer_No_RecvData,  10,   NULL);
+    SetTimer(Timer_No_RecvData,  EDIT_REFRESH_TIME, NULL);
     SetTimer(Timer_No_StatusBar, 1000, NULL);
     
     // CG: The following block was added by the ToolTips component. 
@@ -3102,7 +3316,6 @@ BOOL CMySScomDlg::OnInitDialog()
         m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXSEND),   IDS_STRING_016);
         m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSEND),  IDS_STRING_017);
         m_tooltip.AddTool(GetDlgItem(IDC_EDIT_TIMER),      IDS_STRING_018);
-        m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_COUNT),    IDS_STRING_019);
         m_tooltip.AddTool(GetDlgItem(IDC_CHECK_RETURN),    IDS_STRING_020);
         m_tooltip.AddTool(GetDlgItem(IDC_COMBO_CHECK),     IDS_STRING_021);
 		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_HANDSET),  IDS_STRING_023);
@@ -3124,7 +3337,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	s_PDlgSrSend->InitateSrDlgPos();                                           /* 这句话一定要放在最后面 */
 
-    TaskBarAddIcon(GetSafeHwnd(), 120, AfxGetApp()->LoadIcon(IDR_MAINFRAME), "MySScom");
+    TaskBarAddIcon(GetSafeHwnd(), IDR_MAINFRAME, AfxGetApp()->LoadIcon(IDR_MAINFRAME), "MySScom");
 
     return TRUE;
 }
@@ -3141,7 +3354,6 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
     {
         case Timer_No_RecvData:                                                /* 接收到串口数据 */
             if (s_DataRecved == TRUE) {
-                SetTimer(Timer_No_RecvData, EDIT_REFRESH_TIME, NULL);
                 UpdateEditDisplay();                                           /* 更新编辑框内容显示 */
                 s_DataRecved = FALSE;
             }
@@ -3191,14 +3403,25 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 **************************************************************************************************/
 BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg) 
 {
+    char keyvalue;
+    
     m_tooltip.RelayEvent(pMsg);
 
-    if (pMsg -> message == WM_KEYDOWN) {
+    if (pMsg->message == WM_KEYDOWN) {
 
-        if (pMsg -> wParam == VK_ESCAPE)
+        if ((pMsg->wParam == VK_ESCAPE) || (pMsg->wParam == VK_RETURN)) {      /* 返回键和确认键需要进行预处理 */
             return true;
-        if (pMsg -> wParam == VK_RETURN)
-            return true;
+        } else {                                                               /* 其他按键，需要进行有效性检测 */
+            if (s_PortOpened == TRUE) {
+                if ((GetFocus() == GetDlgItem(IDC_EDIT_INPUT)) || GetFocus() == GetDlgItem(IDC_EDIT_RECV)) {
+                    keyvalue = GetKeyValue(pMsg->wParam);
+                    if (keyvalue > 0) {
+                        WriteComm(&keyvalue, 1);
+                        s_SendedByte++;
+                    }
+                }
+            }
+        }
     }
 
     return CDialog::PreTranslateMessage(pMsg);
@@ -3217,20 +3440,7 @@ void CMySScomDlg::OnClose()
 		return;
     }
 	
-	if (s_PDlgSrSend->IsWindowVisible()) {                                     /* 关闭高级发送窗口 */
-		s_PDlgSrSend->ShowHideSrDlgWindow(FALSE);
-		InformSrDlgClose();
-	}
-
-	if (s_PDlgExfunc->IsWindowVisible()) {                                     /* 关闭附加功能窗口 */
-		s_PDlgExfunc->ShowHideExDlgWindow(FALSE);
-		InformExDlgClose();
-	}
-
-	if (s_PDlgHandset->IsWindowVisible()) {                                    /* 关闭模拟手柄窗口 */
-		s_PDlgHandset->ShowHideHstWindow(FALSE);
-		InformHstDlgClose();
-	}
+	CloseAllChildWin();                                                        /* 关闭所有子窗口 */
 	
 	ShowWindow(SW_HIDE);                                                       /* 隐藏主窗口但是不退出 */
 }
@@ -3243,6 +3453,10 @@ void CMySScomDlg::OnClose()
 **************************************************************************************************/
 void CMySScomDlg::OnSize(UINT nType, int cx, int cy) 
 {
+    if (nType == SIZE_MINIMIZED) {                                             /* 如果是要窗体最小化 */
+        CloseAllChildWin();                                                    /* 关闭所有子窗口 */
+    }
+    
     CDialog::OnSize(nType, cx, cy);
 
     UPDATE_EASYSIZE;
@@ -3262,7 +3476,7 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 
 	UpdateStatusBarNow();
 
-    EASYSIZE_MINSIZE(660, 527, fwSide, pRect);                                 /* 限制窗体的最小尺寸 */
+    EASYSIZE_MINSIZE(660, 497, fwSide, pRect);                                 /* 限制窗体的最小尺寸 */
 }
 
 /**************************************************************************************************

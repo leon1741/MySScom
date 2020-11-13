@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySScom", "MySScom.vcxproj", "{FB6F78FC-51A0-D23F-FDFA-96198D33B20D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MySScom", "MySScom.vcxproj", "{E9E969C8-DAA3-7AF0-3F51-E9BD278E8674}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FB6F78FC-51A0-D23F-FDFA-96198D33B20D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{FB6F78FC-51A0-D23F-FDFA-96198D33B20D}.Debug|Win32.Build.0 = Debug|Win32
-		{FB6F78FC-51A0-D23F-FDFA-96198D33B20D}.Release|Win32.ActiveCfg = Release|Win32
-		{FB6F78FC-51A0-D23F-FDFA-96198D33B20D}.Release|Win32.Build.0 = Release|Win32
+		{E9E969C8-DAA3-7AF0-3F51-E9BD278E8674}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E9E969C8-DAA3-7AF0-3F51-E9BD278E8674}.Debug|Win32.Build.0 = Debug|Win32
+		{E9E969C8-DAA3-7AF0-3F51-E9BD278E8674}.Release|Win32.ActiveCfg = Release|Win32
+		{E9E969C8-DAA3-7AF0-3F51-E9BD278E8674}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

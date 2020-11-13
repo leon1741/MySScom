@@ -177,6 +177,7 @@
   <ItemGroup>
     <None Include="res\bitmap1.bmp" />
     <None Include="res\GPS.bmp" />
+    <None Include="res\LEON.bmp" />
     <None Include="res\LINE.bmp" />
     <None Include="res\PHONE.bmp" />
     <None Include="res\POWER.bmp" />

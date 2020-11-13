@@ -14,25 +14,45 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#define  XON                           0x11
-#define  XOFF                          0x13
+/*************************************************************************************************/
+/*                                     版本控制开关                                              */
+/*************************************************************************************************/
+#define  VERSION_LEON                  0x01                          // 对外版本
+#define  VERSION_YAXON                 0x02                          // 雅迅版本
 
+#define  VERSION_CTRL                  VERSION_YAXON
+
+/*************************************************************************************************/
+/*                                     模拟手柄开关                                              */
+/*************************************************************************************************/
+#define  EN_HANDSET                    0x01
+
+/*************************************************************************************************/
+/*                                     定时器值定义                                              */
+/*************************************************************************************************/
 #define  Timer_No_RecvData             0x01                          // 接收串口数据定时器
 #define  Timer_No_StatusBar            0x02                          // 状态栏定时更新定时器
 #define  Timer_No_AutoSend             0x03                          // 自动发送数据定时器
 #define  Timer_No_FrameDspl            0x04                          // 自动换行显示定时器
 #define  Timer_No_SendFile             0x05                          // 发送文件数据定时器
 
-#define  MAX_RECV_BYTE                 4096                          // 一次最多允许接收的字节数
+/*************************************************************************************************/
+/*                                     模块宏定义                                                */
+/*************************************************************************************************/
+#define  MAX_RECV_BYTE                 1024                          // 一次最多允许接收的字节数
 #define  MAX_SEND_BYTE                 2048                          // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
+#define  MAX_DISP_BYTE                 1000000                       // 显示区最多显示的内容（超过后自动清空）
 
-#define  EDIT_REFRESH_TIME             40                            // 编辑框刷新时间间隔 (单位: 毫秒)
+#define  EDIT_REFRESH_TIME             50                            // 编辑框刷新时间间隔 (单位: 毫秒)
 #define  CHNGLINE_INTERVAL             100                           // 16进制模式下判断帧换行的延迟时间 (单位: 毫秒)
 
 #define  FILESEND_BYTE                 100                           // 发送文件时每次发送的字节数
 
 #define  PROGRESS_POS                  1000                          // 进度条最小进度刻度
+
+#define  XON                           0x11
+#define  XOFF                          0x13
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
 
@@ -74,7 +94,10 @@ public:
 	CEdit          *s_Edit_Send;                                       // 发送编辑框句柄指针
 	CDialogSrSend  *s_PDlgSrSend;                                      // 高级发送窗口句柄指针
 	CDialogExfunct *s_PDlgExfunc;                                      // 附加功能窗口句柄指针
+
+    #if EN_HANDSET > 0
 	CDialogHandset *s_PDlgHandset;                                     // 模拟手柄窗口句柄指针
+    #endif
 
 	CStringArray    s_PortNumber;                                      // 用来枚举电脑上存在的串口
 	CString         s_RecvString;                                      // 用来保存已经接收的数据内容
@@ -118,17 +141,19 @@ public:
 	int     String2Hex(CString str, CByteArray &senddata);
 	CString TransformtoHex(CString InputStr);
 	bool    CharisValid(unsigned char inchar);
+    char    GetKeyValue(unsigned int keyvalue);
 
 	void SetControlStatus(bool Enable);
 	void SetSendCtrlArea(bool Enable);
+    void CloseAllChildWin(void);
 	void InformSrDlgClose(void);
 	void InformExDlgClose(void);
 	void InformHstDlgClose(void);
 	bool SaveEditContent(void);
 	void UpdateEditStr(CString showstr);
 	void UpdateEditDisplay(void);
-	void ShowSendData(CString sstr);
 	void HandleUSARTData(char *ptr, DWORD len);
+    void ReadHandleUartData(void);
 	void NeedAutoSendData(void);
 	void UpdateStatusBarNow(void);
 	bool SendDatatoComm(CString datastr, BOOL needhex);
@@ -181,7 +206,6 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
 	afx_msg void OnOnCommMscomm();
-	afx_msg void OnButtonCount();
 	afx_msg void OnCheckAutoClear();
 	afx_msg void OnClose();
 	afx_msg void OnMenuTrayExit();
@@ -195,7 +219,6 @@ protected:
 	afx_msg void OnCheckFrameDspl();
 	afx_msg void OnCheckShowSData();
 	afx_msg void OnButtonExfunct();
-	afx_msg void OnButtonAboutMe();
 	afx_msg void OnButtonOpenFile();
 	afx_msg void OnButtonSendFile();
 	DECLARE_EVENTSINK_MAP()

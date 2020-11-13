@@ -83,6 +83,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_COUNT, OnButtonCount)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
 	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSrSend)
+	ON_BN_CLICKED(IDC_CHECK_SRAUTO, OnCheckSrAuto)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -258,6 +259,8 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 	
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
+
+	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(Enable);
 }
 
 void CMySScomDlg::SetSendButtonStatus(bool Enable)
@@ -276,6 +279,19 @@ void CMySScomDlg::SetSendingStatus(bool Enable)
 
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
+}
+
+void CMySScomDlg::SwitchSendStatus(bool IsNormal)
+{
+	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(IsNormal);
+	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(IsNormal);
+	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(IsNormal);
+	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(IsNormal);
+
+	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(IsNormal);
+	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(IsNormal);
+	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(IsNormal);
+	GetDlgItem(IDC_STATIC_MS)->EnableWindow(IsNormal);
 }
 
 // 这是一个将字符转换为相应的十六进制值的函数，好多C语言书上都可以找到
@@ -641,6 +657,8 @@ void CMySScomDlg::ContinueToSendFile(void)
 				
 				Send_Status = SEND_SHORT_DATA;                       // 发送完毕，重新切换到小数据模式
 				KillTimer(Timer_No_SendFile);                        // 停止定时器
+
+				OnButtonSend();                                      // 通知控件，数据发送完毕
 			}
 		} else {
 
@@ -842,6 +860,10 @@ void CMySScomDlg::OnButtonONOFF()
 		if (m_Check_AutoSend) {
 			MessageBox("请首先停用自动发送功能再尝试关闭串口    ", "提示", MB_OK + MB_ICONEXCLAMATION);
 			return;
+		}
+
+		if (m_SrSendEnable) {                                        // 如果处于扩展发送状态下，切换回普通发送状态
+			OnButtonSrSend();
 		}
 		
 		m_ctrlComm.SetPortOpen(FALSE);
@@ -1095,10 +1117,20 @@ void CMySScomDlg::OnButtonSrSend()
 		HideSrSendArea();
 		m_SrSendEnable = FALSE;
 		SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
+		SwitchSendStatus(TRUE);
 	} else {                                                         // 如果没有启用高级发送功能，则启用之
+		if (m_Check_AutoSend) {
+			MessageBox("自动发送功能已开启，请先停用之！    ", "提示", MB_OK + MB_ICONINFORMATION);
+			return;
+		}
+		if (Send_Status == SEND_LONG_FILE) {
+			MessageBox("当前缓冲区的数据尚未发送完成，请稍后再操作！     ", "提示", MB_OK + MB_ICONINFORMATION);
+			return;
+		}
 		ShowSrSendArea();
 		m_SrSendEnable = TRUE;
 		SetDlgItemText(IDC_BUTTON_SRSEND, "普通发送");
+		SwitchSendStatus(FALSE);
 	}
 	
 	INIT_EASYSIZE;                                                   // 重新初始化各个控件的位置
@@ -1370,4 +1402,20 @@ void CMySScomDlg::OnOnCommMscomm()
     }
 }
 
-
+void CMySScomDlg::OnCheckSrAuto() 
+{
+	m_Check_SrAuto = !m_Check_SrAuto;
+	
+	if (m_Check_AutoSend) {
+				
+		//NeedAutoSendData();                                          // 开始尝试自动发送数据
+		
+	} else {
+		
+		//KillTimer(Timer_No_AutoSend);                                // 否则，用户取消了自动发送的功能
+		//GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(true);
+		//GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
+		
+		//SetSendButtonStatus(TRUE);                                   // 重新启用发送区各个按钮
+	}
+}

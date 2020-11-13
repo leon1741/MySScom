@@ -211,7 +211,7 @@ BEGIN
     PUSHBUTTON      "18",IDC_BUTTON_SR18,540,251,13,12
     PUSHBUTTON      "19",IDC_BUTTON_SR19,540,264,13,12
     PUSHBUTTON      "20",IDC_BUTTON_SR20,540,277,13,12
-    CTEXT           "Hex               Data             Send",
+    CTEXT           "Hex              Data              Send",
                     IDC_STATIC_LABLE,396,18,159,8,SS_CENTERIMAGE
     CONTROL         "自动循环发送有效数据，间隔",IDC_CHECK_SRAUTO,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,397,296,118,8

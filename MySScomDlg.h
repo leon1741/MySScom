@@ -84,6 +84,7 @@ public:
 	void SetControlStatus(bool Enable);
 	void SetSendButtonStatus(bool Enable);
 	void SetSendingStatus(bool Enable);
+	void SwitchSendStatus(bool IsNormal);
 	
 	void SaveEditContent(void);
 	void UpdateEditDisplay(void);
@@ -148,6 +149,7 @@ protected:
 	afx_msg void OnButtonCount();
 	afx_msg void OnCheckAutoClear();
 	afx_msg void OnButtonSrSend();
+	afx_msg void OnCheckSrAuto();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

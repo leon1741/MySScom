@@ -67,6 +67,7 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON    DISCARDABLE     "res\\MySScom.ico"
+IDI_ICON1               ICON    DISCARDABLE     "res\\icon1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -77,8 +78,8 @@ IDD_MYSSCOM_DIALOG DIALOGEX 0, 0, 564, 346
 STYLE DS_3DLOOK | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "MySScom V5.3"
-FONT 9, "宋体"
+CAPTION "MySScom V5.4"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     COMBOBOX        IDC_COMBO_COMNO,46,16,52,155,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
@@ -110,16 +111,16 @@ BEGIN
     EDITTEXT        IDC_EDIT_TIMER,59,312,27,12,ES_CENTER | ES_NUMBER
     CONTROL         "发送时补加回车换行",IDC_CHECK_RETURN,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,13,301,88,9
-    EDITTEXT        IDC_EDIT_SEND,117,277,390,12,ES_AUTOHSCROLL | 
+    EDITTEXT        IDC_EDIT_SEND,117,276,390,12,ES_AUTOHSCROLL | 
                     ES_WANTRETURN
-    PUSHBUTTON      "发送数据",IDC_BUTTON_SEND,512,275,42,15
+    PUSHBUTTON      "发送数据",IDC_BUTTON_SEND,512,274,42,15
     CONTROL         "",IDC_EDIT_RECV,"RICHEDIT",ES_MULTILINE | ES_READONLY | 
                     ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_VSCROLL | 
-                    WS_TABSTOP,116,19,439,208
+                    WS_TABSTOP,116,19,439,235
     CONTROL         "自动发送",IDC_CHECK_AUTOSEND,"Button",BS_AUTOCHECKBOX | 
                     BS_LEFT | BS_VCENTER | WS_TABSTOP,13,314,43,9
     GROUPBOX        "控制区",IDC_STATIC_CONTROL,6,5,99,325
-    GROUPBOX        "接收区",IDC_STATIC_RECEIVE,111,5,448,226
+    GROUPBOX        "接收区",IDC_STATIC_RECEIVE,111,5,448,253
     GROUPBOX        "发送区",IDC_STATIC_SEND,111,263,448,32
     LTEXT           "串口号：",IDC_STATIC,13,19,32,8
     LTEXT           "波特率：",IDC_STATIC,13,33,32,8
@@ -147,7 +148,7 @@ BEGIN
     PUSHBUTTON      "开始发送",IDC_BUTTON_SENDFILE,512,310,42,15
     GROUPBOX        "文件区",IDC_STATIC_FILE,111,299,448,32
     CONTROL         "Progress1",IDC_PROGRESS_SENDFILE,"msctls_progress32",
-                    PBS_SMOOTH | WS_BORDER,117,240,435,14
+                    PBS_SMOOTH | WS_BORDER,117,277,435,12
 END
 
 IDD_DIALOG_ABOUT DIALOG DISCARDABLE  0, 0, 524, 191
@@ -491,8 +492,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,2,0,0
- PRODUCTVERSION 5,2,0,0
+ FILEVERSION 5,4,0,0
+ PRODUCTVERSION 5,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -508,16 +509,16 @@ BEGIN
         BLOCK "080404b0"
         BEGIN
             VALUE "Comments", "一个自创的串口通信应用程序和调试助手\0"
-            VALUE "CompanyName", "雅迅网络研发一部\0"
+            VALUE "CompanyName", "雅迅网络工程车项目组\0"
             VALUE "FileDescription", "串口通信应用\0"
             VALUE "FileVersion", "内部发行版\0"
             VALUE "InternalName", "MySScom\0"
             VALUE "LegalCopyright", "版权所有 (C) 2013\0"
-            VALUE "LegalTrademarks", "\0"
+            VALUE "LegalTrademarks", "LEON\0"
             VALUE "OriginalFilename", "MySScom.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "MySScom 应用程序\0"
-            VALUE "ProductVersion", "5, 2, 0, 0\0"
+            VALUE "ProductVersion", "5, 4, 0, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

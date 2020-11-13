@@ -37,6 +37,7 @@
 #define IDB_BITMAP_YAXON                133
 #define IDD_DIALOG_SRSEND               136
 #define IDD_DIALOG_EXFUNCT              139
+#define IDI_ICON1                       140
 #define IDC_STATIC_CONTROL              1000
 #define IDC_STATIC_RECEIVE              1001
 #define IDC_STATIC_SEND                 1002
@@ -295,6 +296,7 @@
 #define IDC_BUTTON_SENDFILE             1344
 #define IDC_STATIC_FILE                 1345
 #define IDC_PROGRESS_SENDFILE           1346
+#define IDC_STATIC_PROGERSS             1347
 #define IDC_MENU_TRAY_SHOW              32771
 #define IDC_MENU_TRAY_HIDE              32772
 #define IDC_MENU_TRAY_EXIT              32773
@@ -309,9 +311,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        140
+#define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32780
-#define _APS_NEXT_CONTROL_VALUE         1347
+#define _APS_NEXT_CONTROL_VALUE         1348
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

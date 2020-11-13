@@ -511,13 +511,6 @@ void CDialogExfunct::OnRadioDispHex()
 	
     UpdateData(TRUE);
 	
-	if (m_Edit_Change.GetLength() == 0) {
-		MessageBox("您老啥都没输，转来转去都是空气，您也没法用吧？......    ", "抱歉", MB_OK + MB_ICONEXCLAMATION);
-		m_Radio_Dispmode = _DISPLAY_CHAR;
-		UpdateData(FALSE);
-		return;
-	}
-	
 	m_Edit_Change = CharToHex(m_Edit_Change);
 	SetDlgItemText(IDC_EDIT_CHANGE, m_Edit_Change);
 	
@@ -533,13 +526,6 @@ void CDialogExfunct::OnRADIODispChar()
 	if (m_Radio_Dispmode == s_curdispmode) return;                             /* 判断重复点击，则不予响应 */
 	
     UpdateData(TRUE);
-	
-	if (m_Edit_Change.GetLength() == 0) {
-		MessageBox("您老啥都没输，转来转去都是空气，您也没法用吧？......     ", "抱歉", MB_OK + MB_ICONEXCLAMATION);
-		m_Radio_Dispmode = _DISPLAY_HEX;
-		UpdateData(FALSE);
-		return;
-	}
 	
 	int length = m_Edit_Change.GetLength();                                    /* 此处需要检验输入的字符串是否符合要求 */
 	

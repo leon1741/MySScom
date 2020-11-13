@@ -54,6 +54,7 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMySScomDlg)
+	DDX_Control(pDX, IDC_PROGRESS_SENDFILE, m_Progress_SendFile);
 	DDX_Control(pDX, IDC_COMBO_CHECK, m_Combo_Check);
 	DDX_Control(pDX, IDC_COMBO_STOP, m_Combo_Stop);
 	DDX_Control(pDX, IDC_COMBO_DATA, m_Combo_Data);
@@ -69,7 +70,7 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_AutoTimer);
 	DDV_MaxChars(pDX, m_Edit_AutoTimer, 5);
 	DDX_Text(pDX, IDC_EDIT_LINES, m_Edit_Lines);
-	DDV_MaxChars(pDX, m_Edit_Lines, 4);
+	DDV_MaxChars(pDX, m_Edit_Lines, 5);
 	DDX_Check(pDX, IDC_CHECK_RETURN, m_Check_Return);
 	DDX_Check(pDX, IDC_CHECK_SHOWTIME, m_Check_ShowTime);
 	DDX_Check(pDX, IDC_CHECK_FRAMEDSPL, m_Check_FrameDspl);
@@ -122,16 +123,17 @@ BEGIN_EVENTSINK_MAP(CMySScomDlg, CDialog)
 END_EVENTSINK_MAP()
 
 BEGIN_EASYSIZE_MAP(CMySScomDlg)
-	EASYSIZE(IDC_STATIC_CONTROL,  ES_BORDER,           ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,        0)
-	EASYSIZE(IDC_STATIC_RECEIVE,  IDC_STATIC_CONTROL,  ES_BORDER,          ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_STATIC_SEND,     IDC_STATIC_CONTROL,  ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_STATIC_FILE,     IDC_STATIC_CONTROL,  ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_EDIT_RECV,       ES_BORDER,           ES_BORDER,          ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_EDIT_SEND,       ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_BUTTON_SEND,     ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
-	EASYSIZE(IDC_EDIT_FILEPATH,   ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_BUTTON_OPENFILE, ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
-	EASYSIZE(IDC_BUTTON_SENDFILE, ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
+	EASYSIZE(IDC_STATIC_CONTROL,    ES_BORDER,           ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,        0)
+	EASYSIZE(IDC_STATIC_RECEIVE,    IDC_STATIC_CONTROL,  ES_BORDER,          ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_STATIC_SEND,       IDC_STATIC_CONTROL,  ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_STATIC_FILE,       IDC_STATIC_CONTROL,  ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_EDIT_RECV,         ES_BORDER,           ES_BORDER,          ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_EDIT_SEND,         ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_PROGRESS_SENDFILE, ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_BUTTON_SEND,       ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
+	EASYSIZE(IDC_EDIT_FILEPATH,     ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_BUTTON_OPENFILE,   ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
+	EASYSIZE(IDC_BUTTON_SENDFILE,   ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
 END_EASYSIZE_MAP
 
 
@@ -487,14 +489,19 @@ void CMySScomDlg::SetSendCtrlArea(bool Enable)
 	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(Enable);
 
 	GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(Enable);
-				
-	GetDlgItem(IDC_EDIT_SEND)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
-	
+
 	GetDlgItem(IDC_EDIT_FILEPATH)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(Enable);
 
 	SetDlgItemText(IDC_BUTTON_SENDFILE, (Enable == TRUE) ? "开始发送" : "停止发送");
+
+	GetDlgItem(IDC_EDIT_SEND)->ShowWindow((Enable == TRUE) ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_BUTTON_SEND)->ShowWindow((Enable == TRUE) ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_PROGRESS_SENDFILE)->ShowWindow((Enable == TRUE) ? SW_HIDE : SW_SHOW);
+
+	if (Enable == TRUE) {
+		SetDlgItemText(IDC_STATIC_SEND, "发送区");
+	}
 }
 
 /**************************************************************************************************
@@ -512,6 +519,7 @@ void CMySScomDlg::InformSrDlgClose(void)
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
 }
 
 /**************************************************************************************************
@@ -531,19 +539,21 @@ void CMySScomDlg::InformExDlgClose(void)
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::SaveEditContent(void)
+bool CMySScomDlg::SaveEditContent(void)
 {
+    CFile   MyFile;                                                            /* 定义文件类 */
     CTime   NowTime  = CTime::GetCurrentTime();                                /* 获取现在时间 */
     CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";
-        
-    CFile   MyFile;                                                            /* 定义文件类 */
-        
-    if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
-
-        int nLength = m_Edit_Recv.GetLength();                                 /* 文件长度 */
-        MyFile.Write(m_Edit_Recv, nLength);                                    /* 写入文本文件 */
+    
+    GetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+	
+	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
+        MyFile.Write(m_Edit_Recv, m_Edit_Recv.GetLength());                    /* 写入文本文件 */
         MyFile.Close();                                                        /* 关闭文件 */
-    }
+		return TRUE;
+    } else {
+		return FALSE;
+	}
 }
 
 /**************************************************************************************************
@@ -564,10 +574,19 @@ void CMySScomDlg::UpdateEditStr(CString showstr)
         linecnt = s_RecvedLine;                                                /* 以行数来判断结果 */
     }
 
-	s_Edit_Recv->SetSel(-1, -1);                                               /* 添加本次的内容显示 */
-	s_Edit_Recv->ReplaceSel((LPCTSTR)showstr);
-
-    s_Edit_Recv->PostMessage(WM_VSCROLL, SB_BOTTOM, 0);                        /* 让编辑框内容滚动到最后一行 */
+	#if 0                                                                      /* ◆◆这种方法会导致中文乱码◆◆ */
+	{
+		s_Edit_Recv->SetSel(-1, -1);                                           /* 添加本次的内容显示 */
+		s_Edit_Recv->ReplaceSel((LPCTSTR)showstr);
+		s_Edit_Recv->PostMessage(WM_VSCROLL, SB_BOTTOM, 0);                    /* 让编辑框内容滚动到最后一行 */
+	}
+	#else                                                                      /* ◆◆这种方法会导致CPU占用率过高◆◆ */
+	{
+		m_Edit_Recv += showstr;                                                /* 添加本次的内容显示 */
+		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+		s_Edit_Recv->PostMessage(WM_VSCROLL, SB_BOTTOM, 0);                    /* 让编辑框内容滚动到最后一行 */
+	}
+	#endif
 
 	if (showstr.Right(1) == "\n") {                                            /* 如果接收到了回车符 */
 
@@ -613,6 +632,8 @@ void CMySScomDlg::UpdateEditDisplay(void)
 {
 	CString TimeStr, TempStr;
     CTime   NowTime;
+
+	if (s_datahdling == TRUE) return;                                          /* 处理串口数据时，不处理显示 */
     
     if (m_Check_HexDspl == TRUE) {                                             /* 16进制模式下 */
         TempStr = TransformtoHex(s_RecvString);                                /* 转换结果为16进制显示 */
@@ -682,6 +703,8 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 
     if (s_RecvPaused == TRUE) return;
 
+	s_datahdling = TRUE;                                                       /* 这里标记当前正在处理串口数据 */
+
 	TempStr = "";
 	ShowStr = "";
 
@@ -720,6 +743,7 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 			}
 
 			TempStr.Format("%c", ptr[i]);                                      /* 处理接收到的数据 */
+
 			ShowStr += TempStr;                                                /* 保存数据内容 */
 			
 			if (TempStr == "\n") {                                             /* 本次接收到回车符 */
@@ -732,6 +756,8 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 	s_RecvedByte += len;                                                       /* 接收字节数累加 */
     s_DataRecved  = TRUE;
 	s_RecvString += ShowStr;                                                   /* 注意这里要用加号，不然会造成之前的数据丢失 */
+
+	s_datahdling = FALSE;                                                      /* 这里表示串口数据处理完毕 */
 }
 
 /**************************************************************************************************
@@ -789,16 +815,16 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 
     this->GetWindowRect(&DialogMain);                                          /* 获取主界面在屏幕上的位置 */
 
-	if (DialogMain.Width() > 1280) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部外设组 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
-	} else if (DialogMain.Width() > 1160) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部外设组 - Designed By LEON (LEON1741@126.com)";
-	} else if (DialogMain.Width() > 1020) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部外设组 - Designed By LEON";
-	} else if (DialogMain.Width() > 950) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部外设组 - LEON";
-	} else if (DialogMain.Width() > 910) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部外设组";
+	if (DialogMain.Width() > 1320) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
+	} else if (DialogMain.Width() > 1190) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - Designed By LEON (LEON1741@126.com)";
+	} else if (DialogMain.Width() > 1050) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - Designed By LEON";
+	} else if (DialogMain.Width() > 980) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - LEON";
+	} else if (DialogMain.Width() > 940) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组";
 	} else if (DialogMain.Width() > 870) {
 		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部";
 	} else if (DialogMain.Width() > 820) {
@@ -923,9 +949,12 @@ bool CMySScomDlg::SendDatatoComm(CString datastr, BOOL needhex)
 bool CMySScomDlg::SendFileDatatoComm(void)
 {
 	CFile         filename;
-	int           sendbyte;
+	int           baudrate, sendbyte;
 	unsigned long fileleng;
 	char         *filebuff;                                                    /* 用于存放文件数据 */
+	double        tempbyte;
+	CString       dsplystr;
+	unsigned int  totltime, lefttime;
 
 	if (filename.Open(m_Edit_FilePath, CFile::modeReadWrite | CFile::typeBinary) == 0) {
 		MessageBox("读取文件失败，请确认路径正确且文件未处于打开状态！    ", "提示", MB_OK + MB_ICONINFORMATION);
@@ -934,11 +963,13 @@ bool CMySScomDlg::SendFileDatatoComm(void)
 
 	fileleng = filename.GetLength();                                           /* 获取文件长度 */
 	
-	sendbyte = m_Combo_Baud.GetCurSel();
-	sendbyte = Combo_Baud[sendbyte];
-	sendbyte = sendbyte / 100;
+	baudrate = m_Combo_Baud.GetCurSel();
+	baudrate = Combo_Baud[baudrate];
 
-	if ((s_FileDatPos + sendbyte) > fileleng) {                               /* 这里需要对最后一包进行特殊判断 */
+	tempbyte = ((double)baudrate / FILESEND_BYTE) * 1.1;
+	sendbyte = (int)tempbyte;
+
+	if ((s_FileDatPos + sendbyte) > fileleng) {                                /* 这里需要对最后一包进行特殊判断 */
 		sendbyte = fileleng - s_FileDatPos;
 	}
 	
@@ -949,6 +980,15 @@ bool CMySScomDlg::SendFileDatatoComm(void)
 	sendbyte = WriteComm(filebuff, sendbyte);                                  /* 发送数据，并统计长度 */
 	s_FileDatPos += sendbyte;
 	s_SendedByte += sendbyte;
+
+	totltime = (fileleng * 10) / baudrate;                                     /* 计算发送整个文件的耗时 */
+	lefttime = (fileleng - s_FileDatPos) * 10 / baudrate;                      /* 计算发送整个文件的耗时 */
+
+	m_Progress_SendFile.SetPos(s_FileDatPos * PROGRESS_POS / fileleng);        /* 更新进度条显示 */
+
+	dsplystr.Format("发送区：预计耗时%0.2d分%0.2d秒，当前进度%0.2d%%，剩余%0.2d分%0.2d秒", 
+		            totltime / 60, totltime % 60, s_FileDatPos * 100 / fileleng, lefttime / 60, lefttime % 60);
+	SetDlgItemText(IDC_STATIC_SEND, dsplystr);
 	
 	filename.Close();                                                          /* 关闭文件 */
 	delete []filebuff;                                                         /* 释放空间 */
@@ -1948,6 +1988,11 @@ void CMySScomDlg::OnButtonONOFF()
             MessageBox("请首先停用自动发送功能再尝试关闭串口...  ", "提示", MB_OK + MB_ICONINFORMATION);
             return;
         }
+
+		if (s_FileDatPos != 0) {
+            MessageBox("正在发送文件，请先停止文件的发送，再尝试关闭串口...  ", "提示", MB_OK + MB_ICONINFORMATION);
+            return;
+        }
         
         SetCommMask(s_FileHandle, 0);                                          /* 设置过滤掩码 */
         
@@ -2121,33 +2166,21 @@ void CMySScomDlg::OnButtonClear()
 **************************************************************************************************/
 void CMySScomDlg::OnButtonSave()
 {
-    CFile   MyFile;                                                            /* 定义文件类 */
-    int     nLength;
-    CString Temp_String;
-    
     CTime   NowTime  = CTime::GetCurrentTime();                                /* 获取现在时间 */
     CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";           /* 指定文件名 */
     
     GetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
     
-    nLength = m_Edit_Recv.GetLength();                                         /* 获取长度 */
-    
-    if (nLength <= 0) {
+    if (m_Edit_Recv.GetLength() <= 0) {
         MessageBox("尚未接收到任何内容，无须保存！   ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
-    
-    if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite) == 0) {
-        Temp_String = "文件 " + FileName + " 创建失败！  ";
-        MessageBox(Temp_String, "抱歉", MB_OK + MB_ICONWARNING);
-        return;
-    } else {
-        Temp_String = "文件 " + FileName + " 创建成功！  ";
-        MessageBox(Temp_String, "恭喜", MB_OK + MB_ICONINFORMATION);
-    }
-    
-    MyFile.Write(m_Edit_Recv, nLength);                                        /* 写入文本文件 */
-    MyFile.Close();                                                            /* 关闭文件 */
+
+	if (SaveEditContent() == TRUE) {
+		MessageBox("窗口数据已经成功保存至指定文件!      ", "恭喜", MB_OK + MB_ICONINFORMATION);
+	} else {
+		MessageBox("文件创建失败!         ", "抱歉", MB_OK + MB_ICONWARNING);
+	}
 }
 
 /**************************************************************************************************
@@ -2267,15 +2300,14 @@ void CMySScomDlg::OnButtonOpenFile()
 {
 	CFile myFile;
 	
-	CFileDialog dlg(TRUE, "*.bin", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, 
+	CFileDialog dlg(TRUE, "*.bin", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR, 
 							"所有支持的文件(*.bin;*.hex;*.dat)|*.bin;*.hex;*.dat|\
 							bin文件(*.bin)|*.bin|\
 							hex文件(*.hex)|*.hex|\
 							dat文件(*.dat)|*.dat|\
 							所有文件(*.*)|*.*||");
 	
-	if (dlg.DoModal() != IDOK) {
-		MessageBox("您尚未选择任何文件！    ", "提示", MB_OK + MB_ICONINFORMATION);
+	if (dlg.DoModal() != IDOK) {                                               /* 未选择任何文件 */
 		return;
 	}
 	
@@ -2308,8 +2340,9 @@ void CMySScomDlg::OnButtonSendFile()
 			return;
 		} else {
 			s_FileDatPos = 0;
-			SetTimer(Timer_No_SendFile, 100, NULL);                            /* 开启定时器 */
+			SetTimer(Timer_No_SendFile, FILESEND_BYTE, NULL);                  /* 开启定时器 */
 			SetSendCtrlArea(FALSE);                                            /* 禁用其他发送控件 */
+			m_Progress_SendFile.SetPos(0);
 		}
 	} else {                                                                   /* 正在发送过程中，则停止发送 */
 		s_FileDatPos = 0;
@@ -2661,6 +2694,12 @@ BOOL CMySScomDlg::OnInitDialog()
     s_SendedByte = 0;
 	s_FileDatPos = 0;
 
+    CreateDirectory(RecordPath, NULL);                                         /* 创建Record文件夹，用于保存数据 */
+	
+	GetDlgItem(IDC_PROGRESS_SENDFILE)->ShowWindow(SW_HIDE);                    /* 隐藏进度条，并初始化配置 */
+	m_Progress_SendFile.SetRange(0, PROGRESS_POS);
+	m_Progress_SendFile.SetPos(0);
+
     SetIcon(m_hIcon, TRUE);
     SetIcon(m_hIcon, FALSE);
 
@@ -2686,8 +2725,6 @@ BOOL CMySScomDlg::OnInitDialog()
     InitiateComboStop();                                                       /* 初始化选择停止位的列表框 */
 
     SetControlStatus(FALSE);                                                   /* 首先禁用各个按钮控件 */
-
-    CreateDirectory(RecordPath, NULL);                                         /* 创建Record文件夹，用于保存数据 */
 
     SetTimer(Timer_No_RecvData,  10,   NULL);
     SetTimer(Timer_No_StatusBar, 1000, NULL);
@@ -2853,7 +2890,7 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 
 	UpdateStatusBarNow();
 
-    EASYSIZE_MINSIZE(660, 542, fwSide, pRect);                                 /* 限制窗体的最小尺寸 */
+    EASYSIZE_MINSIZE(660, 546, fwSide, pRect);                                 /* 限制窗体的最小尺寸 */
 }
 
 /**************************************************************************************************

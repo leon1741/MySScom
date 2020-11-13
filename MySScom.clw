@@ -12,14 +12,14 @@ Class1=CMySScomApp
 Class2=CMySScomDlg
 
 ResourceCount=7
-Resource2=IDD_DIALOG_ABOUT
-Resource3=IDD_MYSSCOM_DIALOG
+Resource2=IDD_DIALOG_EXFUNCT
+Resource3=IDD_DIALOG_SRSEND
 Resource1=IDR_MAINFRAME
-Resource4=IDR_MENU_TRAY
+Resource4=IDD_DIALOG_ABOUT
 Class3=CDialogAbout
-Resource5=IDD_DIALOG_SRSEND
+Resource5=IDR_MENU_TRAY
 Class4=CDialogSrSend
-Resource6=IDD_DIALOG_EXFUNCT
+Resource6=IDD_MYSSCOM_DIALOG
 Class5=CDialogExfunct
 Resource7=IDR_MENU_EDIT
 

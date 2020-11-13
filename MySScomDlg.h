@@ -22,12 +22,16 @@
 #define  Timer_No_FrameDspl            0x04                          // 自动换行显示定时器
 #define  Timer_No_SendFile             0x05                          // 发送文件数据定时器
 
-#define  MAX_RECV_BYTE                 1024                          // 一次最多允许接收的字节数
-#define  MAX_SEND_BYTE                 1024                          // 一次最多允许发送的字节数
+#define  MAX_RECV_BYTE                 4096                          // 一次最多允许接收的字节数
+#define  MAX_SEND_BYTE                 2048                          // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
 
-#define  EDIT_REFRESH_TIME             15                            // 编辑框刷新时间间隔 (单位: 毫秒)
+#define  EDIT_REFRESH_TIME             40                            // 编辑框刷新时间间隔 (单位: 毫秒)
 #define  CHNGLINE_INTERVAL             100                           // 16进制模式下判断帧换行的延迟时间 (单位: 毫秒)
+
+#define  FILESEND_BYTE                 100                           // 发送文件时每次发送的字节数
+
+#define  PROGRESS_POS                  1000                          // 进度条最小进度刻度
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
 
@@ -44,6 +48,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CMySScomDlg)
 	enum { IDD = IDD_MYSSCOM_DIALOG };
+	CProgressCtrl	m_Progress_SendFile;
 	CComboBox	m_Combo_Check;
 	CComboBox	m_Combo_Stop;
 	CComboBox	m_Combo_Data;
@@ -79,6 +84,8 @@ public:
 	bool            s_NeedChgLne;                                      // 标记是否需要换行显示
 	bool            s_DataRecved;                                      // 是否已经收到串口数据
 
+	bool            s_datahdling;                                      // 标志当前正在处理串口数据
+
 	int             s_LopSendCnt;                                      // 循环发送数据的计数器
 	int             s_RecvedLine;                                      // 已经接收的行数
 	int             s_RecvedByte;                                      // 已经接收的字节数
@@ -113,7 +120,7 @@ public:
 	void SetSendCtrlArea(bool Enable);
 	void InformSrDlgClose(void);
 	void InformExDlgClose(void);
-	void SaveEditContent(void);
+	bool SaveEditContent(void);
 	void UpdateEditStr(CString showstr);
 	void UpdateEditDisplay(void);
 	void ShowSendData(CString sstr);

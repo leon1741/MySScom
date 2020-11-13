@@ -17,7 +17,8 @@ static const CString RecordPath = "Record\\";                        // 定义存放
 static const int Combo_Baud[12] = {600,  1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
 static const int Combo_Data[4]  = {5,    6,    7,    8};
 static const int Combo_Stop[4]  = {0,    1,    2,    3};
-static const int Combo_Check[5] = {'n',  'o',  'e',  'm',   's'};
+static const int Combo_Check[5] = {0,    1,    2,    3,   4};
+//static const int Combo_Check[5] = {'n',  'o',  'e',  'm',   's'};
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -58,9 +59,9 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	m_Check_SrSend_20 = FALSE;
     m_Edit_Lines = _T("1000");
 	m_Check_Return = FALSE;
+	m_Check_ShowTime = FALSE;
 	m_NeedTime = TRUE;
 	m_DataRecvd = FALSE;
-	m_Check_ShowTime = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -87,7 +88,6 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SEND, m_Edit_Send);
 	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_AutoTimer);
 	DDX_Text(pDX, IDC_EDIT_SRAUTO, m_Edit_LoopTimer);
-	DDX_Control(pDX, IDC_MSCOMM1, m_ctrlComm);
 	DDX_Check(pDX, IDC_CHECK_SR01, m_Check_SrSend_01);
 	DDX_Check(pDX, IDC_CHECK_SR02, m_Check_SrSend_02);
 	DDX_Check(pDX, IDC_CHECK_SR03, m_Check_SrSend_03);
@@ -184,11 +184,11 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_COMMAND(IDC_MENU_TRAY_ABOUT, OnMenuTrayAbout)
 	ON_BN_CLICKED(IDC_BUTTON_HELP, OnButtonHelp)
 	//}}AFX_MSG_MAP
+	ON_MESSAGE(WM_COMM_MESSAGE, OnCommMessage)
 END_MESSAGE_MAP()
 
 BEGIN_EVENTSINK_MAP(CMySScomDlg, CDialog)
 	//{{AFX_EVENTSINK_MAP(CMySScomDlg)
-	ON_EVENT(CMySScomDlg, IDC_MSCOMM1, 1 /* OnComm */, OnOnCommMscomm, VTS_NONE)
 	//}}AFX_EVENTSINK_MAP
 END_EVENTSINK_MAP()
 
@@ -464,9 +464,11 @@ int CMySScomDlg::String2Hex(CString str, CByteArray &senddata)
     int hexdata, lowhexdata;
     int hexdatalen = 0;
     int len = str.GetLength();
+
     senddata.SetSize(len / 2);
 	
     for (int i = 0; i < len; ) {
+
         char lstr, hstr = str[i];
 		
         if (hstr == ' ') {
@@ -618,42 +620,36 @@ void CMySScomDlg::UpdateEditDisplay(void)
 **************************************************************************************************/
 void CMySScomDlg::HandleUSARTData(void)
 {
-    VARIANT       Input_Vrt;
-    COleSafeArray Input_Ary;
-    LONG          RecvLen, i;
-    BYTE          RecvData[2048];                                    // 设置BYTE数组
-    CString       TimeStr, TempStr;
-	CTime         NowTime;
+    int       i, RecvLen;
+	char      RecvData[MAX_SEND_BYTE * 2];
+    CString   TimeStr, TempStr;
+	CTime     NowTime;
+
+	RecvLen = MAX_SEND_BYTE;
 	
 	if (m_PortOpened == FALSE) {
 		return;
 	}
 	
-    if (m_ctrlComm.GetCommEvent() == 2) {                            // 事件值为2表示接收缓冲区内有字符
-		
-        Input_Vrt = m_ctrlComm.GetInput();                           // 读缓冲区
-        Input_Ary = Input_Vrt;                                       // VARIANT型变量转换为ColeSafeArray型变量
-        RecvLen   = Input_Ary.GetOneDimSize();                       // 得到有效数据长度
-        
-		for (i = 0; i < RecvLen; i++) {
-            Input_Ary.GetElement(&i, RecvData + i);                  // 转换为BYTE型数组存放到RecvData数组
-		}
-		
-		if (m_bRecvPause == FALSE) {                                 // 如果暂停接收了，则不存储数据，直接返回
-			return;
-		}
-		
-        for (i = 0; i < RecvLen; i++) {                              // 将数组转换为Cstring型变量
-			
-            BYTE bt = *(char *)(RecvData + i);                       // 读取单个字符
-			
-			//if (bt == 0) {                                         // 转换为字符型
-			//	TempStr = CString(bt);
-			//} else {
-			//	TempStr.Format("%c", bt);
-			//}
+	if (serial.ReadData(RecvData, RecvLen)) {
 
-			TempStr.Format("%c", bt);
+		RecvLen -= 1;
+
+		for (i = 0; i < RecvLen; i++) {                              // 将数组转换为Cstring型变量
+			
+			#if 0                                                    //
+
+			TempStr.Format("%c", RecvData[i]);
+
+			#else                                                    // 以下方式可以处理0字符的显示bug
+
+			if (RecvData[i] == 0) {
+				TempStr = CString(RecvData[i]);
+			} else {
+				TempStr.Format("%c", RecvData[i]);
+			}
+
+			#endif
 			
 			if (m_Check_ShowTime == TRUE) {                          // 只有在启用时间显示功能时才判断
 				
@@ -672,24 +668,24 @@ void CMySScomDlg::HandleUSARTData(void)
 			} else {                                                 // 不需要在行头位置显示时间
 				
 				if (m_Check_HexDspl == FALSE) {                      // 16进制模式下不进行判断
-
+					
 					if (TempStr == "\n") {                           // 本次接收到回车符
 						RecvedLine++;
 					}
 				} else {
-
+					
 					RecvedLine = 0;                                  // 
 				}
 			}
 			
 			StrRecved += TempStr;                                    // 保存数据内容
 			RecvedData++;                                            // 接收字节数累加
+
+			UpdateEditDisplay();                                             // 更新编辑框内容显示
+			
+			UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
         }
-    }
-	
-    UpdateEditDisplay();                                             // 更新编辑框内容显示
-    
-    UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
+	}
 }
 
 /**************************************************************************************************
@@ -1305,7 +1301,7 @@ void CMySScomDlg::InitiateSrSendArea(void)
 	HideSrSendArea();                                                // 默认状态下不显示高级发送功能
 
 	OnButtonSrSend();                                                // 目前会出现初次显示时发送区的位置有点偏移
-	OnButtonSrSend();                                                // 通过连续调用两次切换函数暂时覆盖整个BUG
+	OnButtonSrSend();                                                // 通过连续调用两次切换函数暂时掩盖这个BUG
 }
 
 /**************************************************************************************************
@@ -1316,6 +1312,8 @@ void CMySScomDlg::InitiateSrSendArea(void)
 **************************************************************************************************/
 void CMySScomDlg::SendEditDatatoComm(void)
 {
+	char temp[MAX_SEND_BYTE];
+	
 	assert(m_SrSendEnable == FALSE);
 	
 	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);                      // 获取编辑框的内容
@@ -1329,21 +1327,34 @@ void CMySScomDlg::SendEditDatatoComm(void)
 	if (m_Check_HexSend) {                                           // 如果需要以16进制发送
 		
 		CByteArray hexdata;
-		int len;                                                     // 此处返回的len可以用于计算发送了多少个十六进制数
-		
+		int i, len;                                                  // 此处返回的len可以用于计算发送了多少个十六进制数
+
 		len = String2Hex(m_Edit_Send, hexdata);
-		m_ctrlComm.SetOutput(COleVariant(hexdata));                  // 发送十六进制数据
+				
+		for (i = 0; i < len; i++) {
+			temp[i] = hexdata.GetAt(i);
+		}
+		
+		serial.SendData(temp, len);
+
 		SendedData += len;                                           // 发送字节数累加
 		
 	} else {
 		
-		m_ctrlComm.SetOutput(COleVariant(m_Edit_Send));              // 发送ASCII字符数据
+		strncpy(temp, (LPCTSTR)m_Edit_Send, sizeof(temp));
+		
+		serial.SendData(temp, m_Edit_Send.GetLength());
+
 		SendedData += m_Edit_Send.GetLength();                       // 发送字节数累加
 	}
 
 	if (m_Check_Return) {                                            // 补发回车换行符
-		m_ctrlComm.SetOutput(COleVariant("\r"));
-		m_ctrlComm.SetOutput(COleVariant("\n"));
+
+		temp[0] = '\r';
+		temp[1] = '\n';
+		
+		serial.SendData(temp, 2);
+
 		SendedData += 2;
 	}
 
@@ -1667,8 +1678,11 @@ int CMySScomDlg::GetSrValidDataNo(void)
 **  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
-{
+{	
+	char temp[MAX_SEND_BYTE];
+	
 	assert(m_SrSendEnable == TRUE);
+	assert(InputStr.GetLength() < MAX_SEND_BYTE);
 	
 	if (InputStr.GetLength() <= 0) {
 		MessageBox("发送窗口内容为空，未发送任何数据！  ", "提示", MB_OK + MB_ICONINFORMATION);
@@ -1678,12 +1692,16 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 	if (NeedHex == TRUE) {                                           // 如果需要以16进制发送
 		
 		CByteArray SendData;
-		int len;                                                     // 此处返回的len可以用于计算发送了多少个十六进制数
+		int i, len;                                                 // 此处返回的len可以用于计算发送了多少个十六进制数
 		
 		len = String2Hex(InputStr, SendData);
-		
-		m_ctrlComm.SetOutput(COleVariant(SendData));                 // 发送十六进制数据
-		
+
+		for (i = 0; i < len; i++) {
+			temp[i] = SendData.GetAt(i);
+		}
+
+		serial.SendData(temp, len);
+				
 		SendedData += len;                                           // 发送字节数累加
 
 		m_Check_HexSend = TRUE;                                      // 将数据同步复制到发送栏
@@ -1692,7 +1710,9 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 		
 	} else {
 		
-		m_ctrlComm.SetOutput(COleVariant(InputStr));                 // 发送ASCII字符数据
+        strncpy(temp, (LPCTSTR)InputStr, sizeof(temp));
+
+		serial.SendData(temp, InputStr.GetLength());
 		
 		SendedData += InputStr.GetLength();                          // 发送字节数累加
 
@@ -1702,8 +1722,12 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 	}
 
 	if (m_Check_Return) {                                            // 补发回车换行符
-		m_ctrlComm.SetOutput(COleVariant("\r"));
-		m_ctrlComm.SetOutput(COleVariant("\n"));
+
+		temp[0] = '\r';
+		temp[1] = '\n';
+
+		serial.SendData(temp, 2);
+
 		SendedData += 2;
 	}
 	
@@ -2487,7 +2511,8 @@ void CMySScomDlg::OnButtonSrSend20()
 **************************************************************************************************/
 void CMySScomDlg::OnButtonONOFF() 
 {
-	CString TempStr, SettingStr;
+	BOOL result;
+	CString TempStr;
     
 	if (m_PortOpened == TRUE) {                                      // 如果串口已经打开，那么执行关闭操作
 
@@ -2496,7 +2521,7 @@ void CMySScomDlg::OnButtonONOFF()
 			return;
 		}
 
-		m_ctrlComm.SetPortOpen(FALSE);
+		serial.Close();
 
 		SetDlgItemText(IDC_BUTTON_ONOFF, "打开串口");
 
@@ -2513,57 +2538,37 @@ void CMySScomDlg::OnButtonONOFF()
 		return;
 	}
 
-	int Number = m_Combo_ComNo.GetCurSel();                          // 得到串口号
-	
-	if (Number == 0) {
+	int ComNumber = m_Combo_ComNo.GetCurSel();						 // 得到串口号
+
+	if (ComNumber == 0) {
 		MessageBox("串口号都没有选择，你叫我打开什么东东...？   ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 	
-	if (m_ctrlComm.GetPortOpen()) {                                  // 判断是否已经打开
-        m_ctrlComm.SetPortOpen(FALSE);
-	}
-	
-	m_Combo_ComNo.GetLBText(Number, TempStr);
+	m_Combo_ComNo.GetLBText(ComNumber, TempStr);
 	TempStr.TrimLeft("COM");                                         // 删除"COM"字段
+	ComNumber = atoi(TempStr);
+
+	int ComBaudSel = m_Combo_Baud.GetCurSel();						 // 获取波特率的选择项
+	TempStr.Format("%d", Combo_Baud[ComBaudSel]);
+	ComBaudSel = atoi(TempStr);
 	
-	m_ctrlComm.SetCommPort(atoi(TempStr.Mid(0)));                    // 指定串口号
+	int ComDataSel = m_Combo_Data.GetCurSel();						 // 获取数据位的选择项
+	TempStr.Format("%d", Combo_Data[ComDataSel]);
+	ComDataSel = atoi(TempStr);
 	
-    if (!m_ctrlComm.GetPortOpen()) {
+	int ComCheckSel = m_Combo_Check.GetCurSel();					 // 获取校验位的选择项
+	TempStr.Format("%c", Combo_Check[ComCheckSel]);
+	ComCheckSel = atoi(TempStr);
+	
+	int ComStopSel = m_Combo_Stop.GetCurSel();						 // 获取停止位的选择项
+	TempStr.Format("%d", Combo_Stop[ComStopSel]);
+	ComStopSel = atoi(TempStr);
 
-        m_ctrlComm.SetPortOpen(TRUE);                                // 尝试打开串口
+	result = serial.Open(GetSafeHwnd(), WM_COMM_MESSAGE, ComNumber, ComBaudSel, ComDataSel, ComCheckSel, ComStopSel);
 
-		SettingStr = "";
-		
-		int ComBaudSel = m_Combo_Baud.GetCurSel();                   // 获取波特率的选择项
-		TempStr.Format("%d", Combo_Baud[ComBaudSel]);
-		SettingStr += TempStr;
+	if (result) {
 
-		SettingStr += ",";
-
-		int ComCheckSel = m_Combo_Check.GetCurSel();                 // 获取校验位的选择项
-		TempStr.Format("%c", Combo_Check[ComCheckSel]);
-		SettingStr += TempStr;
-		
-		SettingStr += ",";
-		
-		int ComDataSel = m_Combo_Data.GetCurSel();                   // 获取数据位的选择项
-		TempStr.Format("%d", Combo_Data[ComDataSel]);
-		SettingStr += TempStr;
-		
-		SettingStr += ",";
-		
-		int ComStopSel = m_Combo_Stop.GetCurSel();                   // 获取停止位的选择项
-		TempStr.Format("%d", Combo_Stop[ComStopSel]);
-		SettingStr += TempStr;
-		
-		m_ctrlComm.SetSettings(SettingStr);                          // 波特率(XXXX)，无校验，8个数据位，1个停止位 
-		
-		m_ctrlComm.SetInputMode(1);                                  // 1表示以二进制方式检取数据
-		m_ctrlComm.SetRThreshold(1);                                 // 参数1表示每当串口接收缓冲区中有多于或等于1个字符时将引发一个接收数据的OnComm事件
-		m_ctrlComm.SetInputLen(0);                                   // 设置当前接收区数据长度为0
-		m_ctrlComm.GetInput();                                       // 先预读缓冲区以清除残留数据
-		
 		m_PortOpened = TRUE;
 		
 		SetControlStatus(TRUE);                                      // 启用各个按钮控件
@@ -3056,7 +3061,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
 
-	SetTimer(Timer_No_RecvData,  10,  NULL);
+	SetTimer(Timer_No_RecvData,  10,   NULL);
 	SetTimer(Timer_No_StatusBar, 1000, NULL);
 	
 	// CG: The following block was added by the ToolTips component.
@@ -3142,8 +3147,8 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 {
 	m_tooltip.RelayEvent(pMsg);
 
-	if (pMsg -> message == WM_KEYDOWN)
-	{
+	if (pMsg -> message == WM_KEYDOWN) {
+
         if (pMsg -> wParam == VK_ESCAPE)
 			return true;
 		if (pMsg -> wParam == VK_RETURN)
@@ -3193,16 +3198,27 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 }
 
 /**************************************************************************************************
-**  函数名称:  OnOnCommMscomm
+**  函数名称:  OnCommMessage
 **  功能描述:  处理串口通信控件消息
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnOnCommMscomm() 
+LRESULT CMySScomDlg::OnCommMessage(WPARAM wParam, LPARAM lParam)
 {
-    if (m_DataRecvd == FALSE) {
-		m_DataRecvd = TRUE;
+	switch (wParam)
+	{
+		case MSG_READ:
+			m_DataRecvd = TRUE;
+			break;
+
+		case MSG_WRITE:
+			break;
+
+		default:
+			break;
 	}
+
+	return 0L;
 }
 
 /**************************************************************************************************

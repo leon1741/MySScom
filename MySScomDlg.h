@@ -1,7 +1,6 @@
 // MySScomDlg.h : header file
 //
 //{{AFX_INCLUDES()
-#include "mscomm.h"
 //}}AFX_INCLUDES
 
 #if !defined(AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_)
@@ -10,6 +9,11 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
+
+#include "Serial.h"
+
+#define  MSG_READ	0
+#define  MSG_WRITE	1
 
 #define  Timer_No_RecvData             0x01                          // 接收串口数据定时器
 #define  Timer_No_StatusBar            0x02                          // 状态栏定时更新定时器
@@ -22,6 +26,7 @@
 #define  MIN_FRAME_OFFSET              0x00000225                    // 不同主题下边框偏移的最小值(仅限于XP)
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
+#define	 WM_COMM_MESSAGE               (WM_USER + 1002)
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -51,7 +56,6 @@ public:
 	CString	m_Edit_Send;
 	CString	m_Edit_AutoTimer;
 	CString	m_Edit_LoopTimer;
-	CMSComm	m_ctrlComm;	
 	BOOL	m_Check_SrSend_01;
 	BOOL	m_Check_SrSend_02;
 	BOOL	m_Check_SrSend_03;
@@ -82,6 +86,7 @@ public:
 
 	CStringArray   sPorts;                                           // 用来枚举电脑上存在的串口
 	CString        StrRecved;                                        // 用来保存已经接收的数据内容
+	CSerial        serial;
 
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
 	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
@@ -238,6 +243,7 @@ protected:
 	afx_msg void OnButtonHelp();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
+	afx_msg LRESULT OnCommMessage(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 };
 

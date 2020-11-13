@@ -170,6 +170,10 @@ SOURCE=.\res\YAXON.bmp
 # End Group
 # Begin Source File
 
+SOURCE=".\功能简要说明.txt"
+# End Source File
+# Begin Source File
+
 SOURCE=".\修改升级记录.txt"
 # End Source File
 # End Target

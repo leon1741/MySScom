@@ -11,14 +11,17 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#define  Timer_No_StatusBar            0x01                          // 状态栏定时更新定时器
-#define  Timer_No_AutoSend             0x02                          // 自动发送数据定时器
-#define  Timer_No_LoopSend             0x03                          // 高级发送功能的循环定时器
+#define  Timer_No_RecvData             0x01                          // 接收串口数据定时器
+#define  Timer_No_StatusBar            0x02                          // 状态栏定时更新定时器
+#define  Timer_No_AutoSend             0x03                          // 自动发送数据定时器
+#define  Timer_No_LoopSend             0x04                          // 高级发送功能的循环定时器
 
 #define  MAX_RECV_CHAR(n)              (n * 3 * 100)                 // 最多允许接收的字符个数，根据行数来计算
 
 #define  MAX_SEND_BYTE                 1024                          // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
+
+#define  MIN_FRAME_OFFSET              0x00000225                    // 不同主题下边框偏移的最小值(仅限于XP)
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
 
@@ -86,6 +89,7 @@ public:
 	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
 	bool           m_SrSendEnable;                                   // 判断是否启用高级发送功能
 	bool           m_NeedTime;                                       // 判断是否需要显示时间标志
+	bool           m_DataRecvd;                                      // 是否已经收到串口数据
 
 	int            Loop_Counter;                                     // 循环发送数据的计数器
 	int            RecvedData;                                       // 已经接收的字节数
@@ -110,6 +114,7 @@ public:
 	
 	void SaveEditContent(void);
 	void UpdateEditDisplay(void);
+	void HandleUSARTData(void);
 	void NeedAutoSendData(void);
 	void NeedLoopSendData(void);
 	void UpdateStatusBarNow(void);
@@ -231,6 +236,7 @@ protected:
 	afx_msg void OnCheckReturn();
 	afx_msg void OnCheckShowTime();
 	afx_msg void OnMenuTrayAbout();
+	afx_msg void OnButtonHelp();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

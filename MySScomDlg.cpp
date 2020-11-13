@@ -59,6 +59,7 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
     m_Edit_Lines = _T("1000");
 	m_Check_Return = FALSE;
 	m_NeedTime = TRUE;
+	m_DataRecvd = FALSE;
 	m_Check_ShowTime = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
@@ -181,6 +182,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_RETURN, OnCheckReturn)
 	ON_BN_CLICKED(IDC_CHECK_SHOWTIME, OnCheckShowTime)
 	ON_COMMAND(IDC_MENU_TRAY_ABOUT, OnMenuTrayAbout)
+	ON_BN_CLICKED(IDC_BUTTON_HELP, OnButtonHelp)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -197,7 +199,7 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_STATIC_SRSEND,  IDC_STATIC_RECEIVE, ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_RECV,      ES_BORDER,          ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_SEND,      ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
-	EASYSIZE(IDC_STATIC_EX01,    ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,       0)
+	EASYSIZE(IDC_BUTTON_HELP,    ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,       0)
 	EASYSIZE(IDC_STATIC_EX02,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_BUTTON_SEND,    ES_KEEPSIZE,        ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND, 0)
 	// 以下是扩展发送区的按钮控件的属性设置
@@ -603,6 +605,74 @@ void CMySScomDlg::UpdateEditDisplay(void)
 	if (GetFocus() == hwnd) {                                        // 将窗口焦点转移至发送编辑框
 		GetDlgItem(IDC_EDIT_SEND)->SetFocus();
 	}
+}
+
+/**************************************************************************************************
+**  函数名称:  HandleUSARTData
+**  功能描述:  定时接收串口数据并显示
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::HandleUSARTData(void)
+{
+    VARIANT       Input_Vrt;
+    COleSafeArray Input_Ary;
+    LONG          RecvLen, i;
+    BYTE          RecvData[2048];                                    // 设置BYTE数组
+    CString       TimeStr, TempStr;
+	CTime         NowTime;
+	
+	if (m_PortOpened == FALSE) {
+		return;
+	}
+	
+    if (m_ctrlComm.GetCommEvent() == 2) {                            // 事件值为2表示接收缓冲区内有字符
+		
+        Input_Vrt = m_ctrlComm.GetInput();                           // 读缓冲区
+        Input_Ary = Input_Vrt;                                       // VARIANT型变量转换为ColeSafeArray型变量
+        RecvLen   = Input_Ary.GetOneDimSize();                       // 得到有效数据长度
+        
+		for (i = 0; i < RecvLen; i++) {
+            Input_Ary.GetElement(&i, RecvData + i);                  // 转换为BYTE型数组存放到RecvData数组
+		}
+		
+		if (m_bRecvPause == FALSE) {                                 // 如果暂停接收了，则不存储数据，直接返回
+			return;
+		}
+		
+        for (i = 0; i < RecvLen; i++) {                              // 将数组转换为Cstring型变量
+			
+            BYTE bt = *(char *)(RecvData + i);                       // 读取单个字符
+			
+			if (bt == 0) {                                           // 转换为字符型
+				TempStr = CString(bt);
+			} else {
+				TempStr.Format("%c", bt);
+			}
+			
+			if (m_Check_ShowTime == TRUE) {                          // 只有在启用该功能的情况下执行判断
+				
+				if (TempStr == "\n") {                               // 接收到回车符，切换到下一行显示
+					m_NeedTime = TRUE;
+				} else {
+					if (m_NeedTime == TRUE) {
+						NowTime = CTime::GetCurrentTime();	         // 获取现在时间
+						TimeStr = NowTime.Format("[%H:%M:%S] ");
+						
+						StrRecved += TimeStr;                        // 在行头显示时间
+						m_NeedTime = FALSE;
+					}
+				}
+			}
+			
+			StrRecved += TempStr;                                    // 保存数据内容
+			RecvedData++;                                            // 接收字节数累加
+        }
+    }
+	
+    UpdateEditDisplay();                                             // 更新编辑框内容显示
+    
+    UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
 }
 
 /**************************************************************************************************
@@ -1184,8 +1254,8 @@ void CMySScomDlg::InitiateSrSendArea(void)
 
 	HideSrSendArea();                                                // 默认状态下不显示高级发送功能
 
-	OnButtonSrSend();
-	OnButtonSrSend();
+	OnButtonSrSend();                                                // 目前会出现初次显示时发送区的位置有点偏移
+	OnButtonSrSend();                                                // 通过连续调用两次切换函数暂时覆盖整个BUG
 }
 
 /**************************************************************************************************
@@ -1351,15 +1421,10 @@ void CMySScomDlg::HideSrSendArea(void)
 	
 	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
 	
-	if ((s_top_offset == 0) && (s_left_offset == 0)) {               // 偏移量尚未初始化
-		
-		if (DialogMain.bottom >= 0x00000229) {                       // 证明在 XP 主题模式下
-			s_top_offset  = 30;
-			s_left_offset = 4;
-		} else {                                                     // 否则在经典主题模式下
-			s_top_offset  = 23;
-			s_left_offset = 4;
-		}
+	if ((s_top_offset == 0) && (s_left_offset == 0)) {               // 根据不同主题边框大小调整偏移量
+
+		s_top_offset  = 23 + DialogMain.bottom - MIN_FRAME_OFFSET;
+		s_left_offset = 4;
 	}
 	
 	GetDlgItem(IDC_STATIC_CONTROL)->GetWindowRect(&ControlStatic);
@@ -2327,6 +2392,13 @@ void CMySScomDlg::OnButtonSrSend()
 	INIT_EASYSIZE;                                                   // 重新初始化各个控件的位置
 }
 
+void CMySScomDlg::OnButtonHelp() 
+{
+	CDialogAbout Dlgabout;
+	
+	Dlgabout.DoModal();
+}
+
 void CMySScomDlg::OnCheckHexDisplay() 
 {
 	if (m_Check_ShowTime == TRUE) {
@@ -2545,6 +2617,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
 
+	SetTimer(Timer_No_RecvData,  10,  NULL);
 	SetTimer(Timer_No_StatusBar, 1000, NULL);
 	
 	// CG: The following block was added by the ToolTips component.
@@ -2586,16 +2659,31 @@ BOOL CMySScomDlg::OnInitDialog()
 
 void CMySScomDlg::OnTimer(UINT nIDEvent) 
 {
-	if (nIDEvent == Timer_No_StatusBar) {                            // 状态栏定时更新
-		UpdateStatusBarNow();
-	} else if (nIDEvent == Timer_No_AutoSend) {                      // 自动发送短数据
-		SendEditDatatoComm();
-	} else if (nIDEvent == Timer_No_LoopSend) {                      // 处于高级循环发送状态
-		ContinueLoopSrSend();
-	} else {
-		return;
+	switch (nIDEvent)
+	{
+	    case Timer_No_RecvData:                                      // 接收串口数据
+			if (m_DataRecvd == TRUE) {
+				HandleUSARTData();
+				m_DataRecvd = FALSE;
+			}
+		    break;
+
+		case Timer_No_StatusBar:                                     // 状态栏定时更新
+			UpdateStatusBarNow();
+			break;
+			
+		case Timer_No_AutoSend:                                      // 自动发送短数据
+			SendEditDatatoComm();
+			break;
+			
+		case Timer_No_LoopSend:                                      // 处于高级循环发送状态
+			ContinueLoopSrSend();
+			break;
+			
+        default:
+			return;
 	}
-	
+		
 	CDialog::OnTimer(nIDEvent);
 }
 
@@ -2637,66 +2725,9 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 
 void CMySScomDlg::OnOnCommMscomm() 
 {
-	VARIANT       Input_Vrt;
-    COleSafeArray Input_Ary;
-    LONG          RecvLen, i;
-    BYTE          RecvData[2048];                                    // 设置BYTE数组
-    CString       TimeStr, TempStr;
-	CTime         NowTime;
-
-	if (m_PortOpened == FALSE) {
-		return;
+    if (m_DataRecvd == FALSE) {
+		m_DataRecvd = TRUE;
 	}
-	
-    if (m_ctrlComm.GetCommEvent() == 2) {                            // 事件值为2表示接收缓冲区内有字符
-
-        Input_Vrt = m_ctrlComm.GetInput();                           // 读缓冲区
-        Input_Ary = Input_Vrt;                                       // VARIANT型变量转换为ColeSafeArray型变量
-        RecvLen   = Input_Ary.GetOneDimSize();                       // 得到有效数据长度
-        
-		for (i = 0; i < RecvLen; i++) {
-            Input_Ary.GetElement(&i, RecvData + i);                  // 转换为BYTE型数组存放到RecvData数组
-		}
-
-		if (m_bRecvPause == FALSE) {                                 // 如果暂停接收了，则不存储数据，直接返回
-			return;
-		}
-
-        for (i = 0; i < RecvLen; i++) {                              // 将数组转换为Cstring型变量
-
-            BYTE bt = *(char *)(RecvData + i);                       // 读取单个字符
-
-			if (bt == 0) {                                           // 转换为字符型
-				TempStr = CString(bt);
-			} else {
-				TempStr.Format("%c", bt);
-			}
-			
-			if (m_Check_ShowTime == TRUE) {                          // 只有在启用该功能的情况下执行判断
-
-				if (TempStr == "\n") {                               // 接收到回车符，切换到下一行显示
-					m_NeedTime = TRUE;
-				} else {
-					if (m_NeedTime == TRUE) {
-						NowTime = CTime::GetCurrentTime();	         // 获取现在时间
-						TimeStr = NowTime.Format("[%H:%M:%S] ");
-						
-						StrRecved += TimeStr;                        // 在行头显示时间
-						m_NeedTime = FALSE;
-					}
-				}
-			}
-
-			StrRecved += TempStr;                                    // 保存数据内容
-			RecvedData++;                                            // 接收字节数累加
-        }
-
-		StrRecved.Left(RecvLen);
-    }
-
-    UpdateEditDisplay();                                             // 更新编辑框内容显示
-    
-    UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
 }
 
 void CMySScomDlg::OnMyIconNotify(WPARAM wParam, LPARAM lParam)
@@ -2723,4 +2754,5 @@ void CMySScomDlg::OnMyIconNotify(WPARAM wParam, LPARAM lParam)
 		    break;
 	}
 }
+
 

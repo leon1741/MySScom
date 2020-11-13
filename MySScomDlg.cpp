@@ -82,11 +82,18 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 END_MESSAGE_MAP()
 
 BEGIN_EVENTSINK_MAP(CMySScomDlg, CDialog)
-//{{AFX_EVENTSINK_MAP(CMySScomDlg)
-ON_EVENT(CMySScomDlg, IDC_MSCOMM1, 1 /* OnComm */, OnOnCommMscomm, VTS_NONE)
-//}}AFX_EVENTSINK_MAP
+	//{{AFX_EVENTSINK_MAP(CMySScomDlg)
+	ON_EVENT(CMySScomDlg, IDC_MSCOMM1, 1 /* OnComm */, OnOnCommMscomm, VTS_NONE)
+	//}}AFX_EVENTSINK_MAP
 END_EVENTSINK_MAP()
 
+BEGIN_EASYSIZE_MAP(CMySScomDlg)
+	EASYSIZE(IDC_STATIC_CONTROL, ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,       0)
+	EASYSIZE(IDC_STATIC_RECEIVE, IDC_STATIC_CONTROL, ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
+	EASYSIZE(IDC_STATIC_SEND,    IDC_STATIC_CONTROL, ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
+	EASYSIZE(IDC_EDIT_RECV,      ES_BORDER,          ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
+	EASYSIZE(IDC_EDIT_SEND,      ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
+END_EASYSIZE_MAP
 
 /* ==================================== 自定义函数区--开始 ===================================== */
 
@@ -158,30 +165,6 @@ BOOL CMySScomDlg::EnumComm()
 	}
 	
 	return bSuccess;
-}
-
-void CMySScomDlg::RePaintWindows(void)
-{
-	CRect Main;
-	GetClientRect(&Main);
-
-	//if ((Main.Width()) < 800) {
-	//	MoveWindow(0, 0, 800, 500);
-	//	return;
-	//}
-
-	//if ((Main.Height()) < 500) {
-	//	MoveWindow(0, 0, 800, 500);
-	//	return;
-	//}
-
-	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow(10, 10, 158, Main.Height() - 40);
-	
-	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow(180, 10, Main.Width() - 190, Main.Height() - 130);
-	GetDlgItem(IDC_EDIT_RECV)->MoveWindow(190, 28, Main.Width() - 210, Main.Height() - 156);
-	
-	GetDlgItem(IDC_STATIC_SEND)->MoveWindow(180, Main.Height() - 112, Main.Width() - 190, 82);
-	GetDlgItem(IDC_EDIT_SEND)->MoveWindow(190, Main.Height() - 94, Main.Width() - 210, 56);
 }
 
 void CMySScomDlg::SetControlStatus(bool Enable)
@@ -870,6 +853,8 @@ BOOL CMySScomDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
 
+	INIT_EASYSIZE;
+
 	s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
 	s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
 
@@ -939,8 +924,6 @@ BOOL CMySScomDlg::OnInitDialog()
 		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_021);
 	}
 
-	RePaintWindows();                                                // 重绘窗口
-
 	return TRUE;
 }
 
@@ -970,11 +953,7 @@ void CMySScomDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 	
-	CWnd *pWnd = GetDlgItem(IDC_EDIT_RECV);
-	
-	if (pWnd) {
-		RePaintWindows();                                            // 重绘窗口
-	}
+	UPDATE_EASYSIZE;
 }
 
 void CMySScomDlg::OnOnCommMscomm() 

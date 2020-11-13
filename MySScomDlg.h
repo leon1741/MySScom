@@ -29,6 +29,7 @@
 
 class CMySScomDlg : public CDialog
 {
+DECLARE_EASYSIZE
 // Construction
 public:
 	CMySScomDlg(CWnd* pParent = NULL);	// standard constructor
@@ -76,9 +77,8 @@ public:
 	CString TransformtoHex(CString InputStr);
 	char ConvertHexChar(char ch);
 	int  String2Hex(CString str, CByteArray &senddata);
-	void RePaintWindows(void);
 	void SetControlStatus(bool Enable);
-
+	
 	void SaveEditContent(void);
 	void UpdateEditDisplay(void);
 	void NeedAutoSendData(void);

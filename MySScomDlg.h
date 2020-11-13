@@ -48,6 +48,7 @@ public:
 	CString	m_Edit_Send;
 	CString	m_Edit_Timer;
 	CMSComm	m_ctrlComm;
+	BOOL	m_Check_AutoClear;
 	//}}AFX_DATA
 
 	CEdit*         s_Edit_Recv;                                      // 调试消息显示控件
@@ -77,7 +78,8 @@ public:
 	int  String2Hex(CString str, CByteArray &senddata);
 	void RePaintWindows(void);
 	void SetControlStatus(bool Enable);
-	void NeedClearWindow(void);
+
+	void SaveEditContent(void);
 	void UpdateEditDisplay(void);
 	void NeedAutoSendData(void);
 	void UpdateStatusBarNow(void);
@@ -126,6 +128,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnOnCommMscomm();
 	afx_msg void OnButtonCount();
+	afx_msg void OnCheckAutoClear();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

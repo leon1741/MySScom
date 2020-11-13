@@ -32,6 +32,7 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	m_Edit_Recv = _T("");
 	m_Edit_Send = _T("");
 	m_Edit_Timer = _T("1000");
+	m_Check_AutoClear = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -53,6 +54,7 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_SEND, m_Edit_Send);
 	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_Timer);
 	DDX_Control(pDX, IDC_MSCOMM1, m_ctrlComm);
+	DDX_Check(pDX, IDC_CHECK_AUTOCLEAR, m_Check_AutoClear);
 	//}}AFX_DATA_MAP
 }
 
@@ -75,6 +77,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON_COUNT, OnButtonCount)
+	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -186,15 +189,13 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 	GetDlgItem(IDC_BUTTON_PAUSE)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(Enable);
 	
 	GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
-	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_AUTOCLEAR)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
 	
-	GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(Enable);
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
 }
@@ -272,7 +273,7 @@ CString CMySScomDlg::TransformtoHex(CString InputStr)
 	return ResultCStr;
 }
 
-void CMySScomDlg::NeedClearWindow(void)
+void CMySScomDlg::SaveEditContent(void)
 {
 	CTime   NowTime  = CTime::GetCurrentTime();	                     // 获取现在时间
 	CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";
@@ -281,13 +282,9 @@ void CMySScomDlg::NeedClearWindow(void)
 		
 	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
 
-		int nLength = StrRecved.GetLength();                        // 文件长度
-		MyFile.Write(StrRecved, nLength);                           // 写入文本文件
+		int nLength = StrRecved.GetLength();                         // 文件长度
+		MyFile.Write(StrRecved, nLength);                            // 写入文本文件
 		MyFile.Close();	                                             // 关闭文件
-
-		StrRecved  = "";
-		m_Edit_Recv = "";
-		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);                  // 清空编辑框内容
 	}
 }
 
@@ -298,16 +295,39 @@ void CMySScomDlg::UpdateEditDisplay(void)
 		m_Edit_Recv = TransformtoHex(StrRecved);
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 
-		if (m_Edit_Recv.GetLength() >= MAX_RECV_CHAR) {              // 在16进制模式下，对数据内容长度进行判断
-			NeedClearWindow();
+		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
+
+			if (m_Edit_Recv.GetLength() >= MAX_RECV_CHAR) {          // 在16进制模式下，对数据内容长度进行判断
+				
+				if (m_Check_AutoSave) {
+
+					SaveEditContent();                               // 首先保存编辑框的数据
+				}
+
+				StrRecved   = "";
+				m_Edit_Recv = "";
+				SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);          // 清空编辑框内容
+			}
 		}
+
 	} else {                                                         // 否则，直接显示数据内容
 
 		m_Edit_Recv = StrRecved;
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
-		
-		if (s_Edit_Recv->GetLineCount() >= MAX_RECV_LINE) {          // 在字符模式下，对数据行数进行判断
-			NeedClearWindow();
+
+		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
+			
+			if (s_Edit_Recv->GetLineCount() >= MAX_RECV_LINE) {      // 在字符模式下，对数据行数进行判断
+				
+				if (m_Check_AutoSave) {
+					
+					SaveEditContent();                               // 首先保存编辑框的数据
+				}
+
+				StrRecved   = "";
+				m_Edit_Recv = "";
+				SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);          // 清空编辑框内容
+			}
 		}
 	}
 }
@@ -323,9 +343,8 @@ void CMySScomDlg::NeedAutoSendData(void)
 	
 	if ((Timer > 0) && (Timer <= 10000)) {
 		SetTimer(Timer_No_AutoSend, Timer, NULL);                    // 启动定时器
-		GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(false);
-		GetDlgItem(IDC_STATIC_MS)->EnableWindow(false);
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(false);
+		GetDlgItem(IDC_STATIC_MS)->EnableWindow(false);
 		m_Edit_Timer = TempStr;                                      // 更新编辑框内容
 		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_Timer);
 	} else {
@@ -614,10 +633,12 @@ void CMySScomDlg::OnButtonPause()
 {
 	if (m_bCanDisplay == false) {
 		m_bCanDisplay = TRUE;
-		SetDlgItemText(IDC_BUTTON_PAUSE, "暂停显示");
+		SetDlgItemText(IDC_BUTTON_PAUSE, "暂停接收");
+		GetDlgItem(IDC_BUTTON_ONOFF)->EnableWindow(TRUE);
 	} else {
 		m_bCanDisplay = false;
-		SetDlgItemText(IDC_BUTTON_PAUSE, "恢复显示");
+		SetDlgItemText(IDC_BUTTON_PAUSE, "恢复接收");
+		GetDlgItem(IDC_BUTTON_ONOFF)->EnableWindow(FALSE);
 	}
 }
 
@@ -711,9 +732,13 @@ void CMySScomDlg::OnButtonRespite()
 	if (m_bSendPause == TRUE) {
 		m_bSendPause = FALSE;
 		SetDlgItemText(IDC_BUTTON_RESPITE, "暂停发送");
+		GetDlgItem(IDC_BUTTON_READ)->EnableWindow(TRUE);
+		GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
 	} else {
 		m_bSendPause = TRUE;
 		SetDlgItemText(IDC_BUTTON_RESPITE, "恢复发送");
+		GetDlgItem(IDC_BUTTON_READ)->EnableWindow(FALSE);
+		GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(FALSE);
 	}
 }
 
@@ -728,6 +753,11 @@ void CMySScomDlg::OnButtonReiput()
 
 void CMySScomDlg::OnButtonSend() 
 {
+	if (m_Edit_Send.GetLength() <= 0) {
+		MessageBox("发送窗口内容为空，未发送任何数据！    ", "提示", MB_OK + MB_ICONINFORMATION);
+		return;
+	}
+	
 	SendEditDatatoComm();
 }
 
@@ -746,6 +776,17 @@ void CMySScomDlg::OnCheckHexDisplay()
 	UpdateEditDisplay();                                             // 更新显示
 }
 
+void CMySScomDlg::OnCheckAutoClear() 
+{
+	m_Check_AutoClear = !m_Check_AutoClear;
+
+	if (m_Check_AutoClear) {
+		GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(TRUE);
+	} else {
+		GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
+	}
+}
+
 void CMySScomDlg::OnCheckAutoSave() 
 {
 	m_Check_AutoSave = !m_Check_AutoSave;
@@ -761,12 +802,22 @@ void CMySScomDlg::OnCheckAutoSend()
 	m_Check_AutoSend = !m_Check_AutoSend;
 
 	if (m_Check_AutoSend) {
-		NeedAutoSendData();
+
+		if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {              // 确保输入的数据不会过长
+
+			MessageBox("您输入的数据过长，无法一次发送完成。请分批输入或者以文件形式发送......       ", "提示", MB_OK + MB_ICONINFORMATION);
+			m_Check_AutoSend = FALSE;
+			UpdateData(FALSE);
+			return;
+		}
+
+		NeedAutoSendData();                                          // 开始自动发送数据
+
 	} else {
-		KillTimer(Timer_No_AutoSend);
-		GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(true);
-		GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
+
+		KillTimer(Timer_No_AutoSend);                                // 否则，用户取消了自动发送的功能
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(true);
+		GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
 	}
 }
 
@@ -839,6 +890,8 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	GetDlgItem(IDC_BUTTON_SAVE)->EnableWindow(FALSE);
 
+	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
+
 	SetControlStatus(false);                                         // 首先禁用各个按钮控件
 
 	m_bCanDisplay = TRUE;
@@ -869,11 +922,7 @@ BOOL CMySScomDlg::OnInitDialog()
 		// m_tooltip.AddTool(GetDlgItem(IDC_<name>), "<text>");
 	}
 
-	CWnd *pWnd = GetDlgItem(IDC_EDIT_RECV);
-	
-	if (pWnd) {
-		RePaintWindows();                                            // 重绘窗口
-	}
+	RePaintWindows();                                                // 重绘窗口
 
 	return TRUE;
 }
@@ -895,8 +944,8 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 
 BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg) 
 {
-	m_tooltip.RelayEvent(pMsg);                                      // The following block was added by the ToolTips component.
-	
+	m_tooltip.RelayEvent(pMsg);
+
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
@@ -938,7 +987,7 @@ void CMySScomDlg::OnOnCommMscomm()
             BYTE bt = *(char *)(RecvData + i);                       // 转换为字符型
 
 			TempStr.Format("%c", bt);
-			StrRecved += TempStr;                                   // 保存数据内容
+			StrRecved += TempStr;                                    // 保存数据内容
 			
 			RecvedData++;                                            // 接收字节数累加
         }
@@ -950,3 +999,4 @@ void CMySScomDlg::OnOnCommMscomm()
 		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
     }
 }
+

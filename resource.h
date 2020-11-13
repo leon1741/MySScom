@@ -122,6 +122,11 @@
 #define IDC_BUTTON_SR19                 1111
 #define IDC_BUTTON_SR20                 1112
 #define IDC_STATIC_LABLE                1123
+#define IDC_CHECK_SRAUTO                1127
+#define IDC_EDIT_SRAUTO                 1128
+#define IDC_STATIC_SRAUTO               1130
+#define IDC_STATIC_EX01                 1131
+#define IDC_STATIC_EX02                 1132
 
 // Next default values for new objects
 // 
@@ -129,7 +134,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1124
+#define _APS_NEXT_CONTROL_VALUE         1133
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

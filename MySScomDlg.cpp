@@ -32,6 +32,8 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	m_Edit_Send = _T("");
 	m_Edit_Timer = _T("1000");
 	m_Check_AutoClear = FALSE;
+	m_Check_SrAuto = FALSE;
+	m_Edit_SrAuto = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -54,6 +56,8 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_Timer);
 	DDX_Control(pDX, IDC_MSCOMM1, m_ctrlComm);
 	DDX_Check(pDX, IDC_CHECK_AUTOCLEAR, m_Check_AutoClear);
+	DDX_Check(pDX, IDC_CHECK_SRAUTO, m_Check_SrAuto);
+	DDX_Text(pDX, IDC_EDIT_SRAUTO, m_Edit_SrAuto);
 	//}}AFX_DATA_MAP
 }
 
@@ -95,7 +99,8 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_STATIC_SRSEND,  IDC_STATIC_RECEIVE, ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_RECV,      ES_BORDER,          ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_SEND,      ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
-	EASYSIZE(IDC_STATIC_LABLE,   ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_STATIC_EX01,    ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,       0)
+	EASYSIZE(IDC_STATIC_EX02,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	// 以下是扩展发送区的按钮控件的属性设置
 	EASYSIZE(IDC_BUTTON_SR01,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
 	EASYSIZE(IDC_BUTTON_SR02,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
@@ -159,6 +164,11 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_CHECK_SR18,     ES_KEEPSIZE,        IDC_EDIT_SR18,      ES_BORDER,          ES_KEEPSIZE,     0)
 	EASYSIZE(IDC_CHECK_SR19,     ES_KEEPSIZE,        IDC_EDIT_SR19,      ES_BORDER,          ES_KEEPSIZE,     0)
 	EASYSIZE(IDC_CHECK_SR20,     ES_KEEPSIZE,        IDC_EDIT_SR20,      ES_BORDER,          ES_KEEPSIZE,     0)
+	// 以下是扩展发送区的其他各个控件的属性设置
+	EASYSIZE(IDC_STATIC_LABLE,   ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_STATIC_SRAUTO,  ES_KEEPSIZE,        IDC_STATIC_SRAUTO,  ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SRAUTO,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SRAUTO,   ES_KEEPSIZE,        IDC_EDIT_SRAUTO,    ES_BORDER,          ES_KEEPSIZE,     0)
 END_EASYSIZE_MAP
 
 
@@ -717,27 +727,37 @@ void CMySScomDlg::ShowSrSendButton(bool Enable)
 	GetDlgItem(IDC_BUTTON_SR20)->ShowWindow(Enable);
 }
 
+void CMySScomDlg::ShowSrSendOthers(bool Enable)
+{
+	GetDlgItem(IDC_STATIC_SRSEND)->ShowWindow(Enable);
+	GetDlgItem(IDC_STATIC_LABLE)->ShowWindow(Enable);
+	
+	GetDlgItem(IDC_STATIC_EX02)->ShowWindow(Enable);
+
+	GetDlgItem(IDC_CHECK_SRAUTO)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SRAUTO)->ShowWindow(Enable);
+	GetDlgItem(IDC_STATIC_SRAUTO)->ShowWindow(Enable);
+}
+
 void CMySScomDlg::HideSrSendArea(void)
 {
 	CRect DialogMain, RecvEdit, SendEdit;
 	CRect RecvStatic, SendStatic, SrSdStatic;
 	
+	ShowSrSendCheck(FALSE);
+	ShowSrSendEdit(FALSE);
+	ShowSrSendButton(FALSE);
+	ShowSrSendOthers(FALSE);
+	
+	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
+
 	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
 	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
 	GetDlgItem(IDC_STATIC_SRSEND)->GetWindowRect(&SrSdStatic);
 	
 	GetDlgItem(IDC_EDIT_RECV)->GetWindowRect(&RecvEdit);
 	GetDlgItem(IDC_EDIT_SEND)->GetWindowRect(&SendEdit);
-	
-	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
-	
-	GetDlgItem(IDC_STATIC_SRSEND)->ShowWindow(FALSE);
-	GetDlgItem(IDC_STATIC_LABLE)->ShowWindow(FALSE);
 
-	ShowSrSendCheck(FALSE);
-	ShowSrSendEdit(FALSE);
-	ShowSrSendButton(FALSE);
-	
 	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
 											   (RecvStatic.top - DialogMain.top - 23), 
 		                                       (RecvStatic.Width() + SrSdStatic.Width() + 10), 
@@ -763,22 +783,20 @@ void CMySScomDlg::ShowSrSendArea(void)
 {
 	CRect DialogMain, RecvEdit, SendEdit;
 	CRect RecvStatic, SendStatic, SrSdStatic;
+
+	ShowSrSendCheck(TRUE);
+	ShowSrSendEdit(TRUE);
+	ShowSrSendButton(TRUE);
+	ShowSrSendOthers(TRUE);
 	
+	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
+
 	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
 	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
 	GetDlgItem(IDC_STATIC_SRSEND)->GetWindowRect(&SrSdStatic);
 	
 	GetDlgItem(IDC_EDIT_RECV)->GetWindowRect(&RecvEdit);
 	GetDlgItem(IDC_EDIT_SEND)->GetWindowRect(&SendEdit);
-	
-	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
-	
-	GetDlgItem(IDC_STATIC_SRSEND)->ShowWindow(TRUE);
-	GetDlgItem(IDC_STATIC_LABLE)->ShowWindow(TRUE);
-	
-	ShowSrSendCheck(TRUE);
-	ShowSrSendEdit(TRUE);
-	ShowSrSendButton(TRUE);
 	
 	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
 											   (RecvStatic.top - DialogMain.top - 23), 
@@ -1295,7 +1313,7 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 void CMySScomDlg::OnSize(UINT nType, int cx, int cy) 
 {
 	CDialog::OnSize(nType, cx, cy);
-	
+
 	UPDATE_EASYSIZE;
 
 	RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);      // 同步状态栏的位置
@@ -1305,7 +1323,7 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 {
 	CDialog::OnSizing(fwSide, pRect);
 
-	EASYSIZE_MINSIZE(850, 522, fwSide, pRect);                       // 限制窗体的最小尺寸
+	EASYSIZE_MINSIZE(854, 546, fwSide, pRect);                       // 限制窗体的最小尺寸
 }
 
 void CMySScomDlg::OnOnCommMscomm() 

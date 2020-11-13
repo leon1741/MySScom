@@ -50,6 +50,8 @@ public:
 	CString	m_Edit_Timer;
 	CMSComm	m_ctrlComm;
 	BOOL	m_Check_AutoClear;
+	BOOL	m_Check_SrAuto;
+	CString	m_Edit_SrAuto;
 	//}}AFX_DATA
 
 	CEdit*         s_Edit_Recv;                                      // 调试消息显示控件
@@ -102,8 +104,9 @@ public:
 	void ContinueToSendFile(void);
 
 	void ShowSrSendCheck(bool Enable);	
-	void ShowSrSendEdit(bool Enable);	
+	void ShowSrSendEdit(bool Enable);
 	void ShowSrSendButton(bool Enable);
+	void ShowSrSendOthers(bool Enable);
 
 	void HideSrSendArea(void);
 	void ShowSrSendArea(void);

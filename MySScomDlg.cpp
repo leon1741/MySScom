@@ -594,10 +594,10 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 	DisplayStr = m_PortOpened ? " 串口已打开" : " 串口未打开";	
 	m_StatusBar.SetPaneText(1, DisplayStr);
 
-	DisplayStr.Format(" Recv: %.4d", RecvedData);
+	DisplayStr.Format(" Recv: %.6d", RecvedData);
 	m_StatusBar.SetPaneText(2, DisplayStr);
 
-	DisplayStr.Format(" Send: %.4d", SendedData);
+	DisplayStr.Format(" Send: %.6d", SendedData);
 	m_StatusBar.SetPaneText(3, DisplayStr);
 
 	DisplayStr = " 当前时间: " + Nowtime.Format("%Y-%m-%d") + " " + Nowtime.Format("%H:%M:%S");
@@ -899,14 +899,14 @@ void CMySScomDlg::InitiateStatusBar(void)
 	m_StatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 1);
 	m_StatusBar.SetPaneText(0, " 欢迎使用MySScom - 雅迅网络研发一部测试组");
 	
-	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 90);
+	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 80);
 	m_StatusBar.SetPaneText(1, " 串口未打开");
 
 	m_StatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 90);
-	m_StatusBar.SetPaneText(2, " Recv: 0000");
+	m_StatusBar.SetPaneText(2, " Recv: 000000");
 	
 	m_StatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 90);
-	m_StatusBar.SetPaneText(3, " Send: 0000");
+	m_StatusBar.SetPaneText(3, " Send: 000000");
 
 	m_StatusBar.SetPaneInfo(4, nID, SBPS_NORMAL, 200);
 	m_StatusBar.SetPaneText(4, m_strTime);
@@ -2293,8 +2293,7 @@ BOOL CMySScomDlg::OnInitDialog()
 	s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
 	s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
 
-	InitiateStatusBar();
-
+	InitiateStatusBar();                                             // 初始化状态栏各个区域位置
 	InitiateComboComs();                                             // 初始化选择串口号的列表框
 	InitiateComboBaud();                                             // 初始化选择波特率的列表框
 	InitiateComboData();                                             // 初始化选择数据位的列表框
@@ -2411,7 +2410,7 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 {
 	CDialog::OnSizing(fwSide, pRect);
 
-	EASYSIZE_MINSIZE(535, 546, fwSide, pRect);                       // 限制窗体的最小尺寸
+	EASYSIZE_MINSIZE(800, 546, fwSide, pRect);                       // 限制窗体的最小尺寸
 }
 
 void CMySScomDlg::OnOnCommMscomm() 

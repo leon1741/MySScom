@@ -27,7 +27,7 @@ Type=0
 HeaderFile=MySScomDlg.h
 ImplementationFile=MySScomDlg.cpp
 Filter=D
-LastObject=IDC_BUTTON_ONOFF
+LastObject=IDC_MENU_TRAY_HIDE
 BaseClass=CDialog
 VirtualFilter=dWC
 

@@ -322,9 +322,11 @@ IDR_MENU_TRAY MENU DISCARDABLE
 BEGIN
     POPUP "TrayMenu"
     BEGIN
-        MENUITEM "显示主界面",                  IDC_MENU_TRAY_SHOW
-        MENUITEM "隐藏主界面",                  IDC_MENU_TRAY_HIDE
-        MENUITEM "退出本程序",                  IDC_MENU_TRAY_EXIT
+        MENUITEM "显示界面",                    IDC_MENU_TRAY_SHOW
+        MENUITEM SEPARATOR
+        MENUITEM "隐藏界面",                    IDC_MENU_TRAY_HIDE
+        MENUITEM SEPARATOR
+        MENUITEM "退出程序",                    IDC_MENU_TRAY_EXIT
     END
 END
 

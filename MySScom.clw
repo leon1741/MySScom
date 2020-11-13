@@ -11,9 +11,10 @@ ClassCount=2
 Class1=CMySScomApp
 Class2=CMySScomDlg
 
-ResourceCount=3
+ResourceCount=4
 Resource2=IDR_MAINFRAME
 Resource3=IDD_MYSSCOM_DIALOG
+Resource4=IDR_MENU_TRAY
 
 [CLS:CMySScomApp]
 Type=0
@@ -26,7 +27,7 @@ Type=0
 HeaderFile=MySScomDlg.h
 ImplementationFile=MySScomDlg.cpp
 Filter=D
-LastObject=IDC_CHECK_HEXDSPL
+LastObject=IDC_BUTTON_ONOFF
 BaseClass=CDialog
 VirtualFilter=dWC
 
@@ -138,4 +139,12 @@ Control99=IDC_STATIC_EX02,static,1342312961
 Control100=IDC_EDIT_LINES,edit,1350639745
 Control101=IDC_STATIC_OVER,static,1342308352
 Control102=IDC_STATIC_LINES,static,1342308352
+
+[MNU:IDR_MENU_TRAY]
+Type=1
+Class=CMySScomDlg
+Command1=IDC_MENU_TRAY_SHOW
+Command2=IDC_MENU_TRAY_HIDE
+Command3=IDC_MENU_TRAY_EXIT
+CommandCount=3
 

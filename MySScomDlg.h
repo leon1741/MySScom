@@ -11,19 +11,20 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#define  Timer_No_StatusBar       0x01                               // 状态栏定时更新定时器
-#define  Timer_No_AutoSend        0x02                               // 自动发送数据定时器
-#define  Timer_No_SendFile        0x03                               // 发送长文件时的间隔定时器
-#define  Timer_No_LoopSend        0x04                               // 高级发送功能的循环定时器
+#define  Timer_No_StatusBar            0x01                          // 状态栏定时更新定时器
+#define  Timer_No_AutoSend             0x02                          // 自动发送数据定时器
+#define  Timer_No_SendFile             0x03                          // 发送长文件时的间隔定时器
+#define  Timer_No_LoopSend             0x04                          // 高级发送功能的循环定时器
 
-#define  SEND_SHORT_DATA          0x01                               // 处于发送短数据的状态
-#define  SEND_LONG_FILE           0x02                               // 处于发送长文件的状态
+#define  SEND_SHORT_DATA               0x01                          // 处于发送短数据的状态
+#define  SEND_LONG_FILE                0x02                          // 处于发送长文件的状态
 
-#define  MAX_RECV_CHAR(n)         (n * 3 * 100)                      // 最多允许接收的字符个数，根据行数来计算
+#define  MAX_RECV_CHAR(n)              (n * 3 * 100)                 // 最多允许接收的字符个数，根据行数来计算
 
-#define  MAX_SEND_BYTE            500                                // 一次最多允许发送的字节数
-#define  MAX_LOOP_BYTE            500000                             // 循环发送区每一次允许发送的最大字节数
+#define  MAX_SEND_BYTE                 500                           // 一次最多允许发送的字节数
+#define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
 
+#define  MYWM_NOTIFYICON               (WM_USER + 1001)
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -146,6 +147,9 @@ public:
 	int  GetSrValidDataNo(void);
 	void TrytoSrSendData(CString InputStr, BOOL NeedHex);
 	void ContinueLoopSrSend(void);
+
+	BOOL TaskBarDeleteIcon(HWND hwnd, UINT uID);
+	BOOL TaskBarAddIcon(HWND hwnd, UINT uID, HICON hicon, LPSTR lpszTip);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)
@@ -226,6 +230,10 @@ protected:
 	afx_msg void OnCheckSrSend19();
 	afx_msg void OnCheckSrSend20();
 	afx_msg void OnClose();
+	afx_msg void OnMenuTrayExit();
+	afx_msg void OnMenuTrayHide();
+	afx_msg void OnMenuTrayShow();
+	afx_msg void OnMyIconNotify(WPARAM wParam, LPARAM lParam);
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

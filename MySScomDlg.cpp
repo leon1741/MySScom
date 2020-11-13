@@ -122,6 +122,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
 	ON_WM_SIZING()
+	ON_MESSAGE(MYWM_NOTIFYICON, OnMyIconNotify)
 	ON_BN_CLICKED(IDC_BUTTON_COUNT, OnButtonCount)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
 	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSrSend)
@@ -167,6 +168,9 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_SR19, OnCheckSrSend19)
 	ON_BN_CLICKED(IDC_CHECK_SR20, OnCheckSrSend20)
 	ON_WM_CLOSE()
+	ON_COMMAND(IDC_MENU_TRAY_EXIT, OnMenuTrayExit)
+	ON_COMMAND(IDC_MENU_TRAY_HIDE, OnMenuTrayHide)
+	ON_COMMAND(IDC_MENU_TRAY_SHOW, OnMenuTrayShow)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -682,8 +686,8 @@ void CMySScomDlg::InitiateAllParas(void)
 	m_Combo_Stop.SetCurSel(TempData);
 
 	m_Check_HexDspl   = (::GetPrivateProfileInt("RecvConfig", "HexDispl", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_AutoClear = (::GetPrivateProfileInt("RecvConfig", "AutoClar", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_AutoSave  = (::GetPrivateProfileInt("RecvConfig", "AutoSave", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	//m_Check_AutoClear = (::GetPrivateProfileInt("RecvConfig", "AutoClar", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	//m_Check_AutoSave  = (::GetPrivateProfileInt("RecvConfig", "AutoSave", 0, ".\\Settings.ini")) ? TRUE : FALSE;
 
 	m_Check_HexSend   = (::GetPrivateProfileInt("SendConfig", "HexaSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
 	::GetPrivateProfileString("SendConfig", "AutoTime", "1000", TempStr, 5, ".\\Settings.ini");
@@ -1414,6 +1418,36 @@ void CMySScomDlg::ContinueLoopSrSend(void)
 	}
 }
 
+BOOL CMySScomDlg::TaskBarAddIcon(HWND hwnd, UINT uID, HICON hicon, LPSTR lpszTip)
+{
+	NOTIFYICONDATA d;
+	
+	d.cbSize = sizeof(NOTIFYICONDATA);
+	d.hWnd   = hwnd;
+	d.uID    = uID;
+	d.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+	d.hIcon  = hicon;
+	d.uCallbackMessage = MYWM_NOTIFYICON;
+	
+	if (lpszTip) {
+		lstrcpy(d.szTip, lpszTip);
+	} else {
+		d.szTip[0] = '\0';
+	}
+	
+	return Shell_NotifyIcon(NIM_ADD, &d);
+}
+
+BOOL CMySScomDlg::TaskBarDeleteIcon(HWND hwnd, UINT uID)
+{
+	NOTIFYICONDATA d;
+	
+	d.cbSize = sizeof(NOTIFYICONDATA);
+	d.hWnd   = hwnd;
+	d.uID    = uID;
+	
+	return Shell_NotifyIcon(NIM_DELETE, &d);
+}
 
 /* ==================================== 自定义函数区--结束 ===================================== */
 
@@ -2189,6 +2223,24 @@ void CMySScomDlg::OnCheckAutoSend()
 	}
 }
 
+void CMySScomDlg::OnMenuTrayShow() 
+{
+	ShowWindow(SW_SHOW);
+}
+
+void CMySScomDlg::OnMenuTrayHide() 
+{
+	ShowWindow(SW_HIDE);
+}
+
+void CMySScomDlg::OnMenuTrayExit() 
+{
+	RecordAllParas();                                                // 保存各个参数数据
+	
+	TaskBarDeleteIcon(GetSafeHwnd(), 120);                           // 删除任务栏的图标 
+	
+	::PostQuitMessage(0);                                            // 程序退出的唯一方式
+}
 
 /* ================================== 各个控件消息处理--结束 =================================== */
 
@@ -2304,6 +2356,8 @@ BOOL CMySScomDlg::OnInitDialog()
 	CreateSettingFile();                                             // 创建程序配置参数文件并初始化各个参数
 	InitiateAllParas();
 
+	TaskBarAddIcon(GetSafeHwnd(), 120, AfxGetApp()->LoadIcon(IDR_MAINFRAME), "MySScom");
+
 	return TRUE;
 }
 
@@ -2328,14 +2382,20 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 {
 	m_tooltip.RelayEvent(pMsg);
 
+	if (pMsg -> message == WM_KEYDOWN)
+	{
+        if (pMsg -> wParam == VK_ESCAPE)
+			return true;
+		if (pMsg -> wParam == VK_RETURN)
+			return true;
+	}
+
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
 void CMySScomDlg::OnClose() 
 {
-	RecordAllParas();
-	
-	CDialog::OnClose();
+	ShowWindow(SW_HIDE);                                             // 隐藏主窗口但是不退出
 }
 
 void CMySScomDlg::OnSize(UINT nType, int cx, int cy) 
@@ -2398,4 +2458,28 @@ void CMySScomDlg::OnOnCommMscomm()
     UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
 }
 
+void CMySScomDlg::OnMyIconNotify(WPARAM wParam, LPARAM lParam)
+{
+	UINT uMouseMsg = LOWORD(lParam);
+	CMenu oMenu;
+	CPoint oPoint;
+	
+	switch (uMouseMsg)
+	{
+	    case WM_LBUTTONDBLCLK:                                       // 如果是左键双击
+			ShowWindow(IsWindowVisible()? SW_HIDE:SW_SHOWNORMAL);
+			break;
+		
+	    case WM_RBUTTONDOWN:                                         // 如果是右键
+            if (oMenu.LoadMenu(IDR_MENU_TRAY)) {
+				CMenu* pPopup = oMenu.GetSubMenu(0);
+				ASSERT(pPopup != NULL);
+				
+				GetCursorPos(&oPoint);                               // 确定鼠标位置以便在该位置附近显示菜单
+				SetForegroundWindow();
+				pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, oPoint.x, oPoint.y, this); 
+            }
+		    break;
+	}
+}
 

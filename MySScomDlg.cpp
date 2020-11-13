@@ -551,6 +551,7 @@ void CMySScomDlg::NeedLoopSendData(void)
 	if ((Timer > 0) && (Timer <= 10000)) {
 		
 		SetTimer(Timer_No_LoopSend, Timer, NULL);                    // 启动定时器
+		Loop_Counter = 0;
 		
 		GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(FALSE);
 		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(FALSE);
@@ -950,24 +951,80 @@ void CMySScomDlg::ShowSrSendArea(void)
 										  (SendEdit.Height()));
 }
 
-void CMySScomDlg::ContinueLoopSrSend(void)
+bool CMySScomDlg::SrEditDataValid(int EditID)
 {
-	;
+	assert(m_SrSendEnable == TRUE);
+	
+	CString EditStr;
+	
+	GetDlgItemText(EditID, EditStr);
+	
+	if (EditStr.GetLength() > 0) {                                   // 判断编辑框内容的长度是否有效
+		return TRUE;
+	} else {
+		return FALSE;
+	}
 }
 
-bool CMySScomDlg::CheckSrDataIsValid(void)
+int CMySScomDlg::GetSrValidDataNo(void)
 {
-	return FALSE;
+	assert(m_SrSendEnable == TRUE);
+	
+	if (SrEditDataValid(IDC_EDIT_SR01) == TRUE) {
+		return IDC_EDIT_SR01;
+	} else if (SrEditDataValid(IDC_EDIT_SR02) == TRUE) {
+		return IDC_EDIT_SR02;
+	} else if (SrEditDataValid(IDC_EDIT_SR03) == TRUE) {
+		return IDC_EDIT_SR03;
+	} else if (SrEditDataValid(IDC_EDIT_SR04) == TRUE) {
+		return IDC_EDIT_SR04;
+	} else if (SrEditDataValid(IDC_EDIT_SR05) == TRUE) {
+		return IDC_EDIT_SR05;
+	} else if (SrEditDataValid(IDC_EDIT_SR06) == TRUE) {
+		return IDC_EDIT_SR06;
+	} else if (SrEditDataValid(IDC_EDIT_SR07) == TRUE) {
+		return IDC_EDIT_SR07;
+	} else if (SrEditDataValid(IDC_EDIT_SR08) == TRUE) {
+		return IDC_EDIT_SR08;
+	} else if (SrEditDataValid(IDC_EDIT_SR09) == TRUE) {
+		return IDC_EDIT_SR09;
+	} else if (SrEditDataValid(IDC_EDIT_SR10) == TRUE) {
+		return IDC_EDIT_SR10;
+	} else if (SrEditDataValid(IDC_EDIT_SR11) == TRUE) {
+		return IDC_EDIT_SR11;
+	} else if (SrEditDataValid(IDC_EDIT_SR12) == TRUE) {
+		return IDC_EDIT_SR12;
+	} else if (SrEditDataValid(IDC_EDIT_SR13) == TRUE) {
+		return IDC_EDIT_SR13;
+	} else if (SrEditDataValid(IDC_EDIT_SR14) == TRUE) {
+		return IDC_EDIT_SR14;
+	} else if (SrEditDataValid(IDC_EDIT_SR15) == TRUE) {
+		return IDC_EDIT_SR15;
+	} else if (SrEditDataValid(IDC_EDIT_SR16) == TRUE) {
+		return IDC_EDIT_SR16;
+	} else if (SrEditDataValid(IDC_EDIT_SR17) == TRUE) {
+		return IDC_EDIT_SR17;
+	} else if (SrEditDataValid(IDC_EDIT_SR18) == TRUE) {
+		return IDC_EDIT_SR18;
+	} else if (SrEditDataValid(IDC_EDIT_SR19) == TRUE) {
+		return IDC_EDIT_SR19;
+	} else if (SrEditDataValid(IDC_EDIT_SR20) == TRUE) {
+		return IDC_EDIT_SR20;
+	} else {
+		return 0;                                                    // 返回内容有效的编辑框的序号，全无效则返回0
+	}
 }
 
 void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 {
+	assert(m_SrSendEnable == TRUE);
+	
 	if (InputStr.GetLength() <= 0) {
 		MessageBox("发送窗口内容为空，未发送任何数据！    ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 	
-	if (NeedHex == TRUE) {                                         // 如果需要以16进制发送
+	if (NeedHex == TRUE) {                                           // 如果需要以16进制发送
 		
 		CByteArray SendData;
 		int len;                                                     // 此处返回的len可以用于计算发送了多少个十六进制数
@@ -987,6 +1044,99 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 	
 	UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
 }
+
+void CMySScomDlg::ContinueLoopSrSend(void)
+{
+	assert(m_SrSendEnable == TRUE);
+
+	for (; ;) {                                                      // 依次判断每个编辑框的内容是否有效，并发送之
+		
+		if ((Loop_Counter < IDC_EDIT_SR01) && (SrEditDataValid(IDC_EDIT_SR01) == TRUE)) {		
+			OnButtonSrSend01();
+			Loop_Counter = IDC_EDIT_SR01;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR02) && (SrEditDataValid(IDC_EDIT_SR02) == TRUE)) {
+			OnButtonSrSend02();
+			Loop_Counter = IDC_EDIT_SR02;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR03) && (SrEditDataValid(IDC_EDIT_SR03) == TRUE)) {
+			OnButtonSrSend03();
+			Loop_Counter = IDC_EDIT_SR03;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR04) && (SrEditDataValid(IDC_EDIT_SR04) == TRUE)) {
+			OnButtonSrSend04();
+			Loop_Counter = IDC_EDIT_SR04;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR05) && (SrEditDataValid(IDC_EDIT_SR05) == TRUE)) {
+			OnButtonSrSend05();
+			Loop_Counter = IDC_EDIT_SR05;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR06) && (SrEditDataValid(IDC_EDIT_SR06) == TRUE)) {
+			OnButtonSrSend06();
+			Loop_Counter = IDC_EDIT_SR06;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR07) && (SrEditDataValid(IDC_EDIT_SR07) == TRUE)) {
+			OnButtonSrSend07();
+			Loop_Counter = IDC_EDIT_SR07;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR08) && (SrEditDataValid(IDC_EDIT_SR08) == TRUE)) {
+			OnButtonSrSend08();
+			Loop_Counter = IDC_EDIT_SR08;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR09) && (SrEditDataValid(IDC_EDIT_SR09) == TRUE)) {
+			OnButtonSrSend09();
+			Loop_Counter = IDC_EDIT_SR09;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR10) && (SrEditDataValid(IDC_EDIT_SR10) == TRUE)) {
+			OnButtonSrSend10();
+			Loop_Counter = IDC_EDIT_SR10;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR11) && (SrEditDataValid(IDC_EDIT_SR11) == TRUE)) {
+			OnButtonSrSend11();
+			Loop_Counter = IDC_EDIT_SR11;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR12) && (SrEditDataValid(IDC_EDIT_SR12) == TRUE)) {
+			OnButtonSrSend12();
+			Loop_Counter = IDC_EDIT_SR12;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR13) && (SrEditDataValid(IDC_EDIT_SR13) == TRUE)) {
+			OnButtonSrSend13();
+			Loop_Counter = IDC_EDIT_SR13;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR14) && (SrEditDataValid(IDC_EDIT_SR14) == TRUE)) {
+			OnButtonSrSend14();
+			Loop_Counter = IDC_EDIT_SR14;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR15) && (SrEditDataValid(IDC_EDIT_SR15) == TRUE)) {
+			OnButtonSrSend15();
+			Loop_Counter = IDC_EDIT_SR15;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR16) && (SrEditDataValid(IDC_EDIT_SR16) == TRUE)) {
+			OnButtonSrSend16();
+			Loop_Counter = IDC_EDIT_SR16;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR17) && (SrEditDataValid(IDC_EDIT_SR17) == TRUE)) {
+			OnButtonSrSend17();
+			Loop_Counter = IDC_EDIT_SR17;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR18) && (SrEditDataValid(IDC_EDIT_SR18) == TRUE)) {
+			OnButtonSrSend18();
+			Loop_Counter = IDC_EDIT_SR18;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR19) && (SrEditDataValid(IDC_EDIT_SR19) == TRUE)) {
+			OnButtonSrSend19();
+			Loop_Counter = IDC_EDIT_SR19;
+			break;
+		} else if ((Loop_Counter < IDC_EDIT_SR20) && (SrEditDataValid(IDC_EDIT_SR20) == TRUE)) {
+			OnButtonSrSend20();
+			Loop_Counter = IDC_EDIT_SR20;
+			break;
+		} else {
+			Loop_Counter = 0;
+		}
+	}
+}
+
 
 /* ==================================== 自定义函数区--结束 ===================================== */
 
@@ -1009,7 +1159,7 @@ void CMySScomDlg::OnCheckSrAuto()
 	
 	if (m_Check_LoopSend) {
 
-		if (!CheckSrDataIsValid()) {
+		if (GetSrValidDataNo() == 0) {
 
 			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~     ", "提示", MB_OK + MB_ICONINFORMATION);
 			
@@ -1018,12 +1168,14 @@ void CMySScomDlg::OnCheckSrAuto()
 			
 			return;
 		}
-				
+		
 		NeedLoopSendData();
 		
 	} else {
 		
+		Loop_Counter = 0;
 		KillTimer(Timer_No_LoopSend);                                // 取消自动发送功能
+		
 		GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(TRUE);
 	}
@@ -1814,6 +1966,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	Send_Status  = SEND_SHORT_DATA;
 	Send_Counter = 0;
+	Loop_Counter = 0;
 
 	RecvedData = 0;
 	SendedData = 0;

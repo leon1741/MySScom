@@ -88,6 +88,7 @@ public:
 
 	int            Send_Status;                                      // 判断处于发送长文件还是短数据的状态
 	int            Send_Counter;                                     // 发送大数据时，本次发送的数据段计数单元
+	int            Loop_Counter;                                     // 循环发送数据的计数器
 
 	CString        StrRecved;                                        // 用来保存已经接收的数据内容
 	CString        StrToSend;                                        // 用来存放需要发送的数据内容
@@ -134,9 +135,10 @@ public:
 	void HideSrSendArea(void);
 	void ShowSrSendArea(void);
 
-	void ContinueLoopSrSend(void);
-	bool CheckSrDataIsValid(void);
+	bool SrEditDataValid(int EditID);
+	int  GetSrValidDataNo(void);
 	void TrytoSrSendData(CString InputStr, BOOL NeedHex);
+	void ContinueLoopSrSend(void);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)

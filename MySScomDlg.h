@@ -61,7 +61,7 @@ public:
 	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
 	bool           m_bSendPause;                                     // 判断是否需要暂停发送
 
-	bool           m_SrSend_Visible;                                 // 判断高级发送区是否可见
+	bool           m_SrSendEnable;                                   // 判断是否启用高级发送功能
 
 	int            Send_Status;                                      // 判断处于发送长文件还是短数据的状态
 	int            Send_Counter;                                     // 发送大数据时，本次发送的数据段计数单元
@@ -95,10 +95,15 @@ public:
 	void InitiateComboData(void);
 	void InitiateComboStop(void);
 
+	void InitiateMainFrame(void);
 	void InitiateSrSendArea(void);
 
 	void SendEditDatatoComm(void);
 	void ContinueToSendFile(void);
+
+	void ShowSrSendCheck(bool Enable);	
+	void ShowSrSendEdit(bool Enable);	
+	void ShowSrSendButton(bool Enable);
 
 	void HideSrSendArea(void);
 	void ShowSrSendArea(void);

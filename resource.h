@@ -61,6 +61,67 @@
 #define IDC_CHECK_AUTOCLEAR             1030
 #define IDC_STATIC_MAIN                 1031
 #define IDC_STATIC_SRSEND               1032
+#define IDC_CHECK_SR01                  1033
+#define IDC_EDIT_SR01                   1034
+#define IDC_EDIT_SR02                   1035
+#define IDC_EDIT_SR03                   1036
+#define IDC_EDIT_SR04                   1037
+#define IDC_EDIT_SR05                   1038
+#define IDC_EDIT_SR06                   1039
+#define IDC_EDIT_SR07                   1040
+#define IDC_EDIT_SR08                   1041
+#define IDC_EDIT_SR09                   1042
+#define IDC_EDIT_SR10                   1043
+#define IDC_EDIT_SR11                   1044
+#define IDC_EDIT_SR12                   1045
+#define IDC_EDIT_SR13                   1046
+#define IDC_EDIT_SR14                   1047
+#define IDC_EDIT_SR15                   1048
+#define IDC_EDIT_SR16                   1049
+#define IDC_EDIT_SR17                   1050
+#define IDC_EDIT_SR18                   1051
+#define IDC_EDIT_SR19                   1052
+#define IDC_EDIT_SR20                   1053
+#define IDC_CHECK_SR02                  1064
+#define IDC_CHECK_SR03                  1065
+#define IDC_CHECK_SR04                  1066
+#define IDC_CHECK_SR05                  1067
+#define IDC_CHECK_SR06                  1068
+#define IDC_CHECK_SR07                  1069
+#define IDC_CHECK_SR08                  1070
+#define IDC_CHECK_SR09                  1071
+#define IDC_CHECK_SR10                  1072
+#define IDC_CHECK_SR11                  1073
+#define IDC_CHECK_SR12                  1074
+#define IDC_CHECK_SR13                  1075
+#define IDC_CHECK_SR14                  1076
+#define IDC_CHECK_SR15                  1077
+#define IDC_CHECK_SR16                  1078
+#define IDC_CHECK_SR17                  1079
+#define IDC_CHECK_SR18                  1080
+#define IDC_CHECK_SR19                  1081
+#define IDC_CHECK_SR20                  1082
+#define IDC_BUTTON_SR01                 1093
+#define IDC_BUTTON_SR02                 1094
+#define IDC_BUTTON_SR03                 1095
+#define IDC_BUTTON_SR04                 1096
+#define IDC_BUTTON_SR05                 1097
+#define IDC_BUTTON_SR06                 1098
+#define IDC_BUTTON_SR07                 1099
+#define IDC_BUTTON_SR08                 1100
+#define IDC_BUTTON_SR09                 1101
+#define IDC_BUTTON_SR10                 1102
+#define IDC_BUTTON_SR11                 1103
+#define IDC_BUTTON_SR12                 1104
+#define IDC_BUTTON_SR13                 1105
+#define IDC_BUTTON_SR14                 1106
+#define IDC_BUTTON_SR15                 1107
+#define IDC_BUTTON_SR16                 1108
+#define IDC_BUTTON_SR17                 1109
+#define IDC_BUTTON_SR18                 1110
+#define IDC_BUTTON_SR19                 1111
+#define IDC_BUTTON_SR20                 1112
+#define IDC_STATIC_LABLE                1123
 
 // Next default values for new objects
 // 
@@ -68,7 +129,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1124
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

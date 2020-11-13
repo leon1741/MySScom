@@ -95,6 +95,70 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_STATIC_SRSEND,  IDC_STATIC_RECEIVE, ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_RECV,      ES_BORDER,          ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_SEND,      ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
+	EASYSIZE(IDC_STATIC_LABLE,   ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	// 以下是扩展发送区的按钮控件的属性设置
+	EASYSIZE(IDC_BUTTON_SR01,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR02,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR03,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR04,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR05,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR06,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR07,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR08,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR09,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR10,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR11,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR12,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR13,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR14,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR15,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR16,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR17,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR18,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR19,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_BUTTON_SR20,    ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,     0)
+	// 以下是扩展发送区的编辑框控件的属性设置
+	EASYSIZE(IDC_EDIT_SR01,      ES_KEEPSIZE,        IDC_BUTTON_SR01,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR02,      ES_KEEPSIZE,        IDC_BUTTON_SR02,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR03,      ES_KEEPSIZE,        IDC_BUTTON_SR03,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR04,      ES_KEEPSIZE,        IDC_BUTTON_SR04,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR05,      ES_KEEPSIZE,        IDC_BUTTON_SR05,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR06,      ES_KEEPSIZE,        IDC_BUTTON_SR06,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR07,      ES_KEEPSIZE,        IDC_BUTTON_SR07,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR08,      ES_KEEPSIZE,        IDC_BUTTON_SR08,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR09,      ES_KEEPSIZE,        IDC_BUTTON_SR09,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR10,      ES_KEEPSIZE,        IDC_BUTTON_SR10,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR11,      ES_KEEPSIZE,        IDC_BUTTON_SR11,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR12,      ES_KEEPSIZE,        IDC_BUTTON_SR12,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR13,      ES_KEEPSIZE,        IDC_BUTTON_SR13,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR14,      ES_KEEPSIZE,        IDC_BUTTON_SR14,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR15,      ES_KEEPSIZE,        IDC_BUTTON_SR15,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR16,      ES_KEEPSIZE,        IDC_BUTTON_SR16,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR17,      ES_KEEPSIZE,        IDC_BUTTON_SR17,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR18,      ES_KEEPSIZE,        IDC_BUTTON_SR18,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR19,      ES_KEEPSIZE,        IDC_BUTTON_SR19,    ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_EDIT_SR20,      ES_KEEPSIZE,        IDC_BUTTON_SR20,    ES_BORDER,          ES_KEEPSIZE,     0)
+	// 以下是扩展发送区的复选框控件的属性设置
+	EASYSIZE(IDC_CHECK_SR01,     ES_KEEPSIZE,        IDC_EDIT_SR01,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR02,     ES_KEEPSIZE,        IDC_EDIT_SR02,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR03,     ES_KEEPSIZE,        IDC_EDIT_SR03,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR04,     ES_KEEPSIZE,        IDC_EDIT_SR04,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR05,     ES_KEEPSIZE,        IDC_EDIT_SR05,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR06,     ES_KEEPSIZE,        IDC_EDIT_SR06,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR07,     ES_KEEPSIZE,        IDC_EDIT_SR07,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR08,     ES_KEEPSIZE,        IDC_EDIT_SR08,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR09,     ES_KEEPSIZE,        IDC_EDIT_SR09,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR10,     ES_KEEPSIZE,        IDC_EDIT_SR10,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR11,     ES_KEEPSIZE,        IDC_EDIT_SR11,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR12,     ES_KEEPSIZE,        IDC_EDIT_SR12,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR13,     ES_KEEPSIZE,        IDC_EDIT_SR13,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR14,     ES_KEEPSIZE,        IDC_EDIT_SR14,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR15,     ES_KEEPSIZE,        IDC_EDIT_SR15,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR16,     ES_KEEPSIZE,        IDC_EDIT_SR16,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR17,     ES_KEEPSIZE,        IDC_EDIT_SR17,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR18,     ES_KEEPSIZE,        IDC_EDIT_SR18,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR19,     ES_KEEPSIZE,        IDC_EDIT_SR19,      ES_BORDER,          ES_KEEPSIZE,     0)
+	EASYSIZE(IDC_CHECK_SR20,     ES_KEEPSIZE,        IDC_EDIT_SR20,      ES_BORDER,          ES_KEEPSIZE,     0)
 END_EASYSIZE_MAP
 
 
@@ -478,9 +542,18 @@ void CMySScomDlg::InitiateComboStop(void)
 	}
 }
 
+void CMySScomDlg::InitiateMainFrame(void)
+{
+	CRect DialogMain;
+
+	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
+
+	this->MoveWindow((DialogMain.left), (DialogMain.top), (DialogMain.Width()), (DialogMain.Height()));
+}
+
 void CMySScomDlg::InitiateSrSendArea(void)
 {
-	m_SrSend_Visible = FALSE;
+	m_SrSendEnable = FALSE;
 
 	HideSrSendArea();                                                // 默认状态下不显示高级发送功能
 }
@@ -572,6 +645,78 @@ void CMySScomDlg::ContinueToSendFile(void)
 	}
 }
 
+void CMySScomDlg::ShowSrSendCheck(bool Enable)
+{
+	GetDlgItem(IDC_CHECK_SR01)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR02)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR03)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR04)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR05)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR06)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR07)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR08)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR09)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR10)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR11)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR12)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR13)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR14)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR15)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR16)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR17)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR18)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR19)->ShowWindow(Enable);
+	GetDlgItem(IDC_CHECK_SR20)->ShowWindow(Enable);
+}
+
+void CMySScomDlg::ShowSrSendEdit(bool Enable)
+{
+	GetDlgItem(IDC_EDIT_SR01)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR02)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR03)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR04)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR05)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR06)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR07)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR08)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR09)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR10)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR11)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR12)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR13)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR14)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR15)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR16)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR17)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR18)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR19)->ShowWindow(Enable);
+	GetDlgItem(IDC_EDIT_SR20)->ShowWindow(Enable);
+}
+
+void CMySScomDlg::ShowSrSendButton(bool Enable)
+{
+	GetDlgItem(IDC_BUTTON_SR01)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR02)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR03)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR04)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR05)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR06)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR07)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR08)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR09)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR10)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR11)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR12)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR13)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR14)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR15)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR16)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR17)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR18)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR19)->ShowWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SR20)->ShowWindow(Enable);
+}
+
 void CMySScomDlg::HideSrSendArea(void)
 {
 	CRect DialogMain, RecvEdit, SendEdit;
@@ -587,6 +732,11 @@ void CMySScomDlg::HideSrSendArea(void)
 	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
 	
 	GetDlgItem(IDC_STATIC_SRSEND)->ShowWindow(FALSE);
+	GetDlgItem(IDC_STATIC_LABLE)->ShowWindow(FALSE);
+
+	ShowSrSendCheck(FALSE);
+	ShowSrSendEdit(FALSE);
+	ShowSrSendButton(FALSE);
 	
 	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
 											   (RecvStatic.top - DialogMain.top - 23), 
@@ -624,6 +774,11 @@ void CMySScomDlg::ShowSrSendArea(void)
 	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
 	
 	GetDlgItem(IDC_STATIC_SRSEND)->ShowWindow(TRUE);
+	GetDlgItem(IDC_STATIC_LABLE)->ShowWindow(TRUE);
+	
+	ShowSrSendCheck(TRUE);
+	ShowSrSendEdit(TRUE);
+	ShowSrSendButton(TRUE);
 	
 	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
 											   (RecvStatic.top - DialogMain.top - 23), 
@@ -918,13 +1073,13 @@ void CMySScomDlg::OnButtonCount()
 
 void CMySScomDlg::OnButtonSrSend() 
 {
-	if (m_SrSend_Visible == TRUE) {                                  // 如果已经启用高级发送功能，则禁用之
+	if (m_SrSendEnable == TRUE) {                                    // 如果已经启用高级发送功能，则禁用之
 		HideSrSendArea();
-		m_SrSend_Visible = FALSE;
+		m_SrSendEnable = FALSE;
 		SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
 	} else {                                                         // 如果没有启用高级发送功能，则启用之
 		ShowSrSendArea();
-		m_SrSend_Visible = TRUE;
+		m_SrSendEnable = TRUE;
 		SetDlgItemText(IDC_BUTTON_SRSEND, "普通发送");
 	}
 	
@@ -1108,7 +1263,9 @@ BOOL CMySScomDlg::OnInitDialog()
 		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_021);
 	}
 
-	INIT_EASYSIZE;                                                   // 注意本语句一定要置于初始化的最后
+	INIT_EASYSIZE;
+
+	InitiateMainFrame();
 
 	return TRUE;
 }

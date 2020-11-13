@@ -324,7 +324,7 @@ void CMySScomDlg::NeedAutoSendData(void)
 	
 	Timer = atoi((LPSTR)(LPCTSTR)TempStr);
 	
-	if ((Timer > 0) && (Timer < 10000)) {
+	if ((Timer > 0) && (Timer <= 10000)) {
 		SetTimer(Timer_No_Main, Timer, NULL);                        // 启动定时器
 		GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(false);
 		GetDlgItem(IDC_STATIC_MS)->EnableWindow(false);
@@ -427,27 +427,30 @@ void CMySScomDlg::InitiateComboStop(void)
 
 void CMySScomDlg::SendEditDatatoComm(void)
 {
-	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
-	
-	if (m_Check_HexSend) {                                           // 如果需要以16进制发送
-		
-        CByteArray hexdata;
-        int len;                                                     // 此处返回的len可以用于计算发送了多少个十六进制数
-		
-		len = String2Hex(m_Edit_Send, hexdata);
-		
-        m_ctrlComm.SetOutput(COleVariant(hexdata));                  // 发送十六进制数据
+	if (m_bSendPause == FALSE) {                                     // 确认是否允许发送数据
 
-		SendedData += len;                                           // 发送字节数累加
+		GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);                  // 获取编辑框的内容
 		
-    } else {
+		if (m_Check_HexSend) {                                       // 如果需要以16进制发送
+			
+			CByteArray hexdata;
+			int len;                                                 // 此处返回的len可以用于计算发送了多少个十六进制数
+			
+			len = String2Hex(m_Edit_Send, hexdata);
+			
+			m_ctrlComm.SetOutput(COleVariant(hexdata));              // 发送十六进制数据
+			
+			SendedData += len;                                       // 发送字节数累加
+			
+		} else {
+			
+			m_ctrlComm.SetOutput(COleVariant(m_Edit_Send));          // 发送ASCII字符数据
+			
+			SendedData += m_Edit_Send.GetLength();                   // 发送字节数累加
+		}
 		
-        m_ctrlComm.SetOutput(COleVariant(m_Edit_Send));              // 发送ASCII字符数据
-
-		SendedData += m_Edit_Send.GetLength();                       // 发送字节数累加
-	}
-
-	UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
+		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
+	}	
 }
 
 /* ==================================== 自定义函数区--结束 ===================================== */
@@ -612,7 +615,13 @@ void CMySScomDlg::OnButtonRead()
 
 void CMySScomDlg::OnButtonRespite() 
 {
-	MessageBox("暂不提供发送数据文件的功能！     ", "抱歉", MB_OK + MB_ICONINFORMATION);
+	if (m_bSendPause == TRUE) {
+		m_bSendPause = FALSE;
+		SetDlgItemText(IDC_BUTTON_RESPITE, "暂停发送");
+	} else {
+		m_bSendPause = TRUE;
+		SetDlgItemText(IDC_BUTTON_RESPITE, "恢复发送");
+	}
 }
 
 void CMySScomDlg::OnButtonReiput() 
@@ -736,9 +745,9 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	SetControlStatus(false);                                         // 首先禁用各个按钮控件
 
-	m_bCanDisplay = TRUE;                                            // 默认允许显示数据
-
-	m_PortOpened  = false;
+	m_bCanDisplay = TRUE;
+	m_bSendPause  = FALSE;
+	m_PortOpened  = FALSE;
 
 	ReceiveStr = "";
 

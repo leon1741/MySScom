@@ -44,7 +44,10 @@ public:
 	CEdit*         s_Edit_Send;                                      // 协议数据显示控件
 
 	CStringArray   sPorts;                                           // 用来枚举电脑上存在的串口
+
 	bool           m_bCanDisplay;                                    // 判断是否需要暂停显示
+	bool           m_bSendPause;                                     // 判断是否需要暂停发送
+
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
 
 	CString        ReceiveStr;                                       // 用来保存所接收的数据内容

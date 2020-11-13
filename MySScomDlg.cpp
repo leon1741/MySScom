@@ -885,16 +885,16 @@ void CMySScomDlg::InitiateStatusBar(void)
 	time = CTime::GetCurrentTime();
 	m_strTime = " 当前时间: " + time.Format("%Y-%m-%d") + " " + time.Format("%H:%M:%S");
 	
-	m_StatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 200);
+	m_StatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 1);
 	m_StatusBar.SetPaneText(0, " 欢迎使用MySScom - 雅迅网络研发一部测试组");
 	
-	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 90);
 	m_StatusBar.SetPaneText(1, " 串口未打开");
 
-	m_StatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 90);
 	m_StatusBar.SetPaneText(2, " Recv: 0000");
 	
-	m_StatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 90);
 	m_StatusBar.SetPaneText(3, " Send: 0000");
 
 	m_StatusBar.SetPaneInfo(4, nID, SBPS_NORMAL, 200);
@@ -2320,7 +2320,7 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 {
 	CDialog::OnSizing(fwSide, pRect);
 
-	EASYSIZE_MINSIZE(854, 546, fwSide, pRect);                       // 限制窗体的最小尺寸
+	EASYSIZE_MINSIZE(535, 546, fwSide, pRect);                       // 限制窗体的最小尺寸
 }
 
 void CMySScomDlg::OnOnCommMscomm() 

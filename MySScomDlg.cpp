@@ -95,6 +95,7 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_EDIT_SEND,      ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
 END_EASYSIZE_MAP
 
+
 /* ==================================== 自定义函数区--开始 ===================================== */
 
 
@@ -515,6 +516,9 @@ void CMySScomDlg::ContinueToSendFile(void)
 				Send_Status = SEND_SHORT_DATA;                       // 发送完毕，重新切换到小数据模式
 				KillTimer(Timer_No_SendFile);                        // 停止定时器
 			}
+		} else {
+
+			KillTimer(Timer_No_SendFile);                            // 停止定时器
 		}
 		
 		m_ctrlComm.SetOutput(COleVariant(StrToSend));                // 发送ASCII字符数据
@@ -546,7 +550,7 @@ void CMySScomDlg::OnButtonONOFF()
 	if (m_PortOpened == true) {                                      // 如果串口已经打开，那么执行关闭操作
 
 		if (m_Check_AutoSend) {
-			MessageBox("请首先停用自动发送功能再尝试关闭串口    ", "抱歉", MB_OK + MB_ICONEXCLAMATION);
+			MessageBox("请首先停用自动发送功能再尝试关闭串口    ", "提示", MB_OK + MB_ICONEXCLAMATION);
 			return;
 		}
 		
@@ -558,6 +562,8 @@ void CMySScomDlg::OnButtonONOFF()
 
 		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(TRUE);
+		GetDlgItem(IDC_COMBO_DATA)->EnableWindow(TRUE);
+		GetDlgItem(IDC_COMBO_STOP)->EnableWindow(TRUE);
 
 		SetControlStatus(FALSE);
 
@@ -621,13 +627,15 @@ void CMySScomDlg::OnButtonONOFF()
 		SetControlStatus(TRUE);                                      // 启用各个按钮控件
 		
 		SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
+
 		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
 		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BUTTON_SAVE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
+		GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);		
 
 	} else {
 
-        MessageBox("打开串口失败，该串口可能正在使用中...  ", "提示", MB_OK + MB_ICONERROR);
+        MessageBox("打开串口失败，该串口可能正在使用中...    ", "提示", MB_OK + MB_ICONERROR);
 	}
 }
 
@@ -657,42 +665,44 @@ void CMySScomDlg::OnButtonClear()
 
 void CMySScomDlg::OnButtonSave() 
 {
+	CFile   MyFile;	                                                 // 定义文件类
+	int     nLength;
+	CString Temp_String;
+	
 	CTime   NowTime  = CTime::GetCurrentTime();	                     // 获取现在时间
 	CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt"; // 指定文件名
 	
-    CString Temp_String;                                             // 临时变量
-	CFile   MyFile;	                                                 // 定义文件类
-	int     nLength = Temp_String.GetLength();                       // 文件长度
-
+	GetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+	
+	nLength = m_Edit_Recv.GetLength();                               // 获取长度
+	
 	if (nLength <= 0) {
 		MessageBox("尚未接收到任何内容，无须保存！          ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 	
 	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite) == 0) {
-		Temp_String = "文件 " + FileName + " 创建失败!         ";
-		MessageBox(Temp_String, "抱歉", MB_OK + MB_ICONHAND);
+		Temp_String = "文件 " + FileName + " 创建失败！         ";
+		MessageBox(Temp_String, "抱歉", MB_OK + MB_ICONWARNING);
 		return;
 	} else {
-		Temp_String = "文件 " + FileName + " 创建成功!         ";
+		Temp_String = "文件 " + FileName + " 创建成功！         ";
 		MessageBox(Temp_String, "恭喜", MB_OK + MB_ICONINFORMATION);
 	}
 	
-	GetDlgItem(IDC_EDIT_RECV)->GetWindowText(Temp_String);           // 取得输入框的数据
-	
-	MyFile.Write(Temp_String, nLength);	                             // 写入文本文件
+	MyFile.Write(m_Edit_Recv, nLength);	                             // 写入文本文件
 	MyFile.Close();	                                                 // 关闭文件
 }
 
 void CMySScomDlg::OnButtonRead() 
 {
+	CFile myFile;
+
 	if (m_Check_AutoSend) {
-		MessageBox("自动发送功能已开启，请先停用之！    ", "抱歉", MB_OK + MB_ICONINFORMATION);
+		MessageBox("自动发送功能已开启，请先停用之！    ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 	
-	CFile myFile;
-
 	CFileDialog dlg(TRUE, "*.txt", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 		            "文本文件(*.txt)|*.txt|所有文件(*.*)|*.*|");
 	
@@ -703,7 +713,7 @@ void CMySScomDlg::OnButtonRead()
 	CString FilePath = dlg.GetPathName();						     // 保存文件的路径
 		
 	if (myFile.Open(FilePath, CFile::modeRead) == 0) {
-		MessageBox("读取文件失败，请确认路径正确且文件未处于打开状态！    ", "抱歉", MB_OK + MB_ICONINFORMATION);
+		MessageBox("读取文件失败，请确认路径正确且文件未处于打开状态！    ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 	
@@ -899,11 +909,6 @@ BOOL CMySScomDlg::OnInitDialog()
 	m_Combo_Baud.SetCurSel(2);
 	m_Combo_Data.SetCurSel(3);
 	m_Combo_Stop.SetCurSel(1);
-
-	GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);                 // 暂不提供数据位和停止位的选择
-	GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);
-
-	GetDlgItem(IDC_BUTTON_SAVE)->EnableWindow(FALSE);
 
 	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
 

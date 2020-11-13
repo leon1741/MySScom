@@ -78,7 +78,7 @@ STYLE DS_3DLOOK | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "MySScom"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT_RECV,127,18,425,234,ES_MULTILINE | 
                     ES_AUTOVSCROLL | ES_READONLY | ES_WANTRETURN | 
@@ -157,7 +157,7 @@ BEGIN
         BLOCK "080404b0"
         BEGIN
             VALUE "Comments", "\0"
-            VALUE "CompanyName", "Designed By LEON\0"
+            VALUE "CompanyName", "雅迅网络研发一部\0"
             VALUE "FileDescription", "串口通信应用\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "MySScom\0"
@@ -228,12 +228,12 @@ BEGIN
     IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败。"
     IDS_STRING_001          "选择需要打开的串口号"
     IDS_STRING_002          "请选择串口通信使用的波特率"
-    IDS_STRING_003          "暂不提供数据位的选择，默认为8位"
-    IDS_STRING_004          "暂不提供停止位的选择，默认为1位"
+    IDS_STRING_003          "请选择串口通信使用的数据位"
+    IDS_STRING_004          "请选择串口通信使用的停止位"
     IDS_STRING_005          "打开/关闭指定串口"
     IDS_STRING_006          "暂停/恢复接收串口数据"
     IDS_STRING_007          "清空接收区的数据显示"
-    IDS_STRING_008          "保存接收区的数据内容至文本文件"
+    IDS_STRING_008          "保存接收区的数据内容至程序同级目录的Record文件夹下"
 END
 
 STRINGTABLE DISCARDABLE 

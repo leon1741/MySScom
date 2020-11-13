@@ -97,7 +97,7 @@ BEGIN
     PUSHBUTTON      "暂停接收",IDC_BUTTON_PAUSE,60,99,42,19
     PUSHBUTTON      "清空窗口",IDC_BUTTON_CLEAR,11,127,42,19
     PUSHBUTTON      "保存数据",IDC_BUTTON_SAVE,60,127,42,19
-    CONTROL         "16进制显示数据",IDC_CHECK_HEXRECV,"Button",
+    CONTROL         "16进制显示数据",IDC_CHECK_HEXDSPL,"Button",
                     BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,21,
                     157,72,8
     CONTROL         "清空前自动保存",IDC_CHECK_AUTOSAVE,"Button",
@@ -110,8 +110,9 @@ BEGIN
     CONTROL         "16进制发送数据",IDC_CHECK_HEXSEND,"Button",
                     BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,21,
                     260,72,8
-    CONTROL         "自动的定时发送",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFT | BS_VCENTER | WS_TABSTOP,21,275,72,8
+    CONTROL         "自动的定时发送",IDC_CHECK_AUTOSEND,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,21,
+                    275,72,8
     EDITTEXT        IDC_EDIT_TIMER,55,289,31,12,ES_CENTER | ES_AUTOHSCROLL | 
                     ES_NUMBER
     GROUPBOX        "控制区",IDC_STATIC_CONTROL,4,5,107,306

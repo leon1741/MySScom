@@ -7,7 +7,7 @@ LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "MySScom.h"
 
-ClassCount=4
+ClassCount=2
 Class1=CMySScomApp
 Class2=CMySScomDlg
 
@@ -26,6 +26,9 @@ Type=0
 HeaderFile=MySScomDlg.h
 ImplementationFile=MySScomDlg.cpp
 Filter=D
+LastObject=CMySScomDlg
+BaseClass=CDialog
+VirtualFilter=dWC
 
 
 
@@ -43,14 +46,14 @@ Control7=IDC_BUTTON_ONOFF,button,1342242816
 Control8=IDC_BUTTON_PAUSE,button,1342242816
 Control9=IDC_BUTTON_CLEAR,button,1342242816
 Control10=IDC_BUTTON_SAVE,button,1342242816
-Control11=IDC_CHECK_HEXRECV,button,1342246147
+Control11=IDC_CHECK_HEXDSPL,button,1342246147
 Control12=IDC_CHECK_AUTOSAVE,button,1342246147
 Control13=IDC_BUTTON_READ,button,1476460544
 Control14=IDC_BUTTON_RESPITE,button,1476460544
 Control15=IDC_BUTTON_REIPUT,button,1342242816
 Control16=IDC_BUTTON_SEND,button,1342242816
 Control17=IDC_CHECK_HEXSEND,button,1342246147
-Control18=IDC_CHECK3,button,1342246147
+Control18=IDC_CHECK_AUTOSEND,button,1342246147
 Control19=IDC_EDIT_TIMER,edit,1350639745
 Control20=IDC_STATIC_CONTROL,button,1342177287
 Control21=IDC_STATIC_RECEIVE,button,1342177287

@@ -16,11 +16,13 @@
 #define IDC_BUTTON_PAUSE                1010
 #define IDC_BUTTON_SAVE                 1011
 #define IDC_CHECK_HEXRECV               1012
+#define IDC_CHECK_HEXDSPL               1012
 #define IDC_BUTTON_CLEAR                1013
 #define IDC_BUTTON_SEND                 1014
 #define IDC_BUTTON_REIPUT               1015
 #define IDC_CHECK_HEXSEND               1016
 #define IDC_CHECK3                      1017
+#define IDC_CHECK_AUTOSEND              1017
 #define IDC_EDIT_TIMER                  1018
 #define IDC_CHECK_AUTOSAVE              1019
 #define IDC_STATIC_MS                   1020

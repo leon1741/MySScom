@@ -32,8 +32,8 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	m_Check_AutoClear = FALSE;
 	m_Edit_Recv = _T("");
 	m_Edit_Send = _T("");
-	m_Edit_AutoTimer = _T("1000");
-	m_Edit_LoopTimer = _T("1000");
+	m_Edit_AutoTimer = _T("");
+	m_Edit_LoopTimer = _T("");
 	m_Check_SrSend_01 = FALSE;
 	m_Check_SrSend_02 = FALSE;
 	m_Check_SrSend_03 = FALSE;
@@ -557,13 +557,13 @@ void CMySScomDlg::NeedLoopSendData(void)
 		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(FALSE);
 		
 		m_Edit_LoopTimer = TempStr;                                  // 更新编辑框内容
-		SetDlgItemText(IDC_EDIT_SRAUTO, m_Edit_AutoTimer);
+		SetDlgItemText(IDC_EDIT_SRAUTO, m_Edit_LoopTimer);
 		
 	} else {
 		
 		MessageBox("定时时间必须在0至10秒钟之间，请确认！     ", "提示", MB_OK + MB_ICONEXCLAMATION);
 		
-		SetDlgItemText(IDC_EDIT_SRAUTO, m_Edit_AutoTimer);           // 还原编辑框内容
+		SetDlgItemText(IDC_EDIT_SRAUTO, m_Edit_LoopTimer);           // 还原编辑框内容
 		
 		m_Check_LoopSend = FALSE;
 		UpdateData(FALSE);                                           // 取消复选框被选中的状态
@@ -590,6 +590,190 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 
 	DisplayStr = " 当前时间: " + Nowtime.Format("%Y-%m-%d") + " " + Nowtime.Format("%H:%M:%S");
 	m_StatusBar.SetPaneText(4, DisplayStr);
+}
+
+void CMySScomDlg::CreateSettingFile(void)
+{
+	// 以下语句判断目录下是否存在INI文件，若不存在则创建该文件并写入默认值
+
+	if (!(::GetPrivateProfileInt("SystemInfo", "Created", 0, ".\\Settings.ini"))) {
+
+		::WritePrivateProfileString("SystemInfo", "Created",   "1",    ".\\Settings.ini");
+		
+		::WritePrivateProfileString("PortConfig", "CommPort",  "0",    ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "BaudRate",  "2",    ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "DataBits",  "3",    ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "StopBits",  "1",    ".\\Settings.ini");
+
+		::WritePrivateProfileString("RecvConfig", "HexDispl",  "0",    ".\\Settings.ini");
+		::WritePrivateProfileString("RecvConfig", "AutoClar",  "0",    ".\\Settings.ini");
+		::WritePrivateProfileString("RecvConfig", "AutoSave",  "0",    ".\\Settings.ini");
+
+		::WritePrivateProfileString("SendConfig", "HexaSend",  "0",    ".\\Settings.ini");
+		::WritePrivateProfileString("SendConfig", "AutoSend",  "0",    ".\\Settings.ini");
+		::WritePrivateProfileString("SendConfig", "AutoTime",  "1000", ".\\Settings.ini");
+
+		::WritePrivateProfileString("SrSendArea", "SrHexa01",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa02",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa03",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa04",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa05",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa06",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa07",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa08",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa09",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa10",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa11",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa12",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa13",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa14",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa15",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa16",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa17",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa18",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa19",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrHexa20",  "",     ".\\Settings.ini");
+
+		::WritePrivateProfileString("SrSendArea", "SrData01",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData02",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData03",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData04",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData05",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData06",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData07",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData08",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData09",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData10",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData11",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData12",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData13",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData14",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData15",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData16",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData17",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData18",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData19",  "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "SrData20",  "",     ".\\Settings.ini");
+
+		::WritePrivateProfileString("SrSendArea", "LoopSend",  "0",    ".\\Settings.ini");
+		::WritePrivateProfileString("SrSendArea", "LoopTime",  "1000", ".\\Settings.ini");
+	}
+}
+
+void CMySScomDlg::InitiateAllParas(void)
+{
+	int  TempData;
+	char TempStr[MAX_LOOP_BYTE];
+	CString TempPara;
+	
+	//::GetPrivateProfileString("PortConfig", "CommPort", "0", TempStr, 1, ".\\Settings.ini");
+	//::WritePrivateProfileString("Settings","整点提醒",m_Clock_Remind ? "1":"0","Resourses/Settings.ini");
+
+	TempData = (::GetPrivateProfileInt("PortConfig", "CommPort", 0, ".\\Settings.ini"));
+	m_Combo_ComNo.SetCurSel(TempData);	
+	TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate", 2, ".\\Settings.ini"));
+	m_Combo_Baud.SetCurSel(TempData);
+	TempData = (::GetPrivateProfileInt("PortConfig", "DataBits", 3, ".\\Settings.ini"));
+	m_Combo_Data.SetCurSel(TempData);
+	TempData = (::GetPrivateProfileInt("PortConfig", "StopBits", 1, ".\\Settings.ini"));
+	m_Combo_Stop.SetCurSel(TempData);
+
+	m_Check_HexDspl   = (::GetPrivateProfileInt("RecvConfig", "HexDispl", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_AutoClear = (::GetPrivateProfileInt("RecvConfig", "AutoClar", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_AutoSave  = (::GetPrivateProfileInt("RecvConfig", "AutoSave", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+
+	m_Check_HexSend   = (::GetPrivateProfileInt("SendConfig", "HexaSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_AutoSend  = (::GetPrivateProfileInt("SendConfig", "AutoSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	::GetPrivateProfileString("SendConfig", "AutoTime", "1000", TempStr, 5, ".\\Settings.ini");
+	m_Edit_AutoTimer.Format("%s", TempStr);
+
+	m_Check_SrSend_01 = (::GetPrivateProfileInt("SrSendArea", "SrHexa01", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_02 = (::GetPrivateProfileInt("SrSendArea", "SrHexa02", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_03 = (::GetPrivateProfileInt("SrSendArea", "SrHexa03", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_04 = (::GetPrivateProfileInt("SrSendArea", "SrHexa04", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_05 = (::GetPrivateProfileInt("SrSendArea", "SrHexa05", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_06 = (::GetPrivateProfileInt("SrSendArea", "SrHexa06", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_07 = (::GetPrivateProfileInt("SrSendArea", "SrHexa07", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_08 = (::GetPrivateProfileInt("SrSendArea", "SrHexa08", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_09 = (::GetPrivateProfileInt("SrSendArea", "SrHexa09", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_10 = (::GetPrivateProfileInt("SrSendArea", "SrHexa10", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_11 = (::GetPrivateProfileInt("SrSendArea", "SrHexa11", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_12 = (::GetPrivateProfileInt("SrSendArea", "SrHexa12", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_13 = (::GetPrivateProfileInt("SrSendArea", "SrHexa13", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_14 = (::GetPrivateProfileInt("SrSendArea", "SrHexa14", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_15 = (::GetPrivateProfileInt("SrSendArea", "SrHexa15", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_16 = (::GetPrivateProfileInt("SrSendArea", "SrHexa16", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_17 = (::GetPrivateProfileInt("SrSendArea", "SrHexa17", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_18 = (::GetPrivateProfileInt("SrSendArea", "SrHexa18", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_19 = (::GetPrivateProfileInt("SrSendArea", "SrHexa19", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SrSend_20 = (::GetPrivateProfileInt("SrSendArea", "SrHexa20", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	
+	::GetPrivateProfileString("SrSendArea", "SrData01", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR01, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData02", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR02, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData03", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR03, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData04", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR04, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData05", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR05, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData06", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR06, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData07", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR07, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData08", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR08, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData09", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR09, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData10", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR10, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData11", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR11, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData12", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR12, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData13", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR13, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData14", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR14, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData15", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR15, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData16", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR16, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData17", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR17, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData18", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR18, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData19", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR19, TempPara);
+	::GetPrivateProfileString("SrSendArea", "SrData20", "", TempStr, MAX_LOOP_BYTE, ".\\Settings.ini");
+	TempPara.Format("%s", TempStr);
+	SetDlgItemText(IDC_EDIT_SR20, TempPara);
+
+	m_Check_LoopSend = (::GetPrivateProfileInt("SrSendArea", "LoopSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	::GetPrivateProfileString("SrSendArea", "LoopTime", "1000", TempStr, 5, ".\\Settings.ini");
+	m_Edit_LoopTimer.Format("%s", TempStr);
+	
+	UpdateData(FALSE);                                               // 更新编辑框内容
 }
 
 void CMySScomDlg::InitiateStatusBar(void)
@@ -1948,11 +2132,6 @@ BOOL CMySScomDlg::OnInitDialog()
 	InitiateComboStop();                                             // 初始化选择停止位的列表框
 	InitiateSrSendArea();                                            // 初始化不显示高级发送区内容
 
-	m_Combo_ComNo.SetCurSel(0);
-	m_Combo_Baud.SetCurSel(2);
-	m_Combo_Data.SetCurSel(3);
-	m_Combo_Stop.SetCurSel(1);
-
 	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
 
 	SetControlStatus(FALSE);                                         // 首先禁用各个按钮控件
@@ -2004,6 +2183,9 @@ BOOL CMySScomDlg::OnInitDialog()
 	INIT_EASYSIZE;                                                   // 初始化各个控件的位置
 
 	InitiateMainFrame();                                             // 初始化主界面的大小
+
+	CreateSettingFile();                                             // 创建程序配置参数文件并初始化各个参数
+	InitiateAllParas();
 
 	return TRUE;
 }

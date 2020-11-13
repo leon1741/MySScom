@@ -23,6 +23,7 @@
 #define  MAX_RECV_CHAR            (MAX_RECV_LINE * 3 * 100)          // 最多允许接收的字符个数，大于此数则清屏
 
 #define  MAX_SEND_BYTE            500                                // 一次最多允许发送的字节数
+#define  MAX_LOOP_BYTE            50                                 // 循环发送区每一次允许发送的最大字节数
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -113,6 +114,9 @@ public:
 	void NeedAutoSendData(void);
 	void NeedLoopSendData(void);
 	void UpdateStatusBarNow(void);
+
+	void CreateSettingFile(void);
+	void InitiateAllParas(void);
 
 	void InitiateStatusBar(void);
 

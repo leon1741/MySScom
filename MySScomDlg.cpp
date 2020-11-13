@@ -335,6 +335,7 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 	
 	GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOCLEAR)->EnableWindow(Enable);
+    GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
 	
@@ -2218,8 +2219,6 @@ BOOL CMySScomDlg::OnInitDialog()
 	InitiateComboStop();                                             // 初始化选择停止位的列表框
 	InitiateSrSendArea();                                            // 初始化不显示高级发送区内容
 
-	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
-
 	SetControlStatus(FALSE);                                         // 首先禁用各个按钮控件
 
 	m_bRecvPause = TRUE;
@@ -2360,11 +2359,11 @@ void CMySScomDlg::OnOnCommMscomm()
         }
 
 		StrRecved.Left(RecvLen);
-		
-		UpdateEditDisplay();                                         // 更新编辑框内容显示
-
-		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
     }
+
+    UpdateEditDisplay();                                         // 更新编辑框内容显示
+    
+    UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
 }
 
 

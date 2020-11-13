@@ -454,11 +454,11 @@ void CMySScomDlg::SendEditDatatoComm(void)
 
 		GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);                  // 获取编辑框的内容
 
-		if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {
+		if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {              // 如果数据长度过大，则切换到大数据发送模式
 
 			MessageBox("文件内容较大，发送将持续一段时间，请耐心等待......      ", "提示", MB_OK + MB_ICONINFORMATION);
-			
-			Send_Status  = SEND_LONG_FILE;                           // 如果数据长度过大，则切换到大数据发送模式
+						
+			Send_Status  = SEND_LONG_FILE;
 			Send_Counter = 0;
 
 			SetTimer(Timer_No_SendFile, MAX_SEND_BYTE, NULL);        // 启动定时器，获取前N个字符发送
@@ -469,9 +469,9 @@ void CMySScomDlg::SendEditDatatoComm(void)
 			m_ctrlComm.SetOutput(COleVariant(StrToSend));            // 发送ASCII字符数据
 			SendedData += StrToSend.GetLength();                     // 发送字节数累加
 
-		} else {
-
-			Send_Status  = SEND_SHORT_DATA;                          // 否则，切换到小数据模式，并停止定时器
+		} else {                                                     // 否则，切换到小数据模式，并停止定时器
+			
+			Send_Status  = SEND_SHORT_DATA;
 			KillTimer(Timer_No_SendFile);
 
 			if (m_Check_HexSend) {                                   // 如果需要以16进制发送

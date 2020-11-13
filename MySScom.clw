@@ -26,7 +26,7 @@ Type=0
 HeaderFile=MySScomDlg.h
 ImplementationFile=MySScomDlg.cpp
 Filter=D
-LastObject=CMySScomDlg
+LastObject=IDC_CHECK_HEXDSPL
 BaseClass=CDialog
 VirtualFilter=dWC
 

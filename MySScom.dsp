@@ -40,9 +40,10 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x804 /d "NDEBUG" /d "_AFXDLL"
@@ -52,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /machine:I386
+# ADD LINK32 /nologo /subsystem:windows /machine:I386 /out:"MySScom.exe"
 
 !ELSEIF  "$(CFG)" == "MySScom - Win32 Debug"
 
@@ -153,12 +154,12 @@ SOURCE=".\ÐÞ¸ÄÉý¼¶¼ÇÂ¼.txt"
 # End Source File
 # End Target
 # End Project
-# Section MySScom : {648A5600-2C6E-101B-82B6-000000000014}
-# 	2:21:DefaultSinkHeaderFile:mscomm.h
-# 	2:16:DefaultSinkClass:CMSComm
-# End Section
 # Section MySScom : {E6E17E90-DF38-11CF-8E74-00A0C90F26F8}
 # 	2:5:Class:CMSComm
 # 	2:10:HeaderFile:mscomm.h
 # 	2:8:ImplFile:mscomm.cpp
+# End Section
+# Section MySScom : {648A5600-2C6E-101B-82B6-000000000014}
+# 	2:21:DefaultSinkHeaderFile:mscomm.h
+# 	2:16:DefaultSinkClass:CMSComm
 # End Section

@@ -131,6 +131,8 @@
 #define IDC_EDIT_LINES                  1133
 #define IDC_STATIC_OVER                 1135
 #define IDC_STATIC_LINES                1136
+#define IDC_CHECK_RETURN                1139
+#define IDC_CHECK_SHOWTIME              1140
 #define IDC_MENU_TRAY_SHOW              32771
 #define IDC_MENU_TRAY_HIDE              32772
 #define IDC_MENU_TRAY_EXIT              32773
@@ -141,7 +143,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1137
+#define _APS_NEXT_CONTROL_VALUE         1141
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

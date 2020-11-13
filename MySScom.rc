@@ -78,13 +78,8 @@ STYLE DS_3DLOOK | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "MySScom"
-FONT 9, "宋体", 0, 0, 0x1
+FONT 9, "宋体"
 BEGIN
-    EDITTEXT        IDC_EDIT_RECV,123,18,260,252,ES_MULTILINE | 
-                    ES_AUTOVSCROLL | ES_READONLY | ES_WANTRETURN | 
-                    WS_VSCROLL
-    EDITTEXT        IDC_EDIT_SEND,123,293,260,29,ES_MULTILINE | 
-                    ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL
     COMBOBOX        IDC_COMBO_COMNO,50,19,54,155,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_COMBO_BAUD,50,36,54,152,CBS_DROPDOWNLIST | 
@@ -93,45 +88,32 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_COMBO_STOP,50,70,54,145,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "打开串口",IDC_BUTTON_ONOFF,13,92,42,19
-    PUSHBUTTON      "暂停接收",IDC_BUTTON_PAUSE,62,92,42,19
-    PUSHBUTTON      "清空窗口",IDC_BUTTON_CLEAR,62,116,42,19
-    PUSHBUTTON      "保存数据",IDC_BUTTON_SAVE,13,116,42,19
+    DEFPUSHBUTTON   "打开串口",IDC_BUTTON_ONOFF,13,93,42,19
+    PUSHBUTTON      "暂停接收",IDC_BUTTON_PAUSE,62,93,42,19
+    PUSHBUTTON      "保存数据",IDC_BUTTON_SAVE,13,118,42,19
+    PUSHBUTTON      "清空窗口",IDC_BUTTON_CLEAR,62,118,42,19
     CONTROL         "以16进制显示（HEX）",IDC_CHECK_HEXDSPL,"Button",
                     BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
-                    141,88,8
-    CONTROL         "数据清空前自动保存",IDC_CHECK_AUTOSAVE,"Button",
-                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
-                    183,83,8
-    PUSHBUTTON      "读取文件",IDC_BUTTON_READ,13,203,42,19
-    PUSHBUTTON      "暂停发送",IDC_BUTTON_RESPITE,62,203,42,19
-    PUSHBUTTON      "重新输入",IDC_BUTTON_REIPUT,13,229,42,19
-    PUSHBUTTON      "发送数据",IDC_BUTTON_SEND,62,229,42,19
-    CONTROL         "以16进制发送（HEX）",IDC_CHECK_HEXSEND,"Button",
-                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
-                    255,88,8
-    CONTROL         "自动发送",IDC_CHECK_AUTOSEND,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFT | BS_VCENTER | WS_TABSTOP,13,270,43,8
-    EDITTEXT        IDC_EDIT_TIMER,63,268,23,12,ES_CENTER | ES_NUMBER
-    GROUPBOX        "控制区",IDC_STATIC_CONTROL,6,5,107,323
-    GROUPBOX        "接收区",IDC_STATIC_RECEIVE,118,5,270,271
-    GROUPBOX        "发送区",IDC_STATIC_SEND,118,281,270,47
-    LTEXT           "串口号：",IDC_STATIC,13,22,33,8
-    LTEXT           "波特率：",IDC_STATIC,13,39,33,8
-    LTEXT           "数据位：",IDC_STATIC,13,56,33,8
-    LTEXT           "停止位：",IDC_STATIC,13,73,33,8
-    LTEXT           "ms",IDC_STATIC_MS,92,269,9,8
-    CONTROL         "",IDC_STATIC_DEVIDE,"Static",SS_ETCHEDHORZ,6,196,107,1
-    CONTROL         "",IDC_MSCOMM1,"{648A5600-2C6E-101B-82B6-000000000014}",
-                    WS_TABSTOP,362,268,25,25
-    PUSHBUTTON      "高级发送",IDC_BUTTON_SRSEND,13,285,42,19
-    PUSHBUTTON      "清零计数",IDC_BUTTON_COUNT,62,285,42,19
+                    145,88,8
     CONTROL         "接收区数据自动清空",IDC_CHECK_AUTOCLEAR,"Button",
                     BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
-                    156,83,8
-    GROUPBOX        "高级发送功能",IDC_STATIC_SRSEND,393,5,165,323
-    CONTROL         "",IDC_CHECK_SR01,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    397,32,8,9
+                    162,83,8
+    EDITTEXT        IDC_EDIT_LINES,56,174,31,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "数据清空前自动保存",IDC_CHECK_AUTOSAVE,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
+                    192,83,8
+    PUSHBUTTON      "高级发送",IDC_BUTTON_SRSEND,13,236,42,19
+    PUSHBUTTON      "清零计数",IDC_BUTTON_COUNT,62,236,42,19
+    CONTROL         "以16进制发送（HEX）",IDC_CHECK_HEXSEND,"Button",
+                    BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
+                    263,88,8
+    EDITTEXT        IDC_EDIT_TIMER,63,276,23,12,ES_CENTER | ES_NUMBER
+    CONTROL         "发送时补加回车换行",IDC_CHECK_RETURN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,292,88,8
+    EDITTEXT        IDC_EDIT_SEND,123,310,215,12,ES_AUTOHSCROLL | 
+                    ES_WANTRETURN
+    PUSHBUTTON      "发送数据",IDC_BUTTON_SEND,341,308,42,15
     EDITTEXT        IDC_EDIT_SR01,408,30,129,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_SR02,408,43,129,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_SR03,408,56,129,12,ES_AUTOHSCROLL
@@ -152,6 +134,29 @@ BEGIN
     EDITTEXT        IDC_EDIT_SR18,408,251,129,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_SR19,408,264,129,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_EDIT_SR20,408,277,129,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_SRAUTO,516,294,23,12,ES_CENTER | ES_WANTRETURN | 
+                    ES_NUMBER
+    CONTROL         "自动循环发送有效数据，间隔",IDC_CHECK_SRAUTO,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,397,296,118,8
+    CONTROL         "",IDC_EDIT_RECV,"RICHEDIT",ES_MULTILINE | ES_READONLY | 
+                    ES_WANTRETURN | ES_NUMBER | WS_BORDER | WS_VSCROLL | 
+                    WS_TABSTOP,123,19,260,268
+    CONTROL         "自动发送",IDC_CHECK_AUTOSEND,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFT | BS_VCENTER | WS_TABSTOP,13,278,43,8
+    GROUPBOX        "控制区",IDC_STATIC_CONTROL,6,5,107,323
+    GROUPBOX        "接收区",IDC_STATIC_RECEIVE,118,5,270,288
+    GROUPBOX        "发送区",IDC_STATIC_SEND,118,297,270,31
+    LTEXT           "串口号：",IDC_STATIC,13,22,33,8
+    LTEXT           "波特率：",IDC_STATIC,13,39,33,8
+    LTEXT           "数据位：",IDC_STATIC,13,56,33,8
+    LTEXT           "停止位：",IDC_STATIC,13,73,33,8
+    LTEXT           "ms",IDC_STATIC_MS,92,277,9,8
+    CONTROL         "",IDC_STATIC_DEVIDE,"Static",SS_ETCHEDHORZ,6,226,107,1
+    CONTROL         "",IDC_MSCOMM1,"{648A5600-2C6E-101B-82B6-000000000014}",
+                    WS_TABSTOP,362,268,25,25
+    GROUPBOX        "高级发送功能",IDC_STATIC_SRSEND,393,5,165,323
+    CONTROL         "",IDC_CHECK_SR01,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    397,32,8,9
     CONTROL         "",IDC_CHECK_SR02,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     397,45,8,9
     CONTROL         "",IDC_CHECK_SR03,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
@@ -212,19 +217,15 @@ BEGIN
     PUSHBUTTON      "20",IDC_BUTTON_SR20,540,277,13,12
     CTEXT           "Hex              Data              Send",
                     IDC_STATIC_LABLE,396,18,159,8,SS_CENTERIMAGE
-    CONTROL         "自动循环发送有效数据，间隔",IDC_CHECK_SRAUTO,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,397,296,118,8
-    EDITTEXT        IDC_EDIT_SRAUTO,516,294,23,12,ES_CENTER | ES_WANTRETURN | 
-                    ES_NUMBER
     LTEXT           "ms",IDC_STATIC_SRAUTO,543,295,8,8
     CTEXT           "扩展区，待添加...",IDC_STATIC_EX01,12,313,94,9,
                     SS_CENTERIMAGE | SS_SUNKEN
     CTEXT           "扩展区域，内容待添加......",IDC_STATIC_EX02,398,313,153,
                     9,SS_CENTERIMAGE | SS_SUNKEN
-    EDITTEXT        IDC_EDIT_LINES,56,167,31,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    ES_NUMBER
-    LTEXT           "超过",IDC_STATIC_OVER,36,169,16,8
-    LTEXT           "行",IDC_STATIC_LINES,90,169,10,8
+    LTEXT           "超过",IDC_STATIC_OVER,36,176,16,8
+    LTEXT           "行",IDC_STATIC_LINES,90,176,10,8
+    CONTROL         "在每行显示接收时间",IDC_CHECK_SHOWTIME,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,209,83,8
 END
 
 
@@ -362,6 +363,7 @@ BEGIN
     IDS_STRING_017          "间隔一定时间自动循环发送数据"
     IDS_STRING_018          "输入需要间隔的时间值（0到60秒之间）"
     IDS_STRING_019          "将状态栏上显示的计数值全部清零"
+    IDS_STRING_020          "发送完数据之后补发一个回车换行符"
 END
 
 #endif    // Chinese (P.R.C.) resources

@@ -13,15 +13,11 @@
 
 #define  Timer_No_StatusBar            0x01                          // 状态栏定时更新定时器
 #define  Timer_No_AutoSend             0x02                          // 自动发送数据定时器
-#define  Timer_No_SendFile             0x03                          // 发送长文件时的间隔定时器
-#define  Timer_No_LoopSend             0x04                          // 高级发送功能的循环定时器
-
-#define  SEND_SHORT_DATA               0x01                          // 处于发送短数据的状态
-#define  SEND_LONG_FILE                0x02                          // 处于发送长文件的状态
+#define  Timer_No_LoopSend             0x03                          // 高级发送功能的循环定时器
 
 #define  MAX_RECV_CHAR(n)              (n * 3 * 100)                 // 最多允许接收的字符个数，根据行数来计算
 
-#define  MAX_SEND_BYTE                 500                           // 一次最多允许发送的字节数
+#define  MAX_SEND_BYTE                 1024                          // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
@@ -75,30 +71,25 @@ public:
 	BOOL	m_Check_SrSend_19;
 	BOOL	m_Check_SrSend_20;
 	CString	m_Edit_Lines;
+	BOOL	m_Check_Return;
+	BOOL	m_Check_ShowTime;
 	//}}AFX_DATA
 
-	CEdit*         s_Edit_Recv;                                      // 调试消息显示控件
-	CEdit*         s_Edit_Send;                                      // 协议数据显示控件
+	CEdit*         s_Edit_Recv;                                      // 接收编辑框
+	CEdit*         s_Edit_Send;                                      // 发送编辑框
 
 	CStringArray   sPorts;                                           // 用来枚举电脑上存在的串口
+	CString        StrRecved;                                        // 用来保存已经接收的数据内容
 
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
 	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
-	bool           m_bSendPause;                                     // 判断是否需要暂停发送
-
 	bool           m_SrSendEnable;                                   // 判断是否启用高级发送功能
+	bool           m_NeedTime;                                       // 判断是否需要显示时间标志
 
-	int            Send_Status;                                      // 判断处于发送长文件还是短数据的状态
-	int            Send_Counter;                                     // 发送大数据时，本次发送的数据段计数单元
 	int            Loop_Counter;                                     // 循环发送数据的计数器
-
-	CString        StrRecved;                                        // 用来保存已经接收的数据内容
-	CString        StrToSend;                                        // 用来存放需要发送的数据内容
-
 	int            RecvedData;                                       // 已经接收的字节数
 	int            SendedData;                                       // 已经发送的字节数
-
-    int            MaxRecvLines;                                     // 最多允许接收的行数(超过则清空内容)
+    int            MaxRecvLines;                                     // 最多允许接收的行数
 
 	CStatusBar     m_StatusBar;                                      // 定义状态栏控制
 
@@ -173,9 +164,6 @@ protected:
 	afx_msg void OnButtonPause();
 	afx_msg void OnButtonClear();
 	afx_msg void OnButtonSave();
-	afx_msg void OnButtonRead();
-	afx_msg void OnButtonRespite();
-	afx_msg void OnButtonReiput();
 	afx_msg void OnButtonSend();
 	afx_msg void OnCheckHexDisplay();
 	afx_msg void OnCheckAutoSave();
@@ -234,6 +222,8 @@ protected:
 	afx_msg void OnMenuTrayHide();
 	afx_msg void OnMenuTrayShow();
 	afx_msg void OnMyIconNotify(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnCheckReturn();
+	afx_msg void OnCheckShowTime();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

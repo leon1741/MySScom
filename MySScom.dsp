@@ -117,6 +117,14 @@ SOURCE=.\StdAfx.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\Basetsd.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EasySize.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\mscomm.h
 # End Source File
 # Begin Source File

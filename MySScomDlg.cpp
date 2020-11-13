@@ -2452,9 +2452,9 @@ void CMySScomDlg::OnOnCommMscomm()
 		StrRecved.Left(RecvLen);
     }
 
-    UpdateEditDisplay();                                         // 更新编辑框内容显示
+    UpdateEditDisplay();                                             // 更新编辑框内容显示
     
-    UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
+    UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
 }
 
 void CMySScomDlg::OnMyIconNotify(WPARAM wParam, LPARAM lParam)

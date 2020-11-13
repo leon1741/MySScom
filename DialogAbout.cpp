@@ -57,7 +57,8 @@ void CDialogAbout::ReadandDisplayFile(bool fileshown)
 	
 	if (myFile.Open(FileName, CFile::modeRead) == 0) {
 
-		SetDlgItemText(IDC_EDIT_ABOUT, "信息文件读取失败，请确认路径正确且文件未处于打开状态！");
+		SetDlgItemText(IDC_EDIT_ABOUT, "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n                      信息文件读取失败，请确认路径正确且文件未处于打开状态！");
+		UpdateData(TRUE);
 
 	} else {
 

@@ -17,8 +17,8 @@
 /*************************************************************************************************/
 /*                                     版本控制开关                                              */
 /*************************************************************************************************/
-#define  VERSION_LEON                  0x01                          // 对外版本
-#define  VERSION_YAXON                 0x02                          // 雅迅版本
+#define  VERSION_LEON                  0x01                                    /* 对外版本 */
+#define  VERSION_YAXON                 0x02                                    /* 雅迅版本 */
 
 #define  VERSION_CTRL                  VERSION_YAXON
 
@@ -30,26 +30,26 @@
 /*************************************************************************************************/
 /*                                     定时器值定义                                              */
 /*************************************************************************************************/
-#define  Timer_No_RecvData             0x01                          // 接收串口数据定时器
-#define  Timer_No_StatusBar            0x02                          // 状态栏定时更新定时器
-#define  Timer_No_AutoSend             0x03                          // 自动发送数据定时器
-#define  Timer_No_FrameDspl            0x04                          // 自动换行显示定时器
-#define  Timer_No_SendFile             0x05                          // 发送文件数据定时器
+#define  Timer_No_RecvData             0x01                                    /* 接收串口数据定时器 */
+#define  Timer_No_StatusBar            0x02                                    /* 状态栏定时更新定时器 */
+#define  Timer_No_AutoSend             0x03                                    /* 自动发送数据定时器 */
+#define  Timer_No_FrameDspl            0x04                                    /* 自动换行显示定时器 */
+#define  Timer_No_SendFile             0x05                                    /* 发送文件数据定时器 */
 
 /*************************************************************************************************/
 /*                                     模块宏定义                                                */
 /*************************************************************************************************/
-#define  MAX_RECV_BYTE                 1024                          // 一次最多允许接收的字节数
-#define  MAX_SEND_BYTE                 2048                          // 一次最多允许发送的字节数
-#define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
-#define  MAX_DISP_BYTE                 1000000                       // 显示区最多显示的内容（超过后自动清空）
+#define  MAX_RECV_BYTE                 1024                                    /* 一次最多允许接收的字节数 */
+#define  MAX_SEND_BYTE                 2048                                    /* 一次最多允许发送的字节数 */
+#define  MAX_LOOP_BYTE                 500000                                  /* 循环发送区每一次允许发送的最大字节数 */
+#define  MAX_DISP_BYTE                 1000000                                 /* 显示区最多显示的内容（超过后自动清空） */
 
-#define  EDIT_REFRESH_TIME             50                            // 编辑框刷新时间间隔 (单位: 毫秒)
-#define  CHNGLINE_INTERVAL             100                           // 16进制模式下判断帧换行的延迟时间 (单位: 毫秒)
+#define  EDIT_REFRESH_TIME             50                                      /* 编辑框刷新时间间隔 (单位: 毫秒) */
+#define  CHNGLINE_INTERVAL             100                                     /* 16进制模式下判断帧换行的延迟时间 (单位: 毫秒) */
 
-#define  FILESEND_BYTE                 100                           // 发送文件时每次发送的字节数
+#define  FILESEND_BYTE                 100                                     /* 发送文件时每次发送的字节数 */
 
-#define  PROGRESS_POS                  1000                          // 进度条最小进度刻度
+#define  PROGRESS_POS                  1000                                    /* 进度条最小进度刻度 */
 
 #define  XON                           0x11
 #define  XOFF                          0x13
@@ -90,50 +90,51 @@ public:
 	CString	m_Edit_FilePath;
 	//}}AFX_DATA
 
-	CEdit          *s_Edit_Recv;                                       // 接收编辑框句柄指针
-	CEdit          *s_Edit_Send;                                       // 发送编辑框句柄指针
-	CDialogSrSend  *s_PDlgSrSend;                                      // 高级发送窗口句柄指针
-	CDialogExfunct *s_PDlgExfunc;                                      // 附加功能窗口句柄指针
+	CEdit          *s_Edit_Recv;                                               /* 接收编辑框句柄指针 */
+	CEdit          *s_Edit_Send;                                               /* 发送编辑框句柄指针 */
+	CDialogSrSend  *s_PDlgSrSend;                                              /* 高级发送窗口句柄指针 */
+	CDialogExfunct *s_PDlgExfunc;                                              /* 附加功能窗口句柄指针 */
 
     #if EN_HANDSET > 0
-	CDialogHandset *s_PDlgHandset;                                     // 模拟手柄窗口句柄指针
+	CDialogHandset *s_PDlgHandset;                                             /* 模拟手柄窗口句柄指针 */
     #endif
 
-	CStringArray    s_PortNumber;                                      // 用来枚举电脑上存在的串口
-	CString         s_RecvString;                                      // 用来保存已经接收的数据内容
+	CStringArray    s_PortNumber;                                              /* 用来枚举电脑上存在的串口 */
+	CString         s_RecvString;                                              /* 用来保存已经接收的数据内容 */
 
-	bool            s_PortOpened;                                      // 判断串口是否已经打开
-	bool            s_RecvPaused;                                      // 判断是否需要暂停接收
-	bool            s_NeedChgLne;                                      // 标记是否需要换行显示
-	bool            s_DataRecved;                                      // 是否已经收到串口数据
+	bool            s_PortOpened;                                              /* 判断串口是否已经打开 */
+	bool            s_RecvPaused;                                              /* 判断是否需要暂停接收 */
+	bool            s_NeedChgLne;                                              /* 标记是否需要换行显示 */
+	bool            s_DataRecved;                                              /* 是否已经收到串口数据 */
 
-	bool            s_datahdling;                                      // 标志当前正在处理串口数据
+	bool            s_datahdling;                                              /* 标志当前正在处理串口数据 */
 
-	int             s_LopSendCnt;                                      // 循环发送数据的计数器
-	int             s_RecvedLine;                                      // 已经接收的行数
-	int             s_RecvedByte;                                      // 已经接收的字节数
-	int             s_SendedByte;                                      // 已经发送的字节数
+	int             s_LopSendCnt;                                              /* 循环发送数据的计数器 */
+	int             s_RecvedLine;                                              /* 已经接收的行数 */
+	int             s_RecvedByte;                                              /* 已经接收的字节数 */
+	int             s_SendedByte;                                              /* 已经发送的字节数 */
 
-	unsigned long   s_FileDatPos;                                      // 文件当前发送的位置
+	unsigned long   s_FileDatPos;                                              /* 文件当前发送的位置 */
 
-	int             s_SrsDlgXPos;                                      // 记录高级发送窗口的X位置
-	int             s_SrsDlgYPos;                                      // 记录高级发送窗口的Y位置
+	int             s_SrsDlgXPos;                                              /* 记录高级发送窗口的X位置 */
+	int             s_SrsDlgYPos;                                              /* 记录高级发送窗口的Y位置 */
 
-	int             s_ExfDlgXPos;                                      // 记录附加功能窗口的X位置
-	int             s_ExfDlgYPos;                                      // 记录附加功能窗口的Y位置
+	int             s_ExfDlgXPos;                                              /* 记录附加功能窗口的X位置 */
+	int             s_ExfDlgYPos;                                              /* 记录附加功能窗口的Y位置 */
 
-	int             s_HstDlgXPos;                                      // 记录模拟手柄窗口的X位置
-	int             s_HstDlgYPos;                                      // 记录模拟手柄窗口的Y位置
+	int             s_HstDlgXPos;                                              /* 记录模拟手柄窗口的X位置 */
+	int             s_HstDlgYPos;                                              /* 记录模拟手柄窗口的Y位置 */
 	
-	CStatusBar      s_CStatusBar;                                      // 定义状态栏控制
+	CStatusBar      s_CStatusBar;                                              /* 定义状态栏控制 */
 
-	CWinThread     *s_ThreadHdle;                                      // 串口线程句柄
-	volatile HANDLE s_FileHandle;                                      // 串口文件句柄
-	OVERLAPPED      s_EventoRead;                                      // 串口读取事件对象
-	OVERLAPPED      s_EventWrite;                                      // 串口写入事件对象
+	CWinThread     *s_ListenHdle;                                              /* 监听串口设备的线程句柄 */
+	CWinThread     *s_SerialHdle;                                              /* 收发串口数据的线程句柄 */
+	volatile HANDLE s_FileHandle;                                              /* 串口文件句柄 */
+	OVERLAPPED      s_EventoRead;                                              /* 串口读取事件对象 */
+	OVERLAPPED      s_EventWrite;                                              /* 串口写入事件对象 */
 
 
-	BOOL  EnumComm();
+	BOOL  EnumCommPortList();
 	DWORD ReadComm(char *buf, DWORD dwLength);
 	DWORD WriteComm(char *buf, DWORD dwLength);
 	
@@ -171,6 +172,7 @@ public:
 	void InitiateComboData(void);
 	void InitiateComboCheck(void);
 	void InitiateComboStop(void);
+	void UpdateComboComs(void);
 
 	BOOL TaskBarAddIcon(HWND hwnd, UINT uID, HICON hicon, LPSTR lpszTip);
 	BOOL TaskBarDeleteIcon(HWND hwnd, UINT uID);

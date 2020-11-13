@@ -133,6 +133,67 @@ END_EASYSIZE_MAP
 
 /* ==================================== 自定义函数区--开始 ===================================== */
 
+
+/**************************************************************************************************
+**  函数名称:  ListenProc
+**  功能描述:  串口设备监听函数
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+UINT ListenProc(LPVOID pParam)
+{
+    HANDLE   hNotify;
+    HKEY     hKeyx;
+
+	CMySScomDlg *pDlg = (CMySScomDlg *)pParam;
+
+    hNotify = CreateEvent(NULL, FALSE, TRUE, NULL);                            /* 首先创建一个事件对象 */
+
+    if (hNotify == 0) {
+    	MessageBox(NULL, "ListenProc CreateEvent Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+    	ExitProcess(0);
+    }
+
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("HARDWARE\\DEVICEMAP\\SERIALCOMM"), 0, KEY_NOTIFY, &hKeyx) != ERROR_SUCCESS) {
+    	CloseHandle(hNotify);
+    	MessageBox(NULL, "RegOpenKeyEx Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+    	ExitProcess(0);
+    }
+
+    while (1) {                                                                /* 申请对该注册表项的监听 */
+
+		if (RegNotifyChangeKeyValue(hKeyx, TRUE, REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_LAST_SET, hNotify, TRUE) != ERROR_SUCCESS) {
+    		CloseHandle(hNotify);
+    		RegCloseKey(hKeyx);
+    		MessageBox(NULL, "RegNotifyChangeKeyValue Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+    		ExitProcess(0);
+		}
+
+		if (WaitForSingleObject(hNotify, INFINITE) != WAIT_FAILED) {           /* 收到注册表项变化的通知信号 */
+			if (pDlg->s_PortOpened == FALSE) {                                 /* 只有在端口没有打开的情况下 */
+				pDlg->UpdateComboComs();                                       /* 更新端口号列表框的内容显示 */
+			} else {
+				MessageBox(NULL, "检测到串口设备发生变化！\r\n请点击主窗体的“关闭串口”，然后点击本提示框的“确认键”！\r\n系统将自动扫描串口设备变化并重新进行枚举显示...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+				if (pDlg->s_PortOpened == TRUE) {
+					MessageBox(NULL, "串口尚未关闭，无法刷新设备！！！\r\n请先通过主窗体关闭串口，然后再点击本提示框的“确认键”！！", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+					if (pDlg->s_PortOpened == TRUE) {
+						MessageBox(NULL, "您依然没有关闭串口！！！\r\n系统不再提示，也不会自动扫描和枚举串口设备\r\n请您重新本软件以刷新串口设备...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+					} else {
+						pDlg->UpdateComboComs();
+					}
+				} else {
+					pDlg->UpdateComboComs();
+				}
+			}
+		}
+	}
+
+    CloseHandle(hNotify);
+    RegCloseKey(hKeyx);
+
+    return 0;
+}
+
 /**************************************************************************************************
 **  函数名称:  SPCommProc
 **  功能描述:  串口线程处理函数
@@ -152,7 +213,7 @@ UINT SPCommProc(LPVOID pParam)
     os.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);                          /* 创建事件内核对象 */
     
     if (os.hEvent == NULL) {                                                   /* 创建失败 */
-        AfxMessageBox("Can't create event object!");
+        MessageBox(NULL, "SPCommProc CreateEvent Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
         return -1;
     }
     
@@ -177,12 +238,12 @@ UINT SPCommProc(LPVOID pParam)
 }
 
 /**************************************************************************************************
-**  函数名称:  EnumComm
+**  函数名称:  EnumCommPortList
 **  功能描述:  本函数用来枚举电脑上存在可用的串口
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-BOOL CMySScomDlg::EnumComm()
+BOOL CMySScomDlg::EnumCommPortList()
 {
 	HKEY hSERIALCOMM;
 	BOOL bSuccess = FALSE;
@@ -1053,23 +1114,21 @@ void CMySScomDlg::UpdateStatusBarNow(void)
     this->GetWindowRect(&DialogMain);                                          /* 获取主界面在屏幕上的位置 */
 
 #if VERSION_CTRL == VERSION_YAXON
-	if (DialogMain.Width() > 1320) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
-	} else if (DialogMain.Width() > 1190) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - Designed By LEON (LEON1741@126.com)";
-	} else if (DialogMain.Width() > 1050) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - Designed By LEON";
-	} else if (DialogMain.Width() > 980) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组 - LEON";
-	} else if (DialogMain.Width() > 940) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部工程车项目组";
-	} else if (DialogMain.Width() > 870) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发一部";
-	} else if (DialogMain.Width() > 820) {
+	if (DialogMain.Width() > 1300) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
+	} else if (DialogMain.Width() > 1200) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - Designed By LEON (LEON1741@126.com)";
+	} else if (DialogMain.Width() > 1100) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - Designed By LEON";
+	} else if (DialogMain.Width() > 1000) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - LEON";
+	} else if (DialogMain.Width() > 900) {
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部";
+	} else if (DialogMain.Width() > 850) {
 		DisplayStr = " 欢迎使用MySScom - 雅迅网络";
-	} else if (DialogMain.Width() > 770) {
+	} else if (DialogMain.Width() > 800) {
 		DisplayStr = " 欢迎使用MySScom";
-	} else if (DialogMain.Width() > 720) {
+	} else if (DialogMain.Width() > 700) {
 		DisplayStr = " 欢迎使用";
 	} else {
 		DisplayStr = "";
@@ -2354,7 +2413,10 @@ void CMySScomDlg::InitiateStatusBar(void)
 **************************************************************************************************/
 void CMySScomDlg::InitiateComboComs(void)
 {
-    EnumComm();                                                                /* 枚举可用的串口 */
+    EnumCommPortList();                                                        /* 枚举可用的串口 */
+
+	m_Combo_ComNo.ResetContent();
+	m_Combo_ComNo.AddString("请选择");                                         /* 第一行为提示行 */
 
     for (int i = 0; i < s_PortNumber.GetSize(); i++) {
         m_Combo_ComNo.AddString(s_PortNumber.GetAt(i));
@@ -2423,6 +2485,42 @@ void CMySScomDlg::InitiateComboStop(void)
     m_Combo_Stop.AddString("1  位");
     m_Combo_Stop.AddString("1.5位");
     m_Combo_Stop.AddString("2  位");
+}
+
+/**************************************************************************************************
+**  函数名称:  UpdateComboComs
+**  功能描述:  更新串口号组合框
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::UpdateComboComs(void)
+{
+    int      pindex;
+	CString  comstr;
+	
+	pindex = m_Combo_ComNo.GetCurSel();                                        /* 首先获取当前选择的串口号 */
+
+	if (pindex == 0) {                                                         /* 0表示没有选中有效的串口号 */
+		comstr = "";
+	} else {                                                                   /* 根据串口号获取其COM字符串 */
+		comstr = s_PortNumber.GetAt(pindex - 1);
+	}
+
+	InitiateComboComs();
+
+	if (comstr == "") {                                                        /* 表示之前没有选择有效串口号 */
+		m_Combo_ComNo.SetCurSel(0);                                            /* 直接选中提示栏 */
+		return;
+	}
+
+	for (pindex = 0; pindex < s_PortNumber.GetSize(); pindex++) {              /* 之前曾经选中过某个串口号 */
+		if (s_PortNumber.GetAt(pindex) == comstr) {                            /* 逐个比对，定位出该串口的序号 */
+			m_Combo_ComNo.SetCurSel(pindex + 1);                               /* 自动选中该串口号 */
+			return;
+		}
+	}
+
+	m_Combo_ComNo.SetCurSel(0);                                                /* 比对失败，说明之前选中的串口已消失，则恢复到提示栏 */
 }
 
 /**************************************************************************************************
@@ -2508,9 +2606,9 @@ void CMySScomDlg::OnButtonONOFF()
         
         SetCommMask(s_FileHandle, 0);                                          /* 设置过滤掩码 */
         
-        WaitForSingleObject(s_ThreadHdle->m_hThread, IGNORE);                  /* 关闭线程 */
+        WaitForSingleObject(s_SerialHdle->m_hThread, IGNORE);                  /* 关闭线程 */
         
-        s_ThreadHdle = NULL;
+        s_SerialHdle = NULL;
         
         CloseHandle(s_FileHandle);                                             /* 关闭串口句柄 */
 
@@ -2617,9 +2715,9 @@ void CMySScomDlg::OnButtonONOFF()
         
     if (SetCommState(s_FileHandle, &dcb)) {                                    /* 首先配置串口参数 */
         
-        s_ThreadHdle = AfxBeginThread(SPCommProc, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL);     /* 新开一个线程用于监听串口数据 */
+        s_SerialHdle = AfxBeginThread(SPCommProc, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL);     /* 新开一个线程用于监听串口数据 */
         
-        if (s_ThreadHdle == NULL) {                                            /* 如果线程创建失败 */
+        if (s_SerialHdle == NULL) {                                            /* 如果线程创建失败 */
 
             CloseHandle(s_FileHandle);                                         /* 关闭串口句柄 */
 
@@ -2628,7 +2726,7 @@ void CMySScomDlg::OnButtonONOFF()
 
         } else {                                                               /* 开始正常工作 */
 
-            s_ThreadHdle->ResumeThread();
+            s_SerialHdle->ResumeThread();
 
             s_PortOpened = TRUE;
             
@@ -3251,7 +3349,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
     #endif
 
-    s_ThreadHdle = NULL;
+    s_SerialHdle = NULL;
     s_RecvPaused = FALSE;
     s_PortOpened = FALSE;
     s_RecvString = "";
@@ -3334,6 +3432,15 @@ BOOL CMySScomDlg::OnInitDialog()
 
     CreateSettingFile();                                                       /* 创建程序配置参数文件并初始化各个参数 */
     InitiateAllParas();
+
+	s_ListenHdle = AfxBeginThread(ListenProc, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL);
+
+	if (s_ListenHdle == NULL) {                                                /* 如果线程创建失败 */
+        MessageBox("  出现异常！监听串口设备的线程创建失败...", "提示", MB_OK + MB_ICONERROR);
+        return FALSE;
+    } else {                                                                   /* 开始正常工作 */
+        s_ListenHdle->ResumeThread();
+    }
 
 	s_PDlgSrSend->InitateSrDlgPos();                                           /* 这句话一定要放在最后面 */
 

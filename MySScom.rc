@@ -112,8 +112,7 @@ BEGIN
                     253,88,8
     CONTROL         "自动发送",IDC_CHECK_AUTOSEND,"Button",BS_AUTOCHECKBOX | 
                     BS_LEFT | BS_VCENTER | WS_TABSTOP,13,268,43,8
-    EDITTEXT        IDC_EDIT_TIMER,62,266,31,12,ES_CENTER | ES_AUTOHSCROLL | 
-                    ES_NUMBER
+    EDITTEXT        IDC_EDIT_TIMER,63,266,23,12,ES_CENTER | ES_NUMBER
     GROUPBOX        "控制区",IDC_STATIC_CONTROL,6,5,107,323
     GROUPBOX        "接收区",IDC_STATIC_RECEIVE,118,5,270,271
     GROUPBOX        "发送区",IDC_STATIC_SEND,118,281,270,47
@@ -121,7 +120,7 @@ BEGIN
     LTEXT           "波特率：",IDC_STATIC,13,39,33,8
     LTEXT           "数据位：",IDC_STATIC,13,56,33,8
     LTEXT           "停止位：",IDC_STATIC,13,73,33,8
-    LTEXT           "ms",IDC_STATIC_MS,96,268,9,8
+    LTEXT           "ms",IDC_STATIC_MS,92,267,9,8
     CONTROL         "",IDC_STATIC_DEVIDE,"Static",SS_ETCHEDHORZ,6,193,107,1
     CONTROL         "",IDC_MSCOMM1,"{648A5600-2C6E-101B-82B6-000000000014}",
                     WS_TABSTOP,362,268,25,25
@@ -218,7 +217,7 @@ BEGIN
     EDITTEXT        IDC_EDIT_SRAUTO,516,294,23,12,ES_CENTER | ES_WANTRETURN | 
                     ES_NUMBER
     LTEXT           "ms",IDC_STATIC_SRAUTO,543,295,8,8
-    CTEXT           "扩展区域，内容待添加",IDC_STATIC_EX01,12,313,94,9,
+    CTEXT           "扩展区，待添加...",IDC_STATIC_EX01,12,313,94,9,
                     SS_CENTERIMAGE | SS_SUNKEN
     CTEXT           "扩展区域，内容待添加......",IDC_STATIC_EX02,398,313,153,
                     9,SS_CENTERIMAGE | SS_SUNKEN

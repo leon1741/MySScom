@@ -53,6 +53,26 @@ public:
 	CString	m_Edit_AutoTimer;
 	CString	m_Edit_LoopTimer;
 	CMSComm	m_ctrlComm;	
+	BOOL	m_Check_SrSend_01;
+	BOOL	m_Check_SrSend_02;
+	BOOL	m_Check_SrSend_03;
+	BOOL	m_Check_SrSend_04;
+	BOOL	m_Check_SrSend_05;
+	BOOL	m_Check_SrSend_06;
+	BOOL	m_Check_SrSend_07;
+	BOOL	m_Check_SrSend_08;
+	BOOL	m_Check_SrSend_09;
+	BOOL	m_Check_SrSend_10;
+	BOOL	m_Check_SrSend_11;
+	BOOL	m_Check_SrSend_12;
+	BOOL	m_Check_SrSend_13;
+	BOOL	m_Check_SrSend_14;
+	BOOL	m_Check_SrSend_15;
+	BOOL	m_Check_SrSend_16;
+	BOOL	m_Check_SrSend_17;
+	BOOL	m_Check_SrSend_18;
+	BOOL	m_Check_SrSend_19;
+	BOOL	m_Check_SrSend_20;
 	//}}AFX_DATA
 
 	CEdit*         s_Edit_Recv;                                      // 调试消息显示控件
@@ -114,7 +134,9 @@ public:
 	void HideSrSendArea(void);
 	void ShowSrSendArea(void);
 
-	bool CheckDataIsValid(void);
+	void ContinueLoopSrSend(void);
+	bool CheckSrDataIsValid(void);
+	void TrytoSrSendData(CString InputStr, BOOL NeedHex);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)
@@ -154,6 +176,46 @@ protected:
 	afx_msg void OnCheckAutoClear();
 	afx_msg void OnButtonSrSend();
 	afx_msg void OnCheckSrAuto();
+	afx_msg void OnButtonSrSend01();
+	afx_msg void OnButtonSrSend02();
+	afx_msg void OnButtonSrSend03();
+	afx_msg void OnButtonSrSend04();
+	afx_msg void OnButtonSrSend05();
+	afx_msg void OnButtonSrSend06();
+	afx_msg void OnButtonSrSend07();
+	afx_msg void OnButtonSrSend08();
+	afx_msg void OnButtonSrSend09();
+	afx_msg void OnButtonSrSend10();
+	afx_msg void OnButtonSrSend11();
+	afx_msg void OnButtonSrSend12();
+	afx_msg void OnButtonSrSend13();
+	afx_msg void OnButtonSrSend14();
+	afx_msg void OnButtonSrSend15();
+	afx_msg void OnButtonSrSend16();
+	afx_msg void OnButtonSrSend17();
+	afx_msg void OnButtonSrSend18();
+	afx_msg void OnButtonSrSend19();
+	afx_msg void OnButtonSrSend20();
+	afx_msg void OnCheckSrSend01();
+	afx_msg void OnCheckSrSend02();
+	afx_msg void OnCheckSrSend03();
+	afx_msg void OnCheckSrSend04();
+	afx_msg void OnCheckSrSend05();
+	afx_msg void OnCheckSrSend06();
+	afx_msg void OnCheckSrSend07();
+	afx_msg void OnCheckSrSend08();
+	afx_msg void OnCheckSrSend09();
+	afx_msg void OnCheckSrSend10();
+	afx_msg void OnCheckSrSend11();
+	afx_msg void OnCheckSrSend12();
+	afx_msg void OnCheckSrSend13();
+	afx_msg void OnCheckSrSend14();
+	afx_msg void OnCheckSrSend15();
+	afx_msg void OnCheckSrSend16();
+	afx_msg void OnCheckSrSend17();
+	afx_msg void OnCheckSrSend18();
+	afx_msg void OnCheckSrSend19();
+	afx_msg void OnCheckSrSend20();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

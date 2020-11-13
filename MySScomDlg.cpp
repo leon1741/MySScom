@@ -26,14 +26,34 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CMySScomDlg)
 	m_Check_AutoSave = FALSE;
 	m_Check_AutoSend = FALSE;
+	m_Check_LoopSend = FALSE;	
 	m_Check_HexDspl = FALSE;
 	m_Check_HexSend = FALSE;
+	m_Check_AutoClear = FALSE;
 	m_Edit_Recv = _T("");
 	m_Edit_Send = _T("");
 	m_Edit_AutoTimer = _T("1000");
 	m_Edit_LoopTimer = _T("1000");
-	m_Check_AutoClear = FALSE;
-	m_Check_LoopSend = FALSE;	
+	m_Check_SrSend_01 = FALSE;
+	m_Check_SrSend_02 = FALSE;
+	m_Check_SrSend_03 = FALSE;
+	m_Check_SrSend_04 = FALSE;
+	m_Check_SrSend_05 = FALSE;
+	m_Check_SrSend_06 = FALSE;
+	m_Check_SrSend_07 = FALSE;
+	m_Check_SrSend_08 = FALSE;
+	m_Check_SrSend_09 = FALSE;
+	m_Check_SrSend_10 = FALSE;
+	m_Check_SrSend_11 = FALSE;
+	m_Check_SrSend_12 = FALSE;
+	m_Check_SrSend_13 = FALSE;
+	m_Check_SrSend_14 = FALSE;
+	m_Check_SrSend_15 = FALSE;
+	m_Check_SrSend_16 = FALSE;
+	m_Check_SrSend_17 = FALSE;
+	m_Check_SrSend_18 = FALSE;
+	m_Check_SrSend_19 = FALSE;
+	m_Check_SrSend_20 = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -49,15 +69,35 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_COMNO, m_Combo_ComNo);
 	DDX_Check(pDX, IDC_CHECK_AUTOSAVE, m_Check_AutoSave);
 	DDX_Check(pDX, IDC_CHECK_AUTOSEND, m_Check_AutoSend);
+	DDX_Check(pDX, IDC_CHECK_SRAUTO, m_Check_LoopSend);
 	DDX_Check(pDX, IDC_CHECK_HEXDSPL, m_Check_HexDspl);
 	DDX_Check(pDX, IDC_CHECK_HEXSEND, m_Check_HexSend);
+	DDX_Check(pDX, IDC_CHECK_AUTOCLEAR, m_Check_AutoClear);
 	DDX_Text(pDX, IDC_EDIT_RECV, m_Edit_Recv);
 	DDX_Text(pDX, IDC_EDIT_SEND, m_Edit_Send);
 	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_AutoTimer);
-	DDX_Control(pDX, IDC_MSCOMM1, m_ctrlComm);
-	DDX_Check(pDX, IDC_CHECK_AUTOCLEAR, m_Check_AutoClear);
-	DDX_Check(pDX, IDC_CHECK_SRAUTO, m_Check_LoopSend);
 	DDX_Text(pDX, IDC_EDIT_SRAUTO, m_Edit_LoopTimer);
+	DDX_Control(pDX, IDC_MSCOMM1, m_ctrlComm);
+	DDX_Check(pDX, IDC_CHECK_SR01, m_Check_SrSend_01);
+	DDX_Check(pDX, IDC_CHECK_SR02, m_Check_SrSend_02);
+	DDX_Check(pDX, IDC_CHECK_SR03, m_Check_SrSend_03);
+	DDX_Check(pDX, IDC_CHECK_SR04, m_Check_SrSend_04);
+	DDX_Check(pDX, IDC_CHECK_SR05, m_Check_SrSend_05);
+	DDX_Check(pDX, IDC_CHECK_SR06, m_Check_SrSend_06);
+	DDX_Check(pDX, IDC_CHECK_SR07, m_Check_SrSend_07);
+	DDX_Check(pDX, IDC_CHECK_SR08, m_Check_SrSend_08);
+	DDX_Check(pDX, IDC_CHECK_SR09, m_Check_SrSend_09);
+	DDX_Check(pDX, IDC_CHECK_SR10, m_Check_SrSend_10);
+	DDX_Check(pDX, IDC_CHECK_SR11, m_Check_SrSend_11);
+	DDX_Check(pDX, IDC_CHECK_SR12, m_Check_SrSend_12);
+	DDX_Check(pDX, IDC_CHECK_SR13, m_Check_SrSend_13);
+	DDX_Check(pDX, IDC_CHECK_SR14, m_Check_SrSend_14);
+	DDX_Check(pDX, IDC_CHECK_SR15, m_Check_SrSend_15);
+	DDX_Check(pDX, IDC_CHECK_SR16, m_Check_SrSend_16);
+	DDX_Check(pDX, IDC_CHECK_SR17, m_Check_SrSend_17);
+	DDX_Check(pDX, IDC_CHECK_SR18, m_Check_SrSend_18);
+	DDX_Check(pDX, IDC_CHECK_SR19, m_Check_SrSend_19);
+	DDX_Check(pDX, IDC_CHECK_SR20, m_Check_SrSend_20);
 	//}}AFX_DATA_MAP
 }
 
@@ -84,6 +124,46 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
 	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSrSend)
 	ON_BN_CLICKED(IDC_CHECK_SRAUTO, OnCheckSrAuto)
+	ON_BN_CLICKED(IDC_BUTTON_SR01, OnButtonSrSend01)
+	ON_BN_CLICKED(IDC_BUTTON_SR02, OnButtonSrSend02)
+	ON_BN_CLICKED(IDC_BUTTON_SR03, OnButtonSrSend03)
+	ON_BN_CLICKED(IDC_BUTTON_SR04, OnButtonSrSend04)
+	ON_BN_CLICKED(IDC_BUTTON_SR05, OnButtonSrSend05)
+	ON_BN_CLICKED(IDC_BUTTON_SR06, OnButtonSrSend06)
+	ON_BN_CLICKED(IDC_BUTTON_SR07, OnButtonSrSend07)
+	ON_BN_CLICKED(IDC_BUTTON_SR08, OnButtonSrSend08)
+	ON_BN_CLICKED(IDC_BUTTON_SR09, OnButtonSrSend09)
+	ON_BN_CLICKED(IDC_BUTTON_SR10, OnButtonSrSend10)
+	ON_BN_CLICKED(IDC_BUTTON_SR11, OnButtonSrSend11)
+	ON_BN_CLICKED(IDC_BUTTON_SR12, OnButtonSrSend12)
+	ON_BN_CLICKED(IDC_BUTTON_SR13, OnButtonSrSend13)
+	ON_BN_CLICKED(IDC_BUTTON_SR14, OnButtonSrSend14)
+	ON_BN_CLICKED(IDC_BUTTON_SR15, OnButtonSrSend15)
+	ON_BN_CLICKED(IDC_BUTTON_SR16, OnButtonSrSend16)
+	ON_BN_CLICKED(IDC_BUTTON_SR17, OnButtonSrSend17)
+	ON_BN_CLICKED(IDC_BUTTON_SR18, OnButtonSrSend18)
+	ON_BN_CLICKED(IDC_BUTTON_SR19, OnButtonSrSend19)
+	ON_BN_CLICKED(IDC_BUTTON_SR20, OnButtonSrSend20)
+	ON_BN_CLICKED(IDC_CHECK_SR01, OnCheckSrSend01)
+	ON_BN_CLICKED(IDC_CHECK_SR02, OnCheckSrSend02)
+	ON_BN_CLICKED(IDC_CHECK_SR03, OnCheckSrSend03)
+	ON_BN_CLICKED(IDC_CHECK_SR04, OnCheckSrSend04)
+	ON_BN_CLICKED(IDC_CHECK_SR05, OnCheckSrSend05)
+	ON_BN_CLICKED(IDC_CHECK_SR06, OnCheckSrSend06)
+	ON_BN_CLICKED(IDC_CHECK_SR07, OnCheckSrSend07)
+	ON_BN_CLICKED(IDC_CHECK_SR08, OnCheckSrSend08)
+	ON_BN_CLICKED(IDC_CHECK_SR09, OnCheckSrSend09)
+	ON_BN_CLICKED(IDC_CHECK_SR10, OnCheckSrSend10)
+	ON_BN_CLICKED(IDC_CHECK_SR11, OnCheckSrSend11)
+	ON_BN_CLICKED(IDC_CHECK_SR12, OnCheckSrSend12)
+	ON_BN_CLICKED(IDC_CHECK_SR13, OnCheckSrSend13)
+	ON_BN_CLICKED(IDC_CHECK_SR14, OnCheckSrSend14)
+	ON_BN_CLICKED(IDC_CHECK_SR15, OnCheckSrSend15)
+	ON_BN_CLICKED(IDC_CHECK_SR16, OnCheckSrSend16)
+	ON_BN_CLICKED(IDC_CHECK_SR17, OnCheckSrSend17)
+	ON_BN_CLICKED(IDC_CHECK_SR18, OnCheckSrSend18)
+	ON_BN_CLICKED(IDC_CHECK_SR19, OnCheckSrSend19)
+	ON_BN_CLICKED(IDC_CHECK_SR20, OnCheckSrSend20)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -285,10 +365,7 @@ void CMySScomDlg::SwitchSendStatus(bool IsNormal)
 {
 	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(IsNormal);
 	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(IsNormal);
-	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(IsNormal);
-	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(IsNormal);
 
-	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(IsNormal);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(IsNormal);
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(IsNormal);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(IsNormal);
@@ -497,7 +574,7 @@ void CMySScomDlg::NeedLoopSendData(void)
 void CMySScomDlg::UpdateStatusBarNow(void)
 {
 	CTime   Nowtime;
-	CString TempStr, DisplayStr;	
+	CString TempStr, DisplayStr;
 	
 	Nowtime = CTime::GetCurrentTime();
 	
@@ -618,6 +695,8 @@ void CMySScomDlg::InitiateSrSendArea(void)
 
 void CMySScomDlg::SendEditDatatoComm(void)
 {
+	assert(m_SrSendEnable == FALSE);
+	
 	if (m_bSendPause == FALSE) {                                     // 确认是否允许发送数据
 
 		GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);                  // 获取编辑框的内容
@@ -671,6 +750,8 @@ void CMySScomDlg::SendEditDatatoComm(void)
 
 void CMySScomDlg::ContinueToSendFile(void)
 {
+	assert(m_SrSendEnable == FALSE);
+	
 	if (m_bSendPause == FALSE) {                                     // 确认是否允许发送数据
 
 		if (Send_Status == SEND_LONG_FILE) {
@@ -869,13 +950,407 @@ void CMySScomDlg::ShowSrSendArea(void)
 										  (SendEdit.Height()));
 }
 
-bool CMySScomDlg::CheckDataIsValid(void)
+void CMySScomDlg::ContinueLoopSrSend(void)
+{
+	;
+}
+
+bool CMySScomDlg::CheckSrDataIsValid(void)
 {
 	return FALSE;
 }
 
+void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
+{
+	if (InputStr.GetLength() <= 0) {
+		MessageBox("发送窗口内容为空，未发送任何数据！    ", "提示", MB_OK + MB_ICONINFORMATION);
+		return;
+	}
+	
+	if (NeedHex == TRUE) {                                         // 如果需要以16进制发送
+		
+		CByteArray SendData;
+		int len;                                                     // 此处返回的len可以用于计算发送了多少个十六进制数
+		
+		len = String2Hex(InputStr, SendData);
+		
+		m_ctrlComm.SetOutput(COleVariant(SendData));                 // 发送十六进制数据
+		
+		SendedData += len;                                           // 发送字节数累加
+		
+	} else {
+		
+		m_ctrlComm.SetOutput(COleVariant(InputStr));                 // 发送ASCII字符数据
+		
+		SendedData += InputStr.GetLength();                          // 发送字节数累加
+	}
+	
+	UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
+}
 
 /* ==================================== 自定义函数区--结束 ===================================== */
+
+
+/* ============================================================================================= */
+/* ====================================                    ===================================== */
+/* ==================================== 传说中华丽的分割线 ===================================== */
+/* ====================================                    ===================================== */
+/* ============================================================================================= */
+
+
+/* ================================== 高级发送功能处理--结束 =================================== */
+
+
+void CMySScomDlg::OnCheckSrAuto() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	m_Check_LoopSend = !m_Check_LoopSend;
+	
+	if (m_Check_LoopSend) {
+
+		if (!CheckSrDataIsValid()) {
+
+			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~     ", "提示", MB_OK + MB_ICONINFORMATION);
+			
+			m_Check_LoopSend = FALSE;
+			UpdateData(FALSE);                                       // 取消复选框被选中的状态
+			
+			return;
+		}
+				
+		NeedLoopSendData();
+		
+	} else {
+		
+		KillTimer(Timer_No_LoopSend);                                // 取消自动发送功能
+		GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(TRUE);
+		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(TRUE);
+	}
+}
+
+void CMySScomDlg::OnCheckSrSend01() 
+{
+	m_Check_SrSend_01 = !m_Check_SrSend_01;
+}
+
+void CMySScomDlg::OnCheckSrSend02() 
+{
+	m_Check_SrSend_02 = !m_Check_SrSend_02;
+}
+
+void CMySScomDlg::OnCheckSrSend03() 
+{
+	m_Check_SrSend_03 = !m_Check_SrSend_03;
+}
+
+void CMySScomDlg::OnCheckSrSend04() 
+{
+	m_Check_SrSend_04 = !m_Check_SrSend_04;
+}
+
+void CMySScomDlg::OnCheckSrSend05() 
+{
+	m_Check_SrSend_05 = !m_Check_SrSend_05;
+}
+
+void CMySScomDlg::OnCheckSrSend06() 
+{
+	m_Check_SrSend_06 = !m_Check_SrSend_06;
+}
+
+void CMySScomDlg::OnCheckSrSend07() 
+{
+	m_Check_SrSend_07 = !m_Check_SrSend_07;
+}
+
+void CMySScomDlg::OnCheckSrSend08() 
+{
+	m_Check_SrSend_08 = !m_Check_SrSend_08;
+}
+
+void CMySScomDlg::OnCheckSrSend09() 
+{
+	m_Check_SrSend_09 = !m_Check_SrSend_09;
+}
+
+void CMySScomDlg::OnCheckSrSend10() 
+{
+	m_Check_SrSend_10 = !m_Check_SrSend_10;
+}
+
+void CMySScomDlg::OnCheckSrSend11() 
+{
+	m_Check_SrSend_11 = !m_Check_SrSend_11;
+}
+
+void CMySScomDlg::OnCheckSrSend12() 
+{
+	m_Check_SrSend_12 = !m_Check_SrSend_12;
+}
+
+void CMySScomDlg::OnCheckSrSend13() 
+{
+	m_Check_SrSend_13 = !m_Check_SrSend_13;
+}
+
+void CMySScomDlg::OnCheckSrSend14() 
+{
+	m_Check_SrSend_14 = !m_Check_SrSend_14;
+}
+
+void CMySScomDlg::OnCheckSrSend15() 
+{
+	m_Check_SrSend_15 = !m_Check_SrSend_15;
+}
+
+void CMySScomDlg::OnCheckSrSend16() 
+{
+	m_Check_SrSend_16 = !m_Check_SrSend_16;
+}
+
+void CMySScomDlg::OnCheckSrSend17() 
+{
+	m_Check_SrSend_17 = !m_Check_SrSend_17;
+}
+
+void CMySScomDlg::OnCheckSrSend18() 
+{
+	m_Check_SrSend_18 = !m_Check_SrSend_18;
+}
+
+void CMySScomDlg::OnCheckSrSend19() 
+{
+	m_Check_SrSend_19 = !m_Check_SrSend_19;
+}
+
+void CMySScomDlg::OnCheckSrSend20() 
+{
+	m_Check_SrSend_20 = !m_Check_SrSend_20;
+}
+
+void CMySScomDlg::OnButtonSrSend01() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR01, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_01);
+}
+
+void CMySScomDlg::OnButtonSrSend02() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR02, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_02);
+}
+
+void CMySScomDlg::OnButtonSrSend03() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR03, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_03);
+}
+
+void CMySScomDlg::OnButtonSrSend04() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR04, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_04);
+}
+
+void CMySScomDlg::OnButtonSrSend05() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR05, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_05);
+}
+
+void CMySScomDlg::OnButtonSrSend06() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR06, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_06);
+}
+
+void CMySScomDlg::OnButtonSrSend07() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR07, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_07);
+}
+
+void CMySScomDlg::OnButtonSrSend08() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR08, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_08);
+}
+
+void CMySScomDlg::OnButtonSrSend09() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR09, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_09);
+}
+
+void CMySScomDlg::OnButtonSrSend10() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR10, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_10);
+}
+
+void CMySScomDlg::OnButtonSrSend11() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR11, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_11);
+}
+
+void CMySScomDlg::OnButtonSrSend12() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR12, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_12);
+}
+
+void CMySScomDlg::OnButtonSrSend13() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR13, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_13);
+}
+
+void CMySScomDlg::OnButtonSrSend14() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR14, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_14);
+}
+
+void CMySScomDlg::OnButtonSrSend15() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR15, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_15);
+}
+
+void CMySScomDlg::OnButtonSrSend16() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR16, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_16);
+}
+
+void CMySScomDlg::OnButtonSrSend17() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR17, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_17);
+}
+
+void CMySScomDlg::OnButtonSrSend18() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR18, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_18);
+}
+
+void CMySScomDlg::OnButtonSrSend19() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR19, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_19);
+}
+
+void CMySScomDlg::OnButtonSrSend20() 
+{
+	assert(m_SrSendEnable == TRUE);
+	
+	CString TempStr;
+	
+	GetDlgItemText(IDC_EDIT_SR20, TempStr);
+	
+	TrytoSrSendData(TempStr, m_Check_SrSend_20);
+}
+
+
+/* ================================== 高级发送功能处理--结束 =================================== */
 
 
 /* ============================================================================================= */
@@ -1045,6 +1520,8 @@ void CMySScomDlg::OnButtonSave()
 
 void CMySScomDlg::OnButtonRead() 
 {
+	assert(m_SrSendEnable == FALSE);
+	
 	CFile myFile;
 
 	if (m_Check_AutoSend) {
@@ -1090,6 +1567,8 @@ void CMySScomDlg::OnButtonRead()
 
 void CMySScomDlg::OnButtonRespite() 
 {
+	assert(m_SrSendEnable == FALSE);
+	
 	if (m_bSendPause == TRUE) {
 		m_bSendPause = FALSE;
 		SetDlgItemText(IDC_BUTTON_RESPITE, "暂停发送");
@@ -1216,12 +1695,14 @@ void CMySScomDlg::OnCheckAutoSave()
 }
 
 void CMySScomDlg::OnCheckHexSend() 
-{
+{	
 	m_Check_HexSend = !m_Check_HexSend;
 }
 
 void CMySScomDlg::OnCheckAutoSend() 
 {
+	assert(m_SrSendEnable == FALSE);
+	
 	m_Check_AutoSend = !m_Check_AutoSend;
 
 	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
@@ -1382,6 +1863,8 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 		SendEditDatatoComm();
 	} else if (nIDEvent == Timer_No_SendFile) {                      // 处于发送文件状态
 		ContinueToSendFile();
+	} else if (nIDEvent == Timer_No_LoopSend) {                      // 处于高级循环发送状态
+		ContinueLoopSrSend();
 	} else {
 		return;
 	}
@@ -1456,28 +1939,3 @@ void CMySScomDlg::OnOnCommMscomm()
     }
 }
 
-void CMySScomDlg::OnCheckSrAuto() 
-{
-	m_Check_LoopSend = !m_Check_LoopSend;
-	
-	if (m_Check_LoopSend) {
-
-		if (!CheckDataIsValid()) {
-
-			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~     ", "提示", MB_OK + MB_ICONINFORMATION);
-			
-			m_Check_LoopSend = FALSE;
-			UpdateData(FALSE);                                       // 取消复选框被选中的状态
-			
-			return;
-		}
-				
-		NeedLoopSendData();
-		
-	} else {
-		
-		KillTimer(Timer_No_LoopSend);                                // 取消自动发送功能
-		GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(TRUE);
-		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(TRUE);
-	}
-}

@@ -164,6 +164,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_SR18, OnCheckSrSend18)
 	ON_BN_CLICKED(IDC_CHECK_SR19, OnCheckSrSend19)
 	ON_BN_CLICKED(IDC_CHECK_SR20, OnCheckSrSend20)
+	ON_WM_CLOSE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -610,7 +611,6 @@ void CMySScomDlg::CreateSettingFile(void)
 		::WritePrivateProfileString("RecvConfig", "AutoSave",  "0",    ".\\Settings.ini");
 
 		::WritePrivateProfileString("SendConfig", "HexaSend",  "0",    ".\\Settings.ini");
-		::WritePrivateProfileString("SendConfig", "AutoSend",  "0",    ".\\Settings.ini");
 		::WritePrivateProfileString("SendConfig", "AutoTime",  "1000", ".\\Settings.ini");
 
 		::WritePrivateProfileString("SrSendArea", "SrHexa01",  "",     ".\\Settings.ini");
@@ -655,22 +655,18 @@ void CMySScomDlg::CreateSettingFile(void)
 		::WritePrivateProfileString("SrSendArea", "SrData19",  "",     ".\\Settings.ini");
 		::WritePrivateProfileString("SrSendArea", "SrData20",  "",     ".\\Settings.ini");
 
-		::WritePrivateProfileString("SrSendArea", "LoopSend",  "0",    ".\\Settings.ini");
 		::WritePrivateProfileString("SrSendArea", "LoopTime",  "1000", ".\\Settings.ini");
 	}
 }
 
 void CMySScomDlg::InitiateAllParas(void)
 {
-	int  TempData;
+	int  TempData;                                         // 需要注意的是：自动发送使能和循环发送使能两项无须初始化
 	char TempStr[MAX_LOOP_BYTE];
 	CString TempPara;
-	
-	//::GetPrivateProfileString("PortConfig", "CommPort", "0", TempStr, 1, ".\\Settings.ini");
-	//::WritePrivateProfileString("Settings","整点提醒",m_Clock_Remind ? "1":"0","Resourses/Settings.ini");
 
 	TempData = (::GetPrivateProfileInt("PortConfig", "CommPort", 0, ".\\Settings.ini"));
-	m_Combo_ComNo.SetCurSel(TempData);	
+	m_Combo_ComNo.SetCurSel(TempData);
 	TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate", 2, ".\\Settings.ini"));
 	m_Combo_Baud.SetCurSel(TempData);
 	TempData = (::GetPrivateProfileInt("PortConfig", "DataBits", 3, ".\\Settings.ini"));
@@ -683,7 +679,6 @@ void CMySScomDlg::InitiateAllParas(void)
 	m_Check_AutoSave  = (::GetPrivateProfileInt("RecvConfig", "AutoSave", 0, ".\\Settings.ini")) ? TRUE : FALSE;
 
 	m_Check_HexSend   = (::GetPrivateProfileInt("SendConfig", "HexaSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_AutoSend  = (::GetPrivateProfileInt("SendConfig", "AutoSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
 	::GetPrivateProfileString("SendConfig", "AutoTime", "1000", TempStr, 5, ".\\Settings.ini");
 	m_Edit_AutoTimer.Format("%s", TempStr);
 
@@ -769,11 +764,102 @@ void CMySScomDlg::InitiateAllParas(void)
 	TempPara.Format("%s", TempStr);
 	SetDlgItemText(IDC_EDIT_SR20, TempPara);
 
-	m_Check_LoopSend = (::GetPrivateProfileInt("SrSendArea", "LoopSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
 	::GetPrivateProfileString("SrSendArea", "LoopTime", "1000", TempStr, 5, ".\\Settings.ini");
 	m_Edit_LoopTimer.Format("%s", TempStr);
 	
 	UpdateData(FALSE);                                               // 更新编辑框内容
+}
+
+void CMySScomDlg::RecordAllParas(void)
+{
+	int TempData;                                          // 需要注意的是：自动发送使能和循环发送使能两项无须保存
+	CString ParaStr;
+	
+	TempData = m_Combo_ComNo.GetCurSel();
+	ParaStr.Format("%d", TempData);
+	::WritePrivateProfileString("PortConfig", "CommPort", ParaStr, ".\\Settings.ini");
+	TempData = m_Combo_Baud.GetCurSel();
+	ParaStr.Format("%d", TempData);
+	::WritePrivateProfileString("PortConfig", "BaudRate", ParaStr, ".\\Settings.ini");
+	TempData = m_Combo_Data.GetCurSel();
+	ParaStr.Format("%d", TempData);
+	::WritePrivateProfileString("PortConfig", "DataBits", ParaStr, ".\\Settings.ini");
+	TempData = m_Combo_Stop.GetCurSel();
+	ParaStr.Format("%d", TempData);
+	::WritePrivateProfileString("PortConfig", "StopBits", ParaStr, ".\\Settings.ini");
+
+	::WritePrivateProfileString("RecvConfig", "HexDispl", m_Check_HexDspl   ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("RecvConfig", "AutoClar", m_Check_AutoClear ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("RecvConfig", "AutoSave", m_Check_AutoSave  ? "1" : "0", ".\\Settings.ini");
+
+	::WritePrivateProfileString("SendConfig", "HexaSend", m_Check_HexSend   ? "1" : "0", ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);
+	::WritePrivateProfileString("SendConfig", "AutoTime", m_Edit_AutoTimer, ".\\Settings.ini");
+
+	::WritePrivateProfileString("SrSendArea", "SrHexa01", m_Check_SrSend_01 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa02", m_Check_SrSend_02 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa03", m_Check_SrSend_03 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa04", m_Check_SrSend_04 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa05", m_Check_SrSend_05 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa06", m_Check_SrSend_06 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa07", m_Check_SrSend_07 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa08", m_Check_SrSend_08 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa09", m_Check_SrSend_09 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa10", m_Check_SrSend_10 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa11", m_Check_SrSend_11 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa12", m_Check_SrSend_12 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa13", m_Check_SrSend_13 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa14", m_Check_SrSend_14 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa15", m_Check_SrSend_15 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa16", m_Check_SrSend_16 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa17", m_Check_SrSend_17 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa18", m_Check_SrSend_18 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa19", m_Check_SrSend_19 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SrSendArea", "SrHexa20", m_Check_SrSend_20 ? "1" : "0", ".\\Settings.ini");
+
+	GetDlgItemText(IDC_EDIT_SR01, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData01", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR02, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData02", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR03, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData03", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR04, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData04", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR05, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData05", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR06, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData06", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR07, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData07", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR08, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData08", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR09, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData09", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR10, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData10", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR11, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData11", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR12, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData12", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR13, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData13", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR14, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData14", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR15, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData15", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR16, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData16", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR17, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData17", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR18, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData18", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR19, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData19", ParaStr, ".\\Settings.ini");
+	GetDlgItemText(IDC_EDIT_SR20, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "SrData20", ParaStr, ".\\Settings.ini");
+
+	GetDlgItemText(IDC_EDIT_SRAUTO, ParaStr);
+	::WritePrivateProfileString("SrSendArea", "LoopTime", ParaStr, ".\\Settings.ini");
 }
 
 void CMySScomDlg::InitiateStatusBar(void)
@@ -1755,8 +1841,6 @@ void CMySScomDlg::OnButtonONOFF()
 
         m_ctrlComm.SetPortOpen(TRUE);                                // 尝试打开串口
 
-		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
-
 		SettingStr = "";
 		
 		int ComBaudSel = m_Combo_Baud.GetCurSel();                   // 获取波特率的选择项
@@ -1782,6 +1866,8 @@ void CMySScomDlg::OnButtonONOFF()
 		m_ctrlComm.SetInputLen(0);                                   // 设置当前接收区数据长度为0
 		m_ctrlComm.GetInput();                                       // 先预读缓冲区以清除残留数据
 		
+		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
+
 		m_PortOpened = TRUE;
 		
 		SetControlStatus(TRUE);                                      // 启用各个按钮控件
@@ -2214,6 +2300,13 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
+void CMySScomDlg::OnClose() 
+{
+	RecordAllParas();
+	
+	CDialog::OnClose();
+}
+
 void CMySScomDlg::OnSize(UINT nType, int cx, int cy) 
 {
 	CDialog::OnSize(nType, cx, cy);
@@ -2273,4 +2366,5 @@ void CMySScomDlg::OnOnCommMscomm()
 		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
     }
 }
+
 

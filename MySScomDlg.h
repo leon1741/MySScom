@@ -117,6 +117,7 @@ public:
 
 	void CreateSettingFile(void);
 	void InitiateAllParas(void);
+	void RecordAllParas(void);
 
 	void InitiateStatusBar(void);
 
@@ -222,6 +223,7 @@ protected:
 	afx_msg void OnCheckSrSend18();
 	afx_msg void OnCheckSrSend19();
 	afx_msg void OnCheckSrSend20();
+	afx_msg void OnClose();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

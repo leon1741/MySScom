@@ -218,9 +218,9 @@ BEGIN
     EDITTEXT        IDC_EDIT_SRAUTO,516,294,23,12,ES_CENTER | ES_WANTRETURN | 
                     ES_NUMBER
     LTEXT           "ms",IDC_STATIC_SRAUTO,543,295,8,8
-    CTEXT           "扩展区域，内容待添加..",IDC_STATIC_EX01,12,310,94,9,
+    CTEXT           "扩展区域，内容待添加",IDC_STATIC_EX01,12,313,94,9,
                     SS_CENTERIMAGE | SS_SUNKEN
-    CTEXT           "扩展区域，内容待添加......",IDC_STATIC_EX02,397,310,156,
+    CTEXT           "扩展区域，内容待添加......",IDC_STATIC_EX02,398,313,153,
                     9,SS_CENTERIMAGE | SS_SUNKEN
 END
 
@@ -341,8 +341,6 @@ BEGIN
     IDS_STRING_017          "间隔一定时间自动循环发送数据"
     IDS_STRING_018          "输入需要间隔的时间值（0到60秒之间）"
     IDS_STRING_019          "将状态栏上显示的计数值全部清零"
-    IDS_STRING_020          "此处显示已经接收的数据内容"
-    IDS_STRING_021          "此处显示需要发送的数据内容"
 END
 
 #endif    // Chinese (P.R.C.) resources

@@ -6,31 +6,18 @@
 --------------------Configuration: MySScom - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating command line "rc.exe /l 0x804 /fo"Debug/MySScom.res" /d "_DEBUG" /d "_AFXDLL" "E:\About Test\MyDesigns\MySScom\MySScom_52\MySScom.rc"" 
-Creating temporary file "C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP533.tmp" with contents
+Creating command line "rc.exe /l 0x804 /fo"Debug/MySScom.res" /d "_DEBUG" /d "_AFXDLL" "E:\About Test\MyDesigns\MySScom\MySScom_53\MySScom.rc"" 
+Creating temporary file "C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP6F.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/MySScom.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"E:\About Test\MyDesigns\MySScom\MySScom_52\mscomm.cpp"
-"E:\About Test\MyDesigns\MySScom\MySScom_52\MySScom.cpp"
-"E:\About Test\MyDesigns\MySScom\MySScom_52\MySScomDlg.cpp"
+"E:\About Test\MyDesigns\MySScom\MySScom_53\MySScomDlg.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP533.tmp" 
-Creating temporary file "C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP534.tmp" with contents
-[
-/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/MySScom.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"E:\About Test\MyDesigns\MySScom\MySScom_52\StdAfx.cpp"
-]
-Creating command line "cl.exe @C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP534.tmp" 
+Creating command line "cl.exe @C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP6F.tmp" 
 Creating command line "link.exe /nologo /subsystem:windows /incremental:yes /pdb:"Debug/MySScom.pdb" /debug /machine:I386 /out:"MySScom.exe" /pdbtype:sept  ".\Debug\mscomm.obj" ".\Debug\MySScom.obj" ".\Debug\MySScomDlg.obj" ".\Debug\StdAfx.obj" ".\Debug\MySScom.res" "
 <h3>Output Window</h3>
 Compiling resources...
 Compiling...
-StdAfx.cpp
-Compiling...
-mscomm.cpp
-MySScom.cpp
 MySScomDlg.cpp
-Generating Code...
 Linking...
 Creating command line "bscmake.exe /nologo /o"Debug/MySScom.bsc"  ".\Debug\StdAfx.sbr" ".\Debug\mscomm.sbr" ".\Debug\MySScom.sbr" ".\Debug\MySScomDlg.sbr""
 Creating browse info file...

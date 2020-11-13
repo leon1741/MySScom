@@ -1365,13 +1365,11 @@ BOOL CMySScomDlg::OnInitDialog()
 		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSEND),  IDS_STRING_017);
 		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_TIMER),      IDS_STRING_018);
 		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_COUNT),    IDS_STRING_019);
-		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_RECV),       IDS_STRING_020);
-		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_021);
 	}
 
-	INIT_EASYSIZE;
+	INIT_EASYSIZE;                                                   // 初始化各个控件的位置
 
-	InitiateMainFrame();
+	InitiateMainFrame();                                             // 初始化主界面的大小
 
 	return TRUE;
 }

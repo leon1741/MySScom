@@ -17,6 +17,9 @@ static const int Combo_Baud[9] = {2400, 4800, 9600, 19200, 38400, 57600, 76800, 
 static const int Combo_Data[4] = {5,    6,    7,    8};
 static const int Combo_Stop[4] = {0,    1,    2,    3};
 
+#define  MAX_RECV_LINE       500                                     // 最多允许接收的数据行数，大于此数则清屏
+#define  MAX_RECV_CHAR       (MAX_RECV_LINE * 3 * 100)               // 最多允许接收的字符个数，大于此数则清屏
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -156,6 +159,48 @@ BOOL CMySScomDlg::EnumComm()
 	return bSuccess;
 }
 
+void CMySScomDlg::RePaintWindows(void)
+{
+	CRect Main;
+	GetClientRect(&Main);
+
+	//if ((Main.Width()) < 800) {
+	//	MoveWindow(0, 0, 800, 500);
+	//	return;
+	//}
+
+	//if ((Main.Height()) < 500) {
+	//	MoveWindow(0, 0, 800, 500);
+	//	return;
+	//}
+
+	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow(10, 10, 158, Main.Height() - 20);
+	
+	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow(180, 10, Main.Width() - 190, Main.Height() - 110);
+	GetDlgItem(IDC_EDIT_RECV)->MoveWindow(190, 28, Main.Width() - 210, Main.Height() - 136);
+	
+	GetDlgItem(IDC_STATIC_SEND)->MoveWindow(180, Main.Height() - 92, Main.Width() - 190, 82);
+	GetDlgItem(IDC_EDIT_SEND)->MoveWindow(190, Main.Height() - 74, Main.Width() - 210, 56);
+}
+
+void CMySScomDlg::SetControlStatus(bool Enable)
+{
+	GetDlgItem(IDC_BUTTON_PAUSE)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(Enable);
+	
+	GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
+	
+	GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
+	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
+}
+
 // 这是一个将字符转换为相应的十六进制值的函数，好多C语言书上都可以找到
 // 功能：若是在0-F之间的字符，则转换为相应的十六进制字符，否则返回-1
 char CMySScomDlg::ConvertHexChar(char ch) 
@@ -215,68 +260,57 @@ int CMySScomDlg::String2Hex(CString str, CByteArray &senddata)
     return hexdatalen;
 }
 
-void CMySScomDlg::RePaintWindows(void)
+CString CMySScomDlg::TransformtoHex(CString InputStr)
 {
-	CRect Main;
-	GetClientRect(&Main);
-
-	//if ((Main.Width()) < 800) {
-	//	MoveWindow(0, 0, 800, 500);
-	//	return;
-	//}
-
-	//if ((Main.Height()) < 500) {
-	//	MoveWindow(0, 0, 800, 500);
-	//	return;
-	//}
-
-	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow(10, 10, 158, Main.Height() - 20);
+	CString TempCStr, ResultCStr;
 	
-	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow(180, 10, Main.Width() - 190, Main.Height() - 110);
-	GetDlgItem(IDC_EDIT_RECV)->MoveWindow(190, 28, Main.Width() - 210, Main.Height() - 136);
+	ResultCStr = "";
 	
-	GetDlgItem(IDC_STATIC_SEND)->MoveWindow(180, Main.Height() - 92, Main.Width() - 190, 82);
-	GetDlgItem(IDC_EDIT_SEND)->MoveWindow(190, Main.Height() - 74, Main.Width() - 210, 56);
-}
-
-void CMySScomDlg::SetControlStatus(bool Enable)
-{
-	GetDlgItem(IDC_BUTTON_PAUSE)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(Enable);
+	for (int i = 0; i < InputStr.GetLength(); i++) {
+		TempCStr.Format("%.2X ", InputStr[i]);
+		TempCStr = TempCStr.Right(3);                                // 截取右边有效位
+		ResultCStr += TempCStr;
+	}
 	
-	GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
-	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
-	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
-	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
-	
-	GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(Enable);
-	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
-	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
+	return ResultCStr;
 }
 
 void CMySScomDlg::NeedClearWindow(void)
 {
-	if (s_Edit_Recv->GetLineCount() > 500) {
-
-		CTime   NowTime  = CTime::GetCurrentTime();	                 // 获取现在时间
-		CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";
+	CTime   NowTime  = CTime::GetCurrentTime();	                     // 获取现在时间
+	CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";
 		
-		CString Temp_String;                                         // 临时变量
-		CFile   MyFile;	                                             // 定义文件类
+	CFile   MyFile;	                                                 // 定义文件类
 		
-		if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
+	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
 
-			GetDlgItem(IDC_EDIT_RECV)->GetWindowText(Temp_String);   // 取得输入框的数据
+		int nLength = ReceiveStr.GetLength();                        // 文件长度
+		MyFile.Write(ReceiveStr, nLength);                           // 写入文本文件
+		MyFile.Close();	                                             // 关闭文件
 
-			int nLength = Temp_String.GetLength();                   // 文件长度
-			MyFile.Write(Temp_String, nLength);	                     // 写入文本文件
-			MyFile.Close();	                                         // 关闭文件
-			
-			m_Edit_Recv = "";
-			SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);              // 清空编辑框内容
+		ReceiveStr  = "";
+		m_Edit_Recv = "";
+		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);                  // 清空编辑框内容
+	}
+}
+
+void CMySScomDlg::UpdateEditDisplay(void)
+{
+	if (m_Check_HexDspl) {                                           // 如果需要16进制显示，进行转换
+
+		m_Edit_Recv = TransformtoHex(ReceiveStr);
+		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+
+		if (m_Edit_Recv.GetLength() >= MAX_RECV_CHAR) {              // 在16进制模式下，对数据内容长度进行判断
+			NeedClearWindow();
+		}
+	} else {                                                         // 否则，直接显示数据内容
+
+		m_Edit_Recv = ReceiveStr;
+		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+		
+		if (s_Edit_Recv->GetLineCount() >= MAX_RECV_LINE) {          // 在字符模式下，对数据行数进行判断
+			NeedClearWindow();
 		}
 	}
 }
@@ -495,6 +529,8 @@ void CMySScomDlg::OnButtonSend()
 void CMySScomDlg::OnCheckHexDisplay() 
 {
 	m_Check_HexDspl = !m_Check_HexDspl;
+
+	UpdateEditDisplay();                                             // 更新显示
 }
 
 void CMySScomDlg::OnCheckAutoSave() 
@@ -585,6 +621,8 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	m_PortOpened  = false;
 
+	ReceiveStr = "";
+
 	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
 	
 	// CG: The following block was added by the ToolTips component.
@@ -634,51 +672,36 @@ void CMySScomDlg::OnSize(UINT nType, int cx, int cy)
 
 void CMySScomDlg::OnOnCommMscomm() 
 {
-	VARIANT variant_inp;
-    COleSafeArray safearray_inp;
-    LONG len, k;
-    BYTE rxdata[2048];                                               // 设置BYTE数组 An 8-bit integerthat is not signed.
-    CString strtemp;
+	VARIANT       Input_Vrt;
+    COleSafeArray Input_Ary;
+    LONG RecvLen, i;
+    BYTE RecvData[2048];                                               // 设置BYTE数组
+    CString TempStr;
 
-	if (m_PortOpened == false) {
-		return;
-	}
-
-	if (!m_bCanDisplay) {
+	if ((m_PortOpened == false) || (!m_bCanDisplay)) {
 		return;
 	}
 	
-    if (m_ctrlComm.GetCommEvent() == 2)                              // 事件值为2表示接收缓冲区内有字符
-    {                                                                // 以下你可以根据自己的通信协议加入处理代码
-        variant_inp   = m_ctrlComm.GetInput();                       // 读缓冲区
-        safearray_inp = variant_inp;                                 // VARIANT型变量转换为ColeSafeArray型变量
-        len = safearray_inp.GetOneDimSize();                         // 得到有效数据长度
+    if (m_ctrlComm.GetCommEvent() == 2) {                            // 事件值为2表示接收缓冲区内有字符
+
+        Input_Vrt = m_ctrlComm.GetInput();                           // 读缓冲区
+        Input_Ary = Input_Vrt;                                       // VARIANT型变量转换为ColeSafeArray型变量
+        RecvLen   = Input_Ary.GetOneDimSize();                       // 得到有效数据长度
         
-		for (k = 0; k < len; k++) {
-            safearray_inp.GetElement(&k, rxdata + k);                // 转换为BYTE型数组
+		for (i = 0; i < RecvLen; i++) {
+            Input_Ary.GetElement(&i, RecvData + i);                  // 转换为BYTE型数组存放到RecvData数组
 		}
 		
-        for (k = 0; k < len; k++)                                    // 将数组转换为Cstring型变量
-        {
-            BYTE bt = *(char *)(rxdata + k);                         // 字符型
-			
-			if(m_Check_HexDspl) {
-                strtemp.Format("%02X ",bt);                          // 将字符以十六进制方式送入临时变量strtemp存放，注意这里加入一个空隔
-            } else {
-                strtemp.Format("%c",bt);                             // 将字符送入临时变量strtemp存放
-            }
-			
-			CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
-			int nLen = pEdit->GetWindowTextLength();                 // 获取之前数据段的总长度
-			//pEdit->SetSel(nLen, nLen);                               // 将全部数据内容选中
-			//pEdit->ReplaceSel(strtemp);                              // 替代全部内容
-			m_Edit_Recv += strtemp;                                  // 将数据更新显示
-        }
-    }
-	
-    UpdateData(FALSE);                                               // 更新编辑框内容
+        for (i = 0; i < RecvLen; i++) {                              // 将数组转换为Cstring型变量
 
-	if (m_Check_AutoSave == TRUE) {
-		NeedClearWindow();                                           // 判断是否需要清屏
-	}
+            BYTE bt = *(char *)(RecvData + i);                       // 转换为字符型
+
+			TempStr.Format("%c", bt);
+			ReceiveStr += TempStr;                                   // 保存数据内容			
+        }
+
+		ReceiveStr.Left(RecvLen);
+		
+		UpdateEditDisplay();                                         // 更新显示
+    }
 }

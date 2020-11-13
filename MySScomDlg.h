@@ -44,12 +44,16 @@ public:
 	bool           m_bCanDisplay;                                    // 判断是否需要暂停显示
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
 
+	CString        ReceiveStr;                                       // 用来保存所接收的数据内容
+
 	BOOL EnumComm(void);
+	CString TransformtoHex(CString InputStr);
 	char ConvertHexChar(char ch);
 	int  String2Hex(CString str, CByteArray &senddata);
 	void RePaintWindows(void);
 	void SetControlStatus(bool Enable);
 	void NeedClearWindow(void);
+	void UpdateEditDisplay(void);
 
 	void InitiateComboComs(void);
 	void InitiateComboBaud(void);

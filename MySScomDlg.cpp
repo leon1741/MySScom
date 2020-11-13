@@ -14,7 +14,7 @@ static char THIS_FILE[] = __FILE__;
 
 static const CString RecordPath = "Record\\";                        // 定义存放数据文件的文件夹的路径
 
-static const int Combo_Baud[9]  = {2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800};
+static const int Combo_Baud[12] = {600,  1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
 static const int Combo_Data[4]  = {5,    6,    7,    8};
 static const int Combo_Stop[4]  = {0,    1,    2,    3};
 static const int Combo_Check[5] = {'n',  'o',  'e',  'm',   's'};
@@ -644,11 +644,13 @@ void CMySScomDlg::HandleUSARTData(void)
 			
             BYTE bt = *(char *)(RecvData + i);                       // 读取单个字符
 			
-			if (bt == 0) {                                           // 转换为字符型
-				TempStr = CString(bt);
-			} else {
-				TempStr.Format("%c", bt);
-			}
+			//if (bt == 0) {                                         // 转换为字符型
+			//	TempStr = CString(bt);
+			//} else {
+			//	TempStr.Format("%c", bt);
+			//}
+
+			TempStr.Format("%c", bt);
 			
 			if (m_Check_ShowTime == TRUE) {                          // 只有在启用该功能的情况下执行判断
 				
@@ -690,7 +692,7 @@ void CMySScomDlg::NeedAutoSendData(void)
 	
 	Timer = atoi((LPSTR)(LPCTSTR)TempStr);
 	
-	if ((Timer > 0) && (Timer <= 10000)) {
+	if ((Timer > 0) && (Timer <= 100000)) {
 
 		SetTimer(Timer_No_AutoSend, Timer, NULL);                    // 启动定时器
 
@@ -704,7 +706,7 @@ void CMySScomDlg::NeedAutoSendData(void)
 
 	} else {
 
-		MessageBox("定时时间必须在0至10秒钟之间，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
+		MessageBox("定时时间必须在0至100秒钟之间，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
 
 		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);            // 还原编辑框内容
 
@@ -795,7 +797,7 @@ void CMySScomDlg::CreateSettingFile(void)
 		::WritePrivateProfileString("SystemInfo", "Created",  "1",     ".\\Settings.ini");
 		
 		::WritePrivateProfileString("PortConfig", "CommPort",  "0",     ".\\Settings.ini");
-		::WritePrivateProfileString("PortConfig", "BaudRate",  "2",     ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "BaudRate",  "4",     ".\\Settings.ini");
 		::WritePrivateProfileString("PortConfig", "DataBits",  "3",     ".\\Settings.ini");
 		::WritePrivateProfileString("PortConfig", "CheckBits", "0",     ".\\Settings.ini");
 		::WritePrivateProfileString("PortConfig", "StopBits",  "1",     ".\\Settings.ini");
@@ -873,7 +875,7 @@ void CMySScomDlg::InitiateAllParas(void)
 
 	TempData = (::GetPrivateProfileInt("PortConfig", "CommPort",  0, ".\\Settings.ini"));
 	m_Combo_ComNo.SetCurSel(TempData);
-	TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate",  2, ".\\Settings.ini"));
+	TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate",  4, ".\\Settings.ini"));
 	m_Combo_Baud.SetCurSel(TempData);
 	TempData = (::GetPrivateProfileInt("PortConfig", "DataBits",  3, ".\\Settings.ini"));
 	m_Combo_Data.SetCurSel(TempData);

@@ -4,6 +4,7 @@
 //}}AFX_INCLUDES
 
 #include "DialogSrSend.h"
+#include "DialogExfunct.h"
 
 #if !defined(AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_)
 #define AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_
@@ -18,13 +19,14 @@
 #define  Timer_No_RecvData             0x01                          // 接收串口数据定时器
 #define  Timer_No_StatusBar            0x02                          // 状态栏定时更新定时器
 #define  Timer_No_AutoSend             0x03                          // 自动发送数据定时器
-#define  Timer_No_FrameDspl            0x04                          // 子动换行显示定时器
+#define  Timer_No_FrameDspl            0x04                          // 自动换行显示定时器
+#define  Timer_No_SendFile             0x05                          // 发送文件数据定时器
 
 #define  MAX_RECV_BYTE                 1024                          // 一次最多允许接收的字节数
 #define  MAX_SEND_BYTE                 1024                          // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
 
-#define  EDIT_REFRESH_TIME             50                            // 编辑框刷新时间间隔 (单位: 毫秒)
+#define  EDIT_REFRESH_TIME             15                            // 编辑框刷新时间间隔 (单位: 毫秒)
 #define  CHNGLINE_INTERVAL             100                           // 16进制模式下判断帧换行的延迟时间 (单位: 毫秒)
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
@@ -61,11 +63,13 @@ public:
 	BOOL		m_Check_FrameDspl;
 	BOOL		m_Check_ShowDirect;
 	BOOL		m_Check_ShowSData;
+	CString	m_Edit_FilePath;
 	//}}AFX_DATA
 
 	CEdit          *s_Edit_Recv;                                       // 接收编辑框句柄指针
 	CEdit          *s_Edit_Send;                                       // 发送编辑框句柄指针
 	CDialogSrSend  *s_PDlgSrSend;                                      // 高级发送窗口句柄指针
+	CDialogExfunct *s_PDlgExfunc;                                      // 附加功能窗口句柄指针
 
 	CStringArray    s_PortNumber;                                      // 用来枚举电脑上存在的串口
 	CString         s_RecvString;                                      // 用来保存已经接收的数据内容
@@ -80,9 +84,14 @@ public:
 	int             s_RecvedByte;                                      // 已经接收的字节数
 	int             s_SendedByte;                                      // 已经发送的字节数
 
+	unsigned long   s_FileDatPos;                                      // 文件当前发送的位置
+
 	int             s_SrsDlgXPos;                                      // 记录高级发送窗口的X位置
 	int             s_SrsDlgYPos;                                      // 记录高级发送窗口的Y位置
 
+	int             s_ExfDlgXPos;                                      // 记录附加功能窗口的X位置
+	int             s_ExfDlgYPos;                                      // 记录附加功能窗口的Y位置
+	
 	CStatusBar      s_CStatusBar;                                      // 定义状态栏控制
 
 	CWinThread     *s_ThreadHdle;                                      // 串口线程句柄
@@ -95,25 +104,24 @@ public:
 	DWORD ReadComm(char *buf, DWORD dwLength);
 	DWORD WriteComm(char *buf, DWORD dwLength);
 	
-	void SetControlStatus(bool Enable);
-	void SetSendButtonStatus(bool Enable);
-	void SetSendingStatus(bool Enable);
-	void SwitchSendStatus(bool IsNormal);
-	
 	char    ConvertHexChar(char ch);
 	int     String2Hex(CString str, CByteArray &senddata);
 	CString TransformtoHex(CString InputStr);
 	bool    CharisValid(unsigned char inchar);
 
-	void InformDlgClose(void);
+	void SetControlStatus(bool Enable);
+	void SetSendCtrlArea(bool Enable);
+	void InformSrDlgClose(void);
+	void InformExDlgClose(void);
 	void SaveEditContent(void);
+	void UpdateEditStr(CString showstr);
 	void UpdateEditDisplay(void);
-	void HexChangeNewLine(void);
 	void ShowSendData(CString sstr);
 	void HandleUSARTData(char *ptr, DWORD len);
 	void NeedAutoSendData(void);
 	void UpdateStatusBarNow(void);
 	bool SendDatatoComm(CString datastr, BOOL needhex);
+	bool SendFileDatatoComm(void);
 	
 	void CreateSettingFile(void);
 	void InitiateAllParas(void);
@@ -174,6 +182,10 @@ protected:
 	afx_msg void OnCheckFrameDspl();
 	afx_msg void OnCheckShowDirec();
 	afx_msg void OnCheckShowSData();
+	afx_msg void OnButtonExfunct();
+	afx_msg void OnButtonAboutMe();
+	afx_msg void OnButtonOpenFile();
+	afx_msg void OnButtonSendFile();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

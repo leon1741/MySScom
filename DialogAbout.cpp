@@ -56,25 +56,26 @@ void CDialogAbout::ReadandDisplayFile(bool fileshown)
 	}
 	
 	if (myFile.Open(FileName, CFile::modeRead) == 0) {
-		MessageBox("读取文件失败，请确认路径正确且文件未处于打开状态！    ", "提示", MB_OK + MB_ICONINFORMATION);
-		return;
+
+		SetDlgItemText(IDC_EDIT_ABOUT, "信息文件读取失败，请确认路径正确且文件未处于打开状态！");
+
+	} else {
+		myFile.SeekToBegin();
+		
+		int nLength = myFile.GetLength();
+		char * TempStr = new char[nLength];							     // 分配空间
+		CString ResultStr;
+		
+		myFile.Read(TempStr, nLength);								     // 读取文件内容
+		m_Edit_About.Format(_T("%s"), TempStr);
+		m_Edit_About = m_Edit_About.Left(nLength);
+		
+		SetDlgItemText(IDC_EDIT_ABOUT, m_Edit_About);
+		
+		myFile.Close();												     // 关闭文件
+		
+		delete []TempStr;											     // 释放空间
 	}
-	
-	myFile.SeekToBegin();
-	
-	int nLength = myFile.GetLength();
-	char * TempStr = new char[nLength];							     // 分配空间
-	CString ResultStr;
-	
-	myFile.Read(TempStr, nLength);								     // 读取文件内容
-	m_Edit_About.Format(_T("%s"), TempStr);
-	m_Edit_About = m_Edit_About.Left(nLength);
-	
-	SetDlgItemText(IDC_EDIT_ABOUT, m_Edit_About);
-	
-	myFile.Close();												     // 关闭文件
-	
-	delete []TempStr;											     // 释放空间
 	
 	GetDlgItem(IDC_STATIC_ABOUT)->SetFocus();
 }

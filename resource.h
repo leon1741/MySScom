@@ -26,12 +26,17 @@
 #define IDS_STRING_020                  123
 #define IDS_STRING_021                  124
 #define IDS_STRING_022                  125
+#define IDS_STRING_101                  126
+#define IDS_STRING_102                  127
 #define IDR_MAINFRAME                   128
+#define IDS_STRING_103                  128
+#define IDS_STRING_104                  129
 #define IDR_MENU_TRAY                   130
 #define IDR_MENU_EDIT                   131
 #define IDD_DIALOG_ABOUT                132
 #define IDB_BITMAP_YAXON                133
 #define IDD_DIALOG_SRSEND               136
+#define IDD_DIALOG_EXFUNCT              139
 #define IDC_STATIC_CONTROL              1000
 #define IDC_STATIC_RECEIVE              1001
 #define IDC_STATIC_SEND                 1002
@@ -65,6 +70,7 @@
 #define IDC_BUTTON2                     1029
 #define IDC_BUTTON_COUNT                1029
 #define IDC_BUTTON_READOK               1029
+#define IDC_BUTTON_FRAME                1029
 #define IDC_CHECK_AUTOCLEAR             1030
 #define IDC_STATIC_MAIN                 1031
 #define IDC_STATIC_SRSEND               1032
@@ -253,6 +259,42 @@
 #define IDC_EDIT_T39                    1317
 #define IDC_EDIT_T40                    1318
 #define IDC_BUTTON_STARTSEND            1319
+#define IDC_BUTTON_EXFUNCT              1320
+#define IDC_BUTTON3                     1321
+#define IDC_BUTTON_ABOUTME              1321
+#define IDC_RADIO1                      1322
+#define IDC_RADIO_CHECKSUM              1322
+#define IDC_RADIO_CHECKADDO             1322
+#define IDC_RADIO2                      1323
+#define IDC_RADIO_CHECKADDN             1323
+#define IDC_RADIO3                      1324
+#define IDC_RADIO_CHECKXOR              1324
+#define IDC_BUTTON_GETCHKSUM            1325
+#define IDC_EDIT_CHECKSUM               1326
+#define IDC_EDIT_CHKSUM10               1327
+#define IDC_EDIT_CHKSUM16               1328
+#define IDC_EDIT_CHANGE                 1329
+#define IDC_RADIO4                      1330
+#define IDC_RADIO_DISPMODE              1330
+#define IDC_RADIO5                      1331
+#define IDC_RADIO_DispChar              1331
+#define IDC_EDIT_BFRAME                 1332
+#define IDC_EDIT_AFRAME                 1333
+#define IDC_EDIT_HEAD1                  1334
+#define IDC_EDIT_HEAD2                  1335
+#define IDC_EDIT_KEY                    1336
+#define IDC_EDIT_CHAR1                  1337
+#define IDC_EDIT_CHAR2                  1338
+#define IDC_RADIO6                      1339
+#define IDC_RADIO_ASSEMBLE              1339
+#define IDC_RADIO7                      1340
+#define IDC_RADIO_DISASMBLE             1340
+#define IDC_BUTTON_UNFRAME              1341
+#define IDC_EDIT_FILEPATH               1342
+#define IDC_BUTTON_OPENFILE             1343
+#define IDC_BUTTON_SENDFILE             1344
+#define IDC_STATIC_FILE                 1345
+#define IDC_PROGRESS_SENDFILE           1346
 #define IDC_MENU_TRAY_SHOW              32771
 #define IDC_MENU_TRAY_HIDE              32772
 #define IDC_MENU_TRAY_EXIT              32773
@@ -267,9 +309,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        139
+#define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32780
-#define _APS_NEXT_CONTROL_VALUE         1320
+#define _APS_NEXT_CONTROL_VALUE         1347
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

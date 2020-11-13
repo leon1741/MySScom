@@ -350,7 +350,7 @@ bool CDialogSrSend::EditDataValid(int EditID)
 	
 	GetDlgItemText(EditID, TempStr);
 	
-	if (TempStr.GetLength() > 0) {                                             // 判断编辑框内容的长度是否有效
+	if (TempStr.GetLength() > 0) {                                             /* 判断编辑框内容的长度是否有效 */
 		return TRUE;
 	} else {
 		return FALSE;
@@ -369,17 +369,17 @@ bool CDialogSrSend::EditDataTimeValid(int EditID, int TimeID)
 	CString TempStr;
 	
 	GetDlgItemText(EditID, TempStr);
-	if (TempStr.GetLength() == 0) {                                            // 判断编辑框内容的长度是否有效
+	if (TempStr.GetLength() == 0) {                                            /* 判断编辑框内容的长度是否有效 */
 		return FALSE;
 	}
 
 	GetDlgItemText(TimeID, TempStr);
-	if (TempStr.GetLength() == 0) {                                            // 判断编辑框内容的长度是否有效
+	if (TempStr.GetLength() == 0) {                                            /* 判断编辑框内容的长度是否有效 */
 		return FALSE;
 	}
 	
 	timeint = atoi((LPSTR)(LPCTSTR)TempStr);
-	if (timeint == 0) {                                                        // 时间间隔不能为0
+	if (timeint == 0) {                                                        /* 时间间隔不能为0 */
 		return FALSE;
 	}
 
@@ -400,7 +400,7 @@ bool CDialogSrSend::CanSendEditData(int editno, int TimeID)
 	GetDlgItemText(TimeID, TempStr);	
 	timeint = atoi((LPSTR)(LPCTSTR)TempStr);
 
-	if (++s_sendcnt[editno] >= (timeint / 10)) {                               // 时间到点
+	if (++s_sendcnt[editno] >= (timeint / 10)) {                               /* 时间到点 */
 		s_sendcnt[editno] = 0;
 		return TRUE;
 	} else {
@@ -416,7 +416,7 @@ bool CDialogSrSend::CanSendEditData(int editno, int TimeID)
 **************************************************************************************************/
 int CDialogSrSend::GetSrValidDataNo(void)
 {
-	if (s_expandmode == FALSE) {                                               // 非扩展发送模式下，只判断左边20条
+	if (s_expandmode == FALSE) {                                               /* 非扩展发送模式下，只判断左边20条 */
 		if (EditDataValid(IDC_EDIT_01) == TRUE) {
 			return IDC_EDIT_01;
 		} else if (EditDataValid(IDC_EDIT_02) == TRUE) {
@@ -460,7 +460,7 @@ int CDialogSrSend::GetSrValidDataNo(void)
 		} else {
 			return 0;
 		}
-	} else {                                                                   // 扩展发送模式下，判断全部40条
+	} else {                                                                   /* 扩展发送模式下，判断全部40条 */
 		if (EditDataValid(IDC_EDIT_01) == TRUE) {
 			return IDC_EDIT_01;
 		} else if (EditDataValid(IDC_EDIT_02) == TRUE) {
@@ -1219,24 +1219,24 @@ void CDialogSrSend::OnButtonStartSend()
 	int     Timer;
 	CString TempStr;
 	
-	if (s_issenddata == FALSE) {                                               // 如果当前没有在发送数据
+	if (s_issenddata == FALSE) {                                               /* 如果当前没有在发送数据 */
 		s_issenddata = TRUE;
 		SetDlgItemText(IDC_BUTTON_STARTSEND, "停止发送");
 
-		if (GetSrValidDataNo() == 0) {                                         // 判断数据区是否有效
+		if (GetSrValidDataNo() == 0) {                                         /* 判断数据区是否有效 */
 			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~  ", "提示", MB_OK + MB_ICONINFORMATION);
-			UpdateData(FALSE);                                                 // 取消复选框被选中的状态
+			UpdateData(FALSE);                                                 /* 取消复选框被选中的状态 */
 			return;
 		}
 
-		if (s_cirsendall == TRUE) {                                            // 全部数据统一连发
+		if (s_cirsendall == TRUE) {                                            /* 全部数据统一连发 */
 
 			GetDlgItemText(IDC_EDIT_AUTOTIME, TempStr);
 			Timer = atoi((LPSTR)(LPCTSTR)TempStr);
 			
-			if ((Timer > 0) && (Timer <= 10000)) {                             // 时间合法
+			if (Timer > 0) {                                                   /* 时间合法 */
 				
-				SetTimer(Timer_No_SrAllSend, Timer, NULL);                     // 启动定时器
+				SetTimer(Timer_No_SrAllSend, Timer, NULL);                     /* 启动定时器 */
 				s_curdatacnt = 0;
 				
 				GetDlgItem(IDC_RADIO_SENDALL)->EnableWindow(FALSE);
@@ -1245,14 +1245,14 @@ void CDialogSrSend::OnButtonStartSend()
 				
 			} else {
 				
-				MessageBox("定时时间必须在0至10秒钟之间，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
-				SetDlgItemText(IDC_EDIT_AUTOTIME, m_Edit_AutoTime);            // 还原编辑框内容
-				UpdateData(FALSE);                                             // 取消复选框被选中的状态
+				MessageBox("发送时间间隔不能为0，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
+				SetDlgItemText(IDC_EDIT_AUTOTIME, m_Edit_AutoTime);            /* 还原编辑框内容 */
+				UpdateData(FALSE);                                             /* 取消复选框被选中的状态 */
 				return;
 			}
-		} else {                                                               // 单条数据各自连发
+		} else {                                                               /* 单条数据各自连发 */
 
-			SetTimer(Timer_No_SrEachSend, 10, NULL);                           // 启动定时器
+			SetTimer(Timer_No_SrEachSend, 10, NULL);                           /* 启动定时器 */
 			memset(s_sendcnt, 0, sizeof(s_sendcnt));
 			
 			GetDlgItem(IDC_RADIO_SENDALL)->EnableWindow(FALSE);
@@ -1260,11 +1260,11 @@ void CDialogSrSend::OnButtonStartSend()
 			GetDlgItem(IDC_RADIO_SENDEACH)->EnableWindow(FALSE);
 		}
 		
-	} else {                                                                   // 如果当前正在发送数据
+	} else {                                                                   /* 如果当前正在发送数据 */
 		s_issenddata = FALSE;
 		SetDlgItemText(IDC_BUTTON_STARTSEND, "开始发送");
 
-		if (s_cirsendall == TRUE) {                                            // 关闭定时器，取消自动发送功能
+		if (s_cirsendall == TRUE) {                                            /* 关闭定时器，取消自动发送功能 */
 			KillTimer(Timer_No_SrAllSend);
 		} else {
 			KillTimer(Timer_No_SrEachSend);
@@ -1952,6 +1952,19 @@ void CDialogSrSend::ShowHideSrDlgWindow(bool show)
 /* ==================================== 以下为系统消息处理 ===================================== */
 
 
+BOOL CDialogSrSend::PreTranslateMessage(MSG* pMsg) 
+{
+	if (pMsg -> message == WM_KEYDOWN) {
+		
+        if (pMsg -> wParam == VK_ESCAPE)
+            return true;
+        if (pMsg -> wParam == VK_RETURN)
+            return true;
+    }
+	
+	return CDialog::PreTranslateMessage(pMsg);
+}
+
 BOOL CDialogSrSend::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
@@ -1970,11 +1983,11 @@ void CDialogSrSend::OnTimer(UINT nIDEvent)
 {
 	switch (nIDEvent)
 	{
-		case Timer_No_SrAllSend:                                               // 开始统一轮发全部数据
+		case Timer_No_SrAllSend:                                               /* 开始统一轮发全部数据 */
 			TrytoContinueSend();
 			break;
 			
-		case Timer_No_SrEachSend:                                              // 开始分别逐条轮发数据
+		case Timer_No_SrEachSend:                                              /* 开始分别逐条轮发数据 */
 			TrytoSendEachData();
 			break;
 		
@@ -1997,7 +2010,7 @@ void CDialogSrSend::OnClose()
 		return;
 	}
 
-	pDlg->InformDlgClose();                                                    // 通知主界面窗口已被关闭
+	pDlg->InformSrDlgClose();                                                  /* 通知主界面窗口已被关闭 */
 
 	ShowHideSrDlgWindow(FALSE);
 	

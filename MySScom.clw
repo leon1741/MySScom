@@ -26,7 +26,7 @@ Type=0
 HeaderFile=MySScomDlg.h
 ImplementationFile=MySScomDlg.cpp
 Filter=D
-LastObject=CMySScomDlg
+LastObject=IDC_MSCOMM1
 BaseClass=CDialog
 VirtualFilter=dWC
 
@@ -35,10 +35,10 @@ VirtualFilter=dWC
 [DLG:IDD_MYSSCOM_DIALOG]
 Type=1
 Class=CMySScomDlg
-ControlCount=29
+ControlCount=30
 Control1=IDC_EDIT_RECV,edit,1352734788
 Control2=IDC_EDIT_SEND,edit,1352732740
-Control3=IDC_COMBO_COMNO,combobox,1344340227
+Control3=IDC_COMBO_COMNO,combobox,1344339971
 Control4=IDC_COMBO_BAUD,combobox,1344339971
 Control5=IDC_COMBO_DATA,combobox,1344339971
 Control6=IDC_COMBO_STOP,combobox,1344339971
@@ -65,4 +65,5 @@ Control26=IDC_STATIC,static,1342308352
 Control27=IDC_STATIC_MS,static,1342308352
 Control28=IDC_STATIC_INTERVAL,static,1342308352
 Control29=IDC_STATIC_DEVIDE,static,1342177296
+Control30=IDC_MSCOMM1,{648A5600-2C6E-101B-82B6-000000000014},1342242816
 

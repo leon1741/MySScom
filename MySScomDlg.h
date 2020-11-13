@@ -1,5 +1,8 @@
 // MySScomDlg.h : header file
 //
+//{{AFX_INCLUDES()
+#include "mscomm.h"
+//}}AFX_INCLUDES
 
 #if !defined(AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_)
 #define AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_
@@ -31,14 +34,22 @@ public:
 	CString	m_Edit_Recv;
 	CString	m_Edit_Send;
 	CString	m_Edit_Timer;
+	CMSComm	m_ctrlComm;
 	//}}AFX_DATA
 
+	CEdit*         s_Edit_Recv;                                      // 调试消息显示控件
+	CEdit*         s_Edit_Send;                                      // 协议数据显示控件
+
 	CStringArray   sPorts;                                           // 用来枚举电脑上存在的串口
+	bool           m_bCanDisplay;                                    // 判断是否需要暂停显示
+	bool           m_PortOpened;                                     // 判断串口是否已经打开
 
 	BOOL EnumComm(void);
 	char ConvertHexChar(char ch);
 	int  String2Hex(CString str, CByteArray &senddata);
 	void RePaintWindows(void);
+	void SetControlStatus(bool Enable);
+	void NeedClearWindow(void);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)
@@ -72,6 +83,8 @@ protected:
 	afx_msg void OnCheckAutoSend();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnOnCommMscomm();
+	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

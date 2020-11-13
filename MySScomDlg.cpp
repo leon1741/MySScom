@@ -11,6 +11,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+static const CString RecordPath = "Record\\";                        // 定义存放数据文件的文件夹的路径
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
 
@@ -45,6 +48,7 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_RECV, m_Edit_Recv);
 	DDX_Text(pDX, IDC_EDIT_SEND, m_Edit_Send);
 	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_Timer);
+	DDX_Control(pDX, IDC_MSCOMM1, m_ctrlComm);
 	//}}AFX_DATA_MAP
 }
 
@@ -68,6 +72,12 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_WM_SIZE()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
+
+BEGIN_EVENTSINK_MAP(CMySScomDlg, CDialog)
+//{{AFX_EVENTSINK_MAP(CMySScomDlg)
+ON_EVENT(CMySScomDlg, IDC_MSCOMM1, 1 /* OnComm */, OnOnCommMscomm, VTS_NONE)
+//}}AFX_EVENTSINK_MAP
+END_EVENTSINK_MAP()
 
 
 /* ==================================== 自定义函数区--开始 ===================================== */
@@ -215,14 +225,57 @@ void CMySScomDlg::RePaintWindows(void)
 	//	MoveWindow(0, 0, 800, 500);
 	//	return;
 	//}
+
+	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow(10, 10, 158, Main.Height() - 20);
 	
-	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow(190, 10, Main.Width() - 200, Main.Height() - 110);
-	GetDlgItem(IDC_EDIT_RECV)->MoveWindow(198, 28, Main.Width() - 216, Main.Height() - 136);
+	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow(180, 10, Main.Width() - 190, Main.Height() - 110);
+	GetDlgItem(IDC_EDIT_RECV)->MoveWindow(190, 28, Main.Width() - 210, Main.Height() - 136);
 	
-	GetDlgItem(IDC_STATIC_SEND)->MoveWindow(190, Main.Height() - 92, Main.Width() - 200, 82);
-	GetDlgItem(IDC_EDIT_SEND)->MoveWindow(198, Main.Height() - 74, Main.Width() - 216, 56);
+	GetDlgItem(IDC_STATIC_SEND)->MoveWindow(180, Main.Height() - 92, Main.Width() - 190, 82);
+	GetDlgItem(IDC_EDIT_SEND)->MoveWindow(190, Main.Height() - 74, Main.Width() - 210, 56);
 }
 
+void CMySScomDlg::SetControlStatus(bool Enable)
+{
+	GetDlgItem(IDC_BUTTON_PAUSE)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(Enable);
+	
+	GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
+	
+	GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
+	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
+}
+
+void CMySScomDlg::NeedClearWindow(void)
+{
+	if (s_Edit_Recv->GetLineCount() > 500) {
+
+		CTime   NowTime  = CTime::GetCurrentTime();	                 // 获取现在时间
+		CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";
+		
+		CString Temp_String;                                         // 临时变量
+		CFile   MyFile;	                                             // 定义文件类
+		
+		if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
+
+			GetDlgItem(IDC_EDIT_RECV)->GetWindowText(Temp_String);   // 取得输入框的数据
+
+			int nLength = Temp_String.GetLength();                   // 文件长度
+			MyFile.Write(Temp_String, nLength);	                     // 写入文本文件
+			MyFile.Close();	                                         // 关闭文件
+			
+			m_Edit_Recv = "";
+			SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);              // 清空编辑框内容
+		}
+	}
+}
 
 /* ==================================== 自定义函数区--结束 ===================================== */
 
@@ -239,22 +292,155 @@ void CMySScomDlg::RePaintWindows(void)
 
 void CMySScomDlg::OnButtonONOFF() 
 {
+	CString ComNo;
+    
+	if (m_PortOpened == true) {                                      // 如果串口已经打开，那么执行关闭操作
+
+		if (m_Check_AutoSend) {
+			MessageBox("请首先停用自动发送功能再尝试关闭串口    ", "抱歉", MB_OK + MB_ICONEXCLAMATION);
+			return;
+		}
+		
+		m_ctrlComm.SetPortOpen(FALSE);
+
+		MessageBox("◆◆◆ 成功关闭串口! ◆◆◆    ", "通知", MB_OK + MB_ICONINFORMATION);
+
+		SetDlgItemText(IDC_BUTTON_ONOFF, "打开串口");
+
+		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(TRUE);
+		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(TRUE);
+
+		SetControlStatus(FALSE);
+
+		m_PortOpened = FALSE;
+
+		return;
+	}
+
+	int Number = m_Combo_ComNo.GetCurSel();                          // 得到串口号
 	
+	if (Number == 0) {
+		MessageBox("尚未选择串口号      ", "注意", MB_OK + MB_ICONEXCLAMATION);
+        return;
+    }
+	
+	if (m_ctrlComm.GetPortOpen()) {                                  // 判断是否已经打开
+        m_ctrlComm.SetPortOpen(FALSE);
+	}
+	
+	m_Combo_ComNo.GetLBText(Number, ComNo);
+	ComNo.TrimLeft("COM");                                           // 删除"COM"字段
+	
+	m_ctrlComm.SetCommPort(atoi(ComNo.Mid(0)));
+	
+    if (!m_ctrlComm.GetPortOpen()) {
+        m_ctrlComm.SetPortOpen(TRUE);                                // 尝试打开串口
+		
+		MessageBox("※※※ 成功打开串口! ※※※    ", "通知", MB_OK + MB_ICONINFORMATION);
+		
+		SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
+		
+		SetControlStatus(TRUE);
+		
+		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
+		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
+
+		GetDlgItem(IDC_BUTTON_SAVE)->EnableWindow(TRUE);
+
+	} else {
+
+        MessageBox("打开指定串口失败!  ", "抱歉", MB_OK + MB_ICONERROR);
+	}
+	
+    CString TempStr;
+    int BaudRate = m_Combo_Baud.GetCurSel();                         // 获取波特率的选择项
+	
+	switch (BaudRate)
+	{
+	case 0:
+		TempStr = "2400,n,8,1";
+		break;
+	case 1:
+		TempStr = "4800,n,8,1";
+		break;
+	case 2:
+		TempStr = "9600,n,8,1";
+		break;
+	case 3:
+		TempStr = "19200,n,8,1";
+		break;
+	case 4:
+		TempStr = "38400,n,8,1";
+		break;
+	case 5:
+		TempStr = "57600,n,8,1";
+		break;
+	case 6:
+		TempStr = "76800,n,8,1";
+		break;
+	case 7:
+		TempStr = "115200,n,8,1";
+		break;
+	case 8:
+		TempStr = "153600,n,8,1";
+		break;
+	case 9:
+		TempStr = "230400,n,8,1";
+		break;
+	default:
+		TempStr = "9600,n,8,1";
+		break;
+	}
+	
+	m_ctrlComm.SetSettings(TempStr);                                 // 波特率(XXXX)，无校验，8个数据位，1个停止位 
+	
+    m_ctrlComm.SetInputMode(1);                                      // 1表示以二进制方式检取数据
+    m_ctrlComm.SetRThreshold(1);                                     // 参数1表示每当串口接收缓冲区中有多于或等于1个字符时将引发一个接收数据的OnComm事件
+    m_ctrlComm.SetInputLen(0);                                       // 设置当前接收区数据长度为0
+    m_ctrlComm.GetInput();                                           // 先预读缓冲区以清除残留数据
+
+	m_PortOpened = TRUE;
 }
 
 void CMySScomDlg::OnButtonPause() 
 {
-	
+	if (m_bCanDisplay == false) {
+		m_bCanDisplay = TRUE;
+		SetDlgItemText(IDC_BUTTON_PAUSE, "暂停显示");
+	} else {
+		m_bCanDisplay = false;
+		SetDlgItemText(IDC_BUTTON_PAUSE, "恢复显示");
+	}
 }
 
 void CMySScomDlg::OnButtonClear() 
 {
-	
+	m_Edit_Recv = "";
+	SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 }
 
 void CMySScomDlg::OnButtonSave() 
 {
+	CTime   NowTime  = CTime::GetCurrentTime();	                     // 获取现在时间
+	CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt"; // 指定文件名
 	
+    CString Temp_String;                                             // 临时变量
+	CFile   MyFile;	                                                 // 定义文件类
+	
+	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite) == 0) {
+		Temp_String = "文件 " + FileName + " 创建失败!         ";
+		MessageBox(Temp_String, "抱歉", MB_OK + MB_ICONHAND);
+		return;
+	} else {
+		Temp_String = "文件 " + FileName + " 创建成功!         ";
+		MessageBox(Temp_String, "恭喜", MB_OK + MB_ICONINFORMATION);
+	}
+	
+	GetDlgItem(IDC_EDIT_RECV)->GetWindowText(Temp_String);           // 取得输入框的数据
+	
+	int nLength = Temp_String.GetLength();                           // 文件长度
+	MyFile.Write(Temp_String, nLength);	                             // 写入文本文件
+	MyFile.Close();	                                                 // 关闭文件
 }
 
 void CMySScomDlg::OnButtonRead() 
@@ -279,22 +465,22 @@ void CMySScomDlg::OnButtonSend()
 
 void CMySScomDlg::OnCheckHexDisplay() 
 {
-	
+	m_Check_HexDspl = !m_Check_HexDspl;
 }
 
 void CMySScomDlg::OnCheckAutoSave() 
 {
-	
+	m_Check_AutoSave = !m_Check_AutoSave;
 }
 
 void CMySScomDlg::OnCheckHexSend() 
 {
-	
+	m_Check_HexSend = !m_Check_HexSend;
 }
 
 void CMySScomDlg::OnCheckAutoSend() 
 {
-	
+	m_Check_AutoSend = !m_Check_AutoSend;
 }
 
 
@@ -345,6 +531,32 @@ BOOL CMySScomDlg::OnInitDialog()
 	
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
+
+	s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
+	s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
+
+	EnumComm();                                                      // 枚举可用的串口
+	for (int i = 0; i < sPorts.GetSize(); i++) {
+		m_Combo_ComNo.AddString(sPorts.GetAt(i));
+	}
+
+	m_Combo_ComNo.SetCurSel(0);
+	m_Combo_Baud.SetCurSel(2);
+	m_Combo_Data.SetCurSel(3);
+	m_Combo_Stop.SetCurSel(2);
+
+	GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
+	GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);
+
+	GetDlgItem(IDC_BUTTON_SAVE)->EnableWindow(FALSE);
+
+	SetControlStatus(false);
+
+	m_bCanDisplay = TRUE;                                            // 默认允许显示数据
+
+	m_PortOpened  = false;
+
+	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
 	
 	// CG: The following block was added by the ToolTips component.
 	{
@@ -355,6 +567,12 @@ BOOL CMySScomDlg::OnInitDialog()
 		// TODO: Use one of the following forms to add controls:
 		// m_tooltip.AddTool(GetDlgItem(IDC_<name>), <string-table-id>);
 		// m_tooltip.AddTool(GetDlgItem(IDC_<name>), "<text>");
+	}
+
+	CWnd *pWnd = GetDlgItem(IDC_EDIT_RECV);
+	
+	if (pWnd) {
+		RePaintWindows();                                            // 重绘窗口
 	}
 
 	return TRUE;
@@ -387,5 +605,56 @@ void CMySScomDlg::OnSize(UINT nType, int cx, int cy)
 	
 	if (pWnd) {
 		RePaintWindows();                                            // 重绘窗口
+	}
+}
+
+void CMySScomDlg::OnOnCommMscomm() 
+{
+	VARIANT variant_inp;
+    COleSafeArray safearray_inp;
+    LONG len, k;
+    BYTE rxdata[2048];                                               // 设置BYTE数组 An 8-bit integerthat is not signed.
+    CString strtemp;
+
+	if (m_PortOpened == false) {
+		return;
+	}
+
+	if (!m_bCanDisplay) {
+		return;
+	}
+	
+    if (m_ctrlComm.GetCommEvent() == 2)                              // 事件值为2表示接收缓冲区内有字符
+    {                                                                // 以下你可以根据自己的通信协议加入处理代码
+        variant_inp   = m_ctrlComm.GetInput();                       // 读缓冲区
+        safearray_inp = variant_inp;                                 // VARIANT型变量转换为ColeSafeArray型变量
+        len = safearray_inp.GetOneDimSize();                         // 得到有效数据长度
+        
+		for (k = 0; k < len; k++) {
+            safearray_inp.GetElement(&k, rxdata + k);                // 转换为BYTE型数组
+		}
+		
+        for (k = 0; k < len; k++)                                    // 将数组转换为Cstring型变量
+        {
+            BYTE bt = *(char *)(rxdata + k);                         // 字符型
+			
+			if(m_Check_HexDspl) {
+                strtemp.Format("%02X ",bt);                          // 将字符以十六进制方式送入临时变量strtemp存放，注意这里加入一个空隔
+            } else {
+                strtemp.Format("%c",bt);                             // 将字符送入临时变量strtemp存放
+            }
+			
+			CEdit* pEdit = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
+			int nLen = pEdit->GetWindowTextLength();                 // 获取之前数据段的总长度
+			//pEdit->SetSel(nLen, nLen);                               // 将全部数据内容选中
+			//pEdit->ReplaceSel(strtemp);                              // 替代全部内容
+			m_Edit_Recv += strtemp;                                  // 将数据更新显示
+        }
+    }
+	
+    UpdateData(FALSE);                                               // 更新编辑框内容
+
+	if (m_Check_AutoSave == TRUE) {
+		NeedClearWindow();                                           // 判断是否需要清屏
 	}
 }

@@ -5,6 +5,7 @@
 
 #include "DialogSrSend.h"
 #include "DialogExfunct.h"
+#include "DialogHandset.h"
 
 #if !defined(AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_)
 #define AFX_MYSSCOMDLG_H__F4B9224E_CA46_4200_BF89_E729A2094F99__INCLUDED_
@@ -66,8 +67,6 @@ public:
 	BOOL		m_Check_Return;
 	BOOL		m_Check_ShowTime;
 	BOOL		m_Check_FrameDspl;
-	BOOL		m_Check_ShowDirect;
-	BOOL		m_Check_ShowSData;
 	CString	m_Edit_FilePath;
 	//}}AFX_DATA
 
@@ -75,6 +74,7 @@ public:
 	CEdit          *s_Edit_Send;                                       // 发送编辑框句柄指针
 	CDialogSrSend  *s_PDlgSrSend;                                      // 高级发送窗口句柄指针
 	CDialogExfunct *s_PDlgExfunc;                                      // 附加功能窗口句柄指针
+	CDialogHandset *s_PDlgHandset;                                     // 模拟手柄窗口句柄指针
 
 	CStringArray    s_PortNumber;                                      // 用来枚举电脑上存在的串口
 	CString         s_RecvString;                                      // 用来保存已经接收的数据内容
@@ -98,6 +98,9 @@ public:
 
 	int             s_ExfDlgXPos;                                      // 记录附加功能窗口的X位置
 	int             s_ExfDlgYPos;                                      // 记录附加功能窗口的Y位置
+
+	int             s_HstDlgXPos;                                      // 记录模拟手柄窗口的X位置
+	int             s_HstDlgYPos;                                      // 记录模拟手柄窗口的Y位置
 	
 	CStatusBar      s_CStatusBar;                                      // 定义状态栏控制
 
@@ -120,6 +123,7 @@ public:
 	void SetSendCtrlArea(bool Enable);
 	void InformSrDlgClose(void);
 	void InformExDlgClose(void);
+	void InformHstDlgClose(void);
 	bool SaveEditContent(void);
 	void UpdateEditStr(CString showstr);
 	void UpdateEditDisplay(void);
@@ -129,7 +133,9 @@ public:
 	void UpdateStatusBarNow(void);
 	bool SendDatatoComm(CString datastr, BOOL needhex);
 	bool SendFileDatatoComm(void);
-	
+	CString FormatQuotesStrRead(CString tmpstr);
+	CString FormatQuotesStrWrite(CString tmpstr);
+
 	void CreateSettingFile(void);
 	void InitiateAllParas(void);
 	void RecordAllParas(void);
@@ -181,13 +187,12 @@ protected:
 	afx_msg void OnMenuTrayExit();
 	afx_msg void OnMenuTrayHide();
 	afx_msg void OnMenuTrayShow();
-	afx_msg void OnMyIconNotify(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnMyIconNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnCheckReturn();
 	afx_msg void OnCheckShowTime();
 	afx_msg void OnMenuTrayAbout();
 	afx_msg void OnButtonSrSend();
 	afx_msg void OnCheckFrameDspl();
-	afx_msg void OnCheckShowDirec();
 	afx_msg void OnCheckShowSData();
 	afx_msg void OnButtonExfunct();
 	afx_msg void OnButtonAboutMe();
@@ -196,6 +201,10 @@ protected:
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedCheckShowdirec();
+	afx_msg void OnBnClickedButtonHandset();
+	afx_msg void OnBnClickedButton120r();
 };
 
 //{{AFX_INSERT_LOCATION}}

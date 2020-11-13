@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by MySScom.rc
 //
 #define IDD_MYSSCOM_DIALOG              102
@@ -32,12 +32,33 @@
 #define IDS_STRING_103                  128
 #define IDS_STRING_104                  129
 #define IDR_MENU_TRAY                   130
+#define IDS_STRING_023                  130
 #define IDR_MENU_EDIT                   131
+#define IDS_STRING_024                  131
 #define IDD_DIALOG_ABOUT                132
+#define IDS_STRING_025                  132
 #define IDB_BITMAP_YAXON                133
+#define IDS_STRING_026                  133
+#define IDS_STRING_027                  134
+#define IDS_STRING_028                  135
 #define IDD_DIALOG_SRSEND               136
+#define IDS_STRING_029                  136
+#define IDS_STRING_030                  137
+#define IDS_STRING_031                  138
 #define IDD_DIALOG_EXFUNCT              139
+#define IDS_STRING_032                  139
 #define IDI_ICON1                       140
+#define IDD_DIALOG_HANDSET              141
+#define IDB_BITMAP_GPS                  142
+#define IDB_BITMAP_PHONE                143
+#define IDB_BITMAP_BAT                  144
+#define IDB_BITMAP_GSM0                 145
+#define IDB_BITMAP_GSM1                 146
+#define IDB_BITMAP_GSM2                 147
+#define IDB_BITMAP_GSM3                 148
+#define IDB_BITMAP_GSM4                 149
+#define IDB_BITMAP_SMS                  150
+#define IDB_BITMAP_LINE                 152
 #define IDC_STATIC_CONTROL              1000
 #define IDC_STATIC_RECEIVE              1001
 #define IDC_STATIC_SEND                 1002
@@ -72,6 +93,7 @@
 #define IDC_BUTTON_COUNT                1029
 #define IDC_BUTTON_READOK               1029
 #define IDC_BUTTON_FRAME                1029
+#define IDC_BUTTONOK                    1029
 #define IDC_CHECK_AUTOCLEAR             1030
 #define IDC_STATIC_MAIN                 1031
 #define IDC_STATIC_SRSEND               1032
@@ -221,8 +243,6 @@
 #define IDC_EDIT_T22                    1278
 #define IDC_EDIT_T23                    1279
 #define IDC_STATIC_TIME                 1280
-#define IDC_CHECK_SHOWDIREC             1281
-#define IDC_CHECK_SHOWSDATA             1282
 #define IDC_RADIO_SENDALL               1283
 #define IDC_RADIO_SENDEACH              1284
 #define IDC_EDIT_T04                    1285
@@ -263,6 +283,7 @@
 #define IDC_BUTTON_EXFUNCT              1320
 #define IDC_BUTTON3                     1321
 #define IDC_BUTTON_ABOUTME              1321
+#define IDC_BUTTONUP                    1321
 #define IDC_RADIO1                      1322
 #define IDC_RADIO_CHECKSUM              1322
 #define IDC_RADIO_CHECKADDO             1322
@@ -297,6 +318,43 @@
 #define IDC_STATIC_FILE                 1345
 #define IDC_PROGRESS_SENDFILE           1346
 #define IDC_STATIC_PROGERSS             1347
+#define IDC_BUTTON1                     1348
+#define IDC_BUTTON_HANDSET              1348
+#define IDC_EDIT1                       1349
+#define IDC_EDIT_DISP                   1349
+#define IDC_BUTTON4                     1350
+#define IDC_BUTTON_120R                 1350
+#define IDC_BUTTONO                     1351
+#define IDC_BUTTONDOWN                  1352
+#define IDC_BUTTON_2                    1354
+#define IDC_BUTTON_3                    1355
+#define IDC_BUTTONC                     1357
+#define IDC_BUTTONSET                   1358
+#define IDC_BUTTON_1                    1359
+#define IDC_STATIC_FRAME                1360
+#define IDC_RICHEDIT22                  1362
+#define IDC_RICHEDIT_DISP               1362
+#define IDC_STATIC_GPS                  1363
+#define IDC_STATIC_GSM                  1364
+#define IDC_STATIC_GSM0                 1364
+#define IDC_BUTTON_4                    1365
+#define IDC_BUTTON_5                    1366
+#define IDC_BUTTON_6                    1367
+#define IDC_BUTTON_7                    1368
+#define IDC_BUTTON_8                    1369
+#define IDC_BUTTON_9                    1370
+#define IDC_BUTTON_X                    1371
+#define IDC_BUTTON_0                    1372
+#define IDC_BUTTON_J                    1373
+#define IDC_STATIC_SMS                  1374
+#define IDC_STATIC_PHONE                1375
+#define IDC_STATIC_BAT                  1376
+#define IDC_STATIC_LINE1                1377
+#define IDC_STATIC_LINE2                1378
+#define IDC_STATIC_GSM1                 1379
+#define IDC_STATIC_GSM2                 1380
+#define IDC_STATIC_GSM3                 1381
+#define IDC_STATIC_GSM4                 1382
 #define IDC_MENU_TRAY_SHOW              32771
 #define IDC_MENU_TRAY_HIDE              32772
 #define IDC_MENU_TRAY_EXIT              32773
@@ -311,9 +369,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        141
+#define _APS_NEXT_RESOURCE_VALUE        153
 #define _APS_NEXT_COMMAND_VALUE         32780
-#define _APS_NEXT_CONTROL_VALUE         1348
+#define _APS_NEXT_CONTROL_VALUE         1383
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

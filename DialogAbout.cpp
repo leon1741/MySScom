@@ -62,7 +62,7 @@ void CDialogAbout::ReadandDisplayFile(bool fileshown)
 	} else {
 		myFile.SeekToBegin();
 		
-		int nLength = myFile.GetLength();
+		int nLength = (int)myFile.GetLength();
 		char * TempStr = new char[nLength];							     // ∑÷≈‰ø’º‰
 		CString ResultStr;
 		

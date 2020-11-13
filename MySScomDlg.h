@@ -57,10 +57,9 @@ public:
 
 	CStringArray   sPorts;                                           // 用来枚举电脑上存在的串口
 
-	bool           m_bCanDisplay;                                    // 判断是否需要暂停显示
-	bool           m_bSendPause;                                     // 判断是否需要暂停发送
-
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
+	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
+	bool           m_bSendPause;                                     // 判断是否需要暂停发送
 
 	int            Send_Status;                                      // 判断处于发送长文件还是短数据的状态
 	int            Send_Counter;                                     // 发送大数据时，本次发送的数据段计数单元
@@ -71,7 +70,7 @@ public:
 	int            RecvedData;                                       // 已经接收的字节数
 	int            SendedData;                                       // 已经发送的字节数
 
-	CStatusBarCtrl m_StatusBar;                                      // 定义状态栏控制
+	CStatusBar     m_StatusBar;                                      // 定义状态栏控制
 
 	BOOL EnumComm(void);
 	CString TransformtoHex(CString InputStr);

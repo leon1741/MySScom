@@ -17,7 +17,6 @@ static const int Combo_Baud[9] = {2400, 4800, 9600, 19200, 38400, 57600, 76800, 
 static const int Combo_Data[4] = {5,    6,    7,    8};
 static const int Combo_Stop[4] = {0,    1,    2,    3};
 
-
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
 
@@ -348,36 +347,57 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 	Nowtime = CTime::GetCurrentTime();
 	
 	DisplayStr = m_PortOpened ? " 串口已打开" : " 串口未打开";	
-	m_StatusBar.SetText(DisplayStr, 1, 0 );
+	m_StatusBar.SetPaneText(1, DisplayStr);
 
 	DisplayStr.Format(" Recv: %.4d", RecvedData);
-	m_StatusBar.SetText(DisplayStr, 2, 0 );
+	m_StatusBar.SetPaneText(2, DisplayStr);
 
 	DisplayStr.Format(" Send: %.4d", SendedData);
-	m_StatusBar.SetText(DisplayStr, 3, 0 );
+	m_StatusBar.SetPaneText(3, DisplayStr);
 
 	DisplayStr = " 当前时间: " + Nowtime.Format("%Y-%m-%d") + " " + Nowtime.Format("%H:%M:%S");
-	m_StatusBar.SetText(DisplayStr, 4, 0);
+	m_StatusBar.SetPaneText(4, DisplayStr);
 }
 
 void CMySScomDlg::InitiateStatusBar(void)
 {
-	m_StatusBar.Create(WS_CHILD | WS_VISIBLE | CCS_BOTTOM, CRect(0, 0, 0, 0), this, 102);
-	
-	int strPartDim[5] = {300, 400, 500, 600,  -1};                   // 将状态栏划分为若干个区域
-	m_StatusBar.SetParts(5, strPartDim);
-	
-	CTime time;
+	static UINT indicators[] =
+	{
+		ID_SEPARATOR,
+		ID_INDICATOR_CAPS,
+		ID_INDICATOR_NUM,
+		ID_INDICATOR_SCRL,
+		ID_INDICATOR_OVR,
+	};
+
+	CTime   time;
 	CString m_strTime;
+	UINT    nID = 0;
 	
+	if (!m_StatusBar.Create(this) || !m_StatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT))) {
+		TRACE0("Failed to create status barn");
+		return;
+	}
+
 	time = CTime::GetCurrentTime();
 	m_strTime = " 当前时间: " + time.Format("%Y-%m-%d") + " " + time.Format("%H:%M:%S");
 	
-	m_StatusBar.SetText(" 欢迎使用MySScom - 雅迅网络研发一部测试组", 0, 0 );
-	m_StatusBar.SetText(" 串口未打开", 1, 0 );
-	m_StatusBar.SetText(" Recv: 0000", 2, 0 );
-	m_StatusBar.SetText(" Send: 0000", 3, 0 );
-	m_StatusBar.SetText(m_strTime, 4, 0);
+	m_StatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 200);
+	m_StatusBar.SetPaneText(0, " 欢迎使用MySScom - 雅迅网络研发一部测试组");
+	
+	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneText(1, "串口未打开");
+
+	m_StatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneText(2, " Recv: 0000");
+	
+	m_StatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneText(3, " Send: 0000");
+
+	m_StatusBar.SetPaneInfo(4, nID, SBPS_NORMAL, 200);
+	m_StatusBar.SetPaneText(4, m_strTime);
+	
+	RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);
 }
 
 void CMySScomDlg::InitiateComboComs(void)
@@ -613,12 +633,12 @@ void CMySScomDlg::OnButtonONOFF()
 
 void CMySScomDlg::OnButtonPause() 
 {
-	if (m_bCanDisplay == false) {
-		m_bCanDisplay = TRUE;
+	if (m_bRecvPause == FALSE) {
+		m_bRecvPause = TRUE;
 		SetDlgItemText(IDC_BUTTON_PAUSE, "暂停接收");
 		GetDlgItem(IDC_BUTTON_ONOFF)->EnableWindow(TRUE);
 	} else {
-		m_bCanDisplay = false;
+		m_bRecvPause = FALSE;
 		SetDlgItemText(IDC_BUTTON_PAUSE, "恢复接收");
 		GetDlgItem(IDC_BUTTON_ONOFF)->EnableWindow(FALSE);
 	}
@@ -785,6 +805,15 @@ void CMySScomDlg::OnCheckAutoSend()
 {
 	m_Check_AutoSend = !m_Check_AutoSend;
 
+	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+
+	if (m_Edit_Send.GetLength() <= 0) {
+		MessageBox("貌似发送区为空吧，请问您老想让我发送什么东东？    ", "提示", MB_OK + MB_ICONINFORMATION);
+		m_Check_AutoSend = FALSE;
+		UpdateData(FALSE);
+		return;
+	}
+
 	if (m_Check_AutoSend) {
 
 		if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {              // 确保输入的数据不会过长
@@ -880,7 +909,7 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	SetControlStatus(false);                                         // 首先禁用各个按钮控件
 
-	m_bCanDisplay = TRUE;
+	m_bRecvPause = TRUE;
 	m_bSendPause  = FALSE;
 	m_PortOpened  = FALSE;
 
@@ -955,13 +984,15 @@ void CMySScomDlg::OnSize(UINT nType, int cx, int cy)
 	CDialog::OnSize(nType, cx, cy);
 	
 	UPDATE_EASYSIZE;
+
+	RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);      // 同步状态栏的位置
 }
 
 void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect) 
 {
 	CDialog::OnSizing(fwSide, pRect);
 
-	EASYSIZE_MINSIZE(810, 528, fwSide, pRect);
+	EASYSIZE_MINSIZE(850, 522, fwSide, pRect);                       // 限制窗体的最小尺寸
 }
 
 void CMySScomDlg::OnOnCommMscomm() 
@@ -969,10 +1000,10 @@ void CMySScomDlg::OnOnCommMscomm()
 	VARIANT       Input_Vrt;
     COleSafeArray Input_Ary;
     LONG RecvLen, i;
-    BYTE RecvData[2048];                                               // 设置BYTE数组
+    BYTE RecvData[2048];                                             // 设置BYTE数组
     CString TempStr;
 
-	if ((m_PortOpened == false) || (!m_bCanDisplay)) {
+	if (m_PortOpened == FALSE) {
 		return;
 	}
 	
@@ -984,6 +1015,10 @@ void CMySScomDlg::OnOnCommMscomm()
         
 		for (i = 0; i < RecvLen; i++) {
             Input_Ary.GetElement(&i, RecvData + i);                  // 转换为BYTE型数组存放到RecvData数组
+		}
+
+		if (m_bRecvPause == FALSE) {                                 // 如果暂停接收了，则不存储数据，直接返回
+			return;
 		}
 		
         for (i = 0; i < RecvLen; i++) {                              // 将数组转换为Cstring型变量

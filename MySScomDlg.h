@@ -11,6 +11,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#define  Timer_No_Main       0x01                                    // 定义定时器序号
+
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
 
@@ -54,11 +56,14 @@ public:
 	void SetControlStatus(bool Enable);
 	void NeedClearWindow(void);
 	void UpdateEditDisplay(void);
+	void NeedAutoSendData(void);
 
 	void InitiateComboComs(void);
 	void InitiateComboBaud(void);
 	void InitiateComboData(void);
 	void InitiateComboStop(void);
+
+	void SendEditDatatoComm(void);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)

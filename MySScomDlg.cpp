@@ -226,8 +226,7 @@ int CMySScomDlg::String2Hex(CString str, CByteArray &senddata)
     int len = str.GetLength();
     senddata.SetSize(len / 2);
 	
-    for (int i = 0; i < len; )
-    {
+    for (int i = 0; i < len; ) {
         char lstr, hstr = str[i];
 		
         if (hstr == ' ') {
@@ -315,6 +314,31 @@ void CMySScomDlg::UpdateEditDisplay(void)
 	}
 }
 
+void CMySScomDlg::NeedAutoSendData(void)
+{
+	int Timer;
+	CString TempStr;
+
+	GetDlgItemText(IDC_EDIT_TIMER, TempStr);
+	
+	Timer = atoi((LPSTR)(LPCTSTR)TempStr);
+	
+	if ((Timer > 0) && (Timer < 10000)) {
+		SetTimer(Timer_No_Main, Timer, NULL);                        // 启动定时器
+		GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(false);
+		GetDlgItem(IDC_STATIC_MS)->EnableWindow(false);
+		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(false);
+		m_Edit_Timer = TempStr;                                      // 更新编辑框内容
+		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_Timer);
+	} else {
+		MessageBox("定时时间必须在0至10秒钟之间，请确认！     ", "提示", MB_OK + MB_ICONEXCLAMATION);
+		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_Timer);                // 还原编辑框内容
+		m_Check_AutoSend = false;
+		UpdateData(false);                                           // 取消复选框被选中的状态
+		return;
+	}
+}
+
 void CMySScomDlg::InitiateComboComs(void)
 {
 	EnumComm();                                                      // 枚举可用的串口
@@ -360,6 +384,24 @@ void CMySScomDlg::InitiateComboStop(void)
 	}
 }
 
+void CMySScomDlg::SendEditDatatoComm(void)
+{
+	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+	
+	if (m_Check_HexSend) {                                           // 如果需要以16进制发送
+		
+        CByteArray hexdata;
+        int len;                                                     // 此处返回的len可以用于计算发送了多少个十六进制数
+		
+		len = String2Hex(m_Edit_Send, hexdata);
+		
+        m_ctrlComm.SetOutput(COleVariant(hexdata));                  // 发送十六进制数据
+		
+    } else {
+		
+        m_ctrlComm.SetOutput(COleVariant(m_Edit_Send));              // 发送ASCII字符数据
+	}
+}
 
 /* ==================================== 自定义函数区--结束 ===================================== */
 
@@ -387,7 +429,7 @@ void CMySScomDlg::OnButtonONOFF()
 		
 		m_ctrlComm.SetPortOpen(FALSE);
 
-		MessageBox("◆◆◆ 成功关闭串口! ◆◆◆    ", "通知", MB_OK + MB_ICONINFORMATION);
+		MessageBox("◆◆◆   成功关闭串口!   ◆◆◆    ", "提示", MB_OK + MB_ICONINFORMATION);
 
 		SetDlgItemText(IDC_BUTTON_ONOFF, "打开串口");
 
@@ -478,6 +520,8 @@ void CMySScomDlg::OnButtonPause()
 
 void CMySScomDlg::OnButtonClear() 
 {
+	ReceiveStr = "";
+	
 	m_Edit_Recv = "";
 	SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 }
@@ -508,22 +552,23 @@ void CMySScomDlg::OnButtonSave()
 
 void CMySScomDlg::OnButtonRead() 
 {
-	
+	MessageBox("暂不提供发送数据文件的功能！     ", "抱歉", MB_OK + MB_ICONINFORMATION);
 }
 
 void CMySScomDlg::OnButtonRespite() 
 {
-	
+	MessageBox("暂不提供发送数据文件的功能！     ", "抱歉", MB_OK + MB_ICONINFORMATION);
 }
 
 void CMySScomDlg::OnButtonReiput() 
 {
-	
+	m_Edit_Send = "";
+	SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
 }
 
 void CMySScomDlg::OnButtonSend() 
 {
-	
+	SendEditDatatoComm();
 }
 
 void CMySScomDlg::OnCheckHexDisplay() 
@@ -546,6 +591,15 @@ void CMySScomDlg::OnCheckHexSend()
 void CMySScomDlg::OnCheckAutoSend() 
 {
 	m_Check_AutoSend = !m_Check_AutoSend;
+
+	if (m_Check_AutoSend) {
+		NeedAutoSendData();
+	} else {
+		KillTimer(Timer_No_Main);
+		GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(true);
+		GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
+		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(true);
+	}
 }
 
 
@@ -647,8 +701,12 @@ BOOL CMySScomDlg::OnInitDialog()
 
 void CMySScomDlg::OnTimer(UINT nIDEvent) 
 {
+	if (nIDEvent != Timer_No_Main) {
+		return;
+	}
 	
-	
+	SendEditDatatoComm();
+
 	CDialog::OnTimer(nIDEvent);
 }
 

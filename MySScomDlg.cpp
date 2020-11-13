@@ -361,7 +361,6 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 	
 	GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOCLEAR)->EnableWindow(Enable);
-    //GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
 
@@ -635,7 +634,7 @@ void CMySScomDlg::NeedAutoSendData(void)
 
 	} else {
 
-		MessageBox("定时时间必须在0至10秒钟之间，请确认！     ", "提示", MB_OK + MB_ICONEXCLAMATION);
+		MessageBox("定时时间必须在0至10秒钟之间，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
 
 		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);            // 还原编辑框内容
 
@@ -674,7 +673,7 @@ void CMySScomDlg::NeedLoopSendData(void)
 		
 	} else {
 		
-		MessageBox("定时时间必须在0至10秒钟之间，请确认！     ", "提示", MB_OK + MB_ICONEXCLAMATION);
+		MessageBox("定时时间必须在0至10秒钟之间，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
 		
 		SetDlgItemText(IDC_EDIT_SRAUTO, m_Edit_LoopTimer);           // 还原编辑框内容
 		
@@ -1184,6 +1183,9 @@ void CMySScomDlg::InitiateSrSendArea(void)
 	m_SrSendEnable = FALSE;
 
 	HideSrSendArea();                                                // 默认状态下不显示高级发送功能
+
+	OnButtonSrSend();
+	OnButtonSrSend();
 }
 
 /**************************************************************************************************
@@ -1200,7 +1202,7 @@ void CMySScomDlg::SendEditDatatoComm(void)
 	
 	if (m_Edit_Send.GetLength() > MAX_SEND_BYTE) {                   // 数据长度过大
 		
-		MessageBox("发送内容过长，提交请求失败......      ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("发送内容过长，提交请求失败......   ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 
@@ -1344,47 +1346,67 @@ void CMySScomDlg::ShowSrSendOthers(bool Enable)
 **************************************************************************************************/
 void CMySScomDlg::HideSrSendArea(void)
 {
-	CRect DialogMain, RecvEdit, SendEdit, ButtonSend;
-	CRect RecvStatic, SendStatic, SrSdStatic;
+	CRect DialogMain, RecvEdit, SendEdit, SendButton;
+	CRect RecvStatic, SendStatic, SrSdStatic, ControlStatic;
 	
 	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
-
-	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
-	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
+	
+	if ((s_top_offset == 0) && (s_left_offset == 0)) {               // 偏移量尚未初始化
+		
+		if (DialogMain.bottom >= 0x00000229) {                       // 证明在 XP 主题模式下
+			s_top_offset  = 30;
+			s_left_offset = 4;
+		} else {                                                     // 否则在经典主题模式下
+			s_top_offset  = 23;
+			s_left_offset = 4;
+		}
+	}
+	
+	GetDlgItem(IDC_STATIC_CONTROL)->GetWindowRect(&ControlStatic);
+	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow((ControlStatic.left - DialogMain.left - s_left_offset), 
+		                                       (ControlStatic.top - DialogMain.top - s_top_offset), 
+		                                       (ControlStatic.Width()), 
+	                          	               (ControlStatic.Height()));
+	
 	GetDlgItem(IDC_STATIC_SRSEND)->GetWindowRect(&SrSdStatic);
+	GetDlgItem(IDC_STATIC_SRSEND)->MoveWindow((SrSdStatic.left - DialogMain.left - s_left_offset), 
+		                                      (SrSdStatic.top - DialogMain.top - s_top_offset), 
+		                                      (SrSdStatic.Width()), 
+		                                      (SrSdStatic.Height()));
+	
+	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
+	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - s_left_offset), 
+											   (ControlStatic.top - DialogMain.top - s_top_offset), 
+		                                       (RecvStatic.Width() + SrSdStatic.Width() + 10), 
+											   (RecvStatic.Height()));
 	
 	GetDlgItem(IDC_EDIT_RECV)->GetWindowRect(&RecvEdit);
+	GetDlgItem(IDC_EDIT_RECV)->MoveWindow((RecvEdit.left - DialogMain.left - s_left_offset), 
+		                                  (ControlStatic.top - DialogMain.top - s_top_offset + 20), 
+		                                  (RecvEdit.Width() + SrSdStatic.Width() + 10), 
+										  (RecvEdit.Height()));
+
+	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
+	GetDlgItem(IDC_STATIC_SEND)->MoveWindow((SendStatic.left - DialogMain.left - s_left_offset), 
+	                                        (RecvEdit.bottom - DialogMain.top - s_top_offset + 16), 
+	                                        (SendStatic.Width() + SrSdStatic.Width() + 10), 
+											(SendStatic.Height()));
+
 	GetDlgItem(IDC_EDIT_SEND)->GetWindowRect(&SendEdit);
-	GetDlgItem(IDC_BUTTON_SEND)->GetWindowRect(&ButtonSend);
+	GetDlgItem(IDC_EDIT_SEND)->MoveWindow((SendEdit.left - DialogMain.left - s_left_offset), 
+	                                      (SendStatic.top - DialogMain.top - s_top_offset + 20), 
+		                                  (SendEdit.Width() + SrSdStatic.Width() + 10), 
+										  (SendEdit.Height()));
+
+	GetDlgItem(IDC_BUTTON_SEND)->GetWindowRect(&SendButton);
+	GetDlgItem(IDC_BUTTON_SEND)->MoveWindow((SendEdit.left - DialogMain.left + SendEdit.Width() + 258), 
+											(SendStatic.top - DialogMain.top - s_top_offset + 16), 
+											(SendButton.Width()), (SendButton.Height()));
 
 	ShowSrSendCheck(FALSE);
 	ShowSrSendEdit(FALSE);
 	ShowSrSendButton(FALSE);
 	ShowSrSendOthers(FALSE);
-	
-	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
-											   (RecvStatic.top - DialogMain.top - 23), 
-		                                       (RecvStatic.Width() + SrSdStatic.Width() + 10), 
-											   (RecvStatic.Height()));
-	
-	GetDlgItem(IDC_EDIT_RECV)->MoveWindow((RecvEdit.left - DialogMain.left - 4), 
-		                                  (RecvEdit.top - DialogMain.top - 23), 
-		                                  (RecvEdit.Width() + SrSdStatic.Width() + 10), 
-										  (RecvEdit.Height()));
-
-	GetDlgItem(IDC_STATIC_SEND)->MoveWindow((SendStatic.left - DialogMain.left - 4), 
-	                                        (SendStatic.top - DialogMain.top - 23), 
-	                                        (SendStatic.Width() + SrSdStatic.Width() + 10), 
-											(SendStatic.Height()));
-
-	GetDlgItem(IDC_EDIT_SEND)->MoveWindow((SendEdit.left - DialogMain.left - 4), 
-	                                      (SendEdit.top - DialogMain.top - 23), 
-		                                  (SendEdit.Width() + SrSdStatic.Width() + 10), 
-										  (SendEdit.Height()));
-
-	GetDlgItem(IDC_BUTTON_SEND)->MoveWindow((SendEdit.left - DialogMain.left + SendEdit.Width() + 258), 
-											(ButtonSend.top - DialogMain.top - 23), 
-											(ButtonSend.Width()), (ButtonSend.Height()));
 }
 
 /**************************************************************************************************
@@ -1395,47 +1417,56 @@ void CMySScomDlg::HideSrSendArea(void)
 **************************************************************************************************/
 void CMySScomDlg::ShowSrSendArea(void)
 {
-	CRect DialogMain, RecvEdit, SendEdit, ButtonSend;
-	CRect RecvStatic, SendStatic, SrSdStatic;
-
+	CRect DialogMain, RecvEdit, SendEdit, SendButton;
+	CRect RecvStatic, SendStatic, SrSdStatic, ControlStatic;
+	
 	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
 
-	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
-	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
+	GetDlgItem(IDC_STATIC_CONTROL)->GetWindowRect(&ControlStatic);
+	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow((ControlStatic.left - DialogMain.left - s_left_offset), 
+		                                       (ControlStatic.top - DialogMain.top - s_top_offset), 
+		                                       (ControlStatic.Width()), 
+	                                      	   (ControlStatic.Height()));
+	
 	GetDlgItem(IDC_STATIC_SRSEND)->GetWindowRect(&SrSdStatic);
+	GetDlgItem(IDC_STATIC_SRSEND)->MoveWindow((SrSdStatic.left - DialogMain.left - s_left_offset), 
+		                                      (SrSdStatic.top - DialogMain.top - s_top_offset), 
+	 	                                      (SrSdStatic.Width()), 
+		                                      (SrSdStatic.Height()));
+	
+	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
+	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - s_left_offset), 
+											   (ControlStatic.top - DialogMain.top - s_top_offset), 
+		                                       (RecvStatic.Width() - SrSdStatic.Width() - 10), 
+											   (RecvStatic.Height()));
 	
 	GetDlgItem(IDC_EDIT_RECV)->GetWindowRect(&RecvEdit);
+	GetDlgItem(IDC_EDIT_RECV)->MoveWindow((RecvEdit.left - DialogMain.left - s_left_offset), 
+		                                  (ControlStatic.top - DialogMain.top - s_top_offset + 20), 
+		                                  (RecvEdit.Width() - SrSdStatic.Width() - 10), 
+										  (RecvEdit.Height()));
+
+	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
+	GetDlgItem(IDC_STATIC_SEND)->MoveWindow((SendStatic.left - DialogMain.left - s_left_offset), 
+	                                        (RecvEdit.bottom - DialogMain.top - s_top_offset + 16), 
+	                                        (SendStatic.Width() - SrSdStatic.Width() - 10), 
+											(SendStatic.Height()));
+
 	GetDlgItem(IDC_EDIT_SEND)->GetWindowRect(&SendEdit);
-	GetDlgItem(IDC_BUTTON_SEND)->GetWindowRect(&ButtonSend);
+	GetDlgItem(IDC_EDIT_SEND)->MoveWindow((SendEdit.left - DialogMain.left - s_left_offset), 
+	                                      (SendStatic.top - DialogMain.top - s_top_offset + 20), 
+		                                  (SendEdit.Width() - SrSdStatic.Width() - 10), 
+										  (SendEdit.Height()));
+
+	GetDlgItem(IDC_BUTTON_SEND)->GetWindowRect(&SendButton);
+	GetDlgItem(IDC_BUTTON_SEND)->MoveWindow((SendEdit.left - DialogMain.left + SendEdit.Width() - 258), 
+											(SendStatic.top - DialogMain.top - s_top_offset + 16), 
+											(SendButton.Width()), (SendButton.Height()));
 	
 	ShowSrSendCheck(TRUE);
 	ShowSrSendEdit(TRUE);
 	ShowSrSendButton(TRUE);
 	ShowSrSendOthers(TRUE);
-	
-	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
-											   (RecvStatic.top - DialogMain.top - 23), 
-		                                       (RecvStatic.Width() - SrSdStatic.Width() - 10), 
-											   (RecvStatic.Height()));
-	
-	GetDlgItem(IDC_EDIT_RECV)->MoveWindow((RecvEdit.left - DialogMain.left - 4), 
-		                                  (RecvEdit.top - DialogMain.top - 23), 
-		                                  (RecvEdit.Width() - SrSdStatic.Width() - 10), 
-										  (RecvEdit.Height()));
-
-	GetDlgItem(IDC_STATIC_SEND)->MoveWindow((SendStatic.left - DialogMain.left - 4), 
-	                                        (SendStatic.top - DialogMain.top - 23), 
-	                                        (SendStatic.Width() - SrSdStatic.Width() - 10), 
-											(SendStatic.Height()));
-
-	GetDlgItem(IDC_EDIT_SEND)->MoveWindow((SendEdit.left - DialogMain.left - 4), 
-	                                      (SendEdit.top - DialogMain.top - 23), 
-		                                  (SendEdit.Width() - SrSdStatic.Width() - 10), 
-										  (SendEdit.Height()));
-
-	GetDlgItem(IDC_BUTTON_SEND)->MoveWindow((SendEdit.left - DialogMain.left + SendEdit.Width() - 258), 
-											(ButtonSend.top - DialogMain.top - 23), 
-											(ButtonSend.Width()), (ButtonSend.Height()));
 }
 
 /**************************************************************************************************
@@ -1525,7 +1556,7 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 	assert(m_SrSendEnable == TRUE);
 	
 	if (InputStr.GetLength() <= 0) {
-		MessageBox("发送窗口内容为空，未发送任何数据！    ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("发送窗口内容为空，未发送任何数据！  ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 	
@@ -1729,7 +1760,7 @@ void CMySScomDlg::OnCheckSrAuto()
 
 		if (GetSrValidDataNo() == 0) {
 
-			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~     ", "提示", MB_OK + MB_ICONINFORMATION);
+			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~  ", "提示", MB_OK + MB_ICONINFORMATION);
 			
 			m_Check_LoopSend = FALSE;
 			UpdateData(FALSE);                                       // 取消复选框被选中的状态
@@ -2094,7 +2125,7 @@ void CMySScomDlg::OnButtonONOFF()
 	if (m_PortOpened == TRUE) {                                      // 如果串口已经打开，那么执行关闭操作
 
 		if (m_Check_AutoSend || m_Check_LoopSend) {
-			MessageBox("请首先停用自动发送功能再尝试关闭串口    ", "提示", MB_OK + MB_ICONEXCLAMATION);
+			MessageBox("请首先停用自动发送功能再尝试关闭串口...  ", "提示", MB_OK + MB_ICONEXCLAMATION);
 			return;
 		}
 
@@ -2121,7 +2152,7 @@ void CMySScomDlg::OnButtonONOFF()
 	int Number = m_Combo_ComNo.GetCurSel();                          // 得到串口号
 	
 	if (Number == 0) {
-		MessageBox("串口号都没有选择，你叫我打开什么东东...？      ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("串口号都没有选择，你叫我打开什么东东...？   ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 	
@@ -2183,7 +2214,7 @@ void CMySScomDlg::OnButtonONOFF()
 
 	} else {
 
-        MessageBox("打开串口失败，该串口可能正在使用中...    ", "提示", MB_OK + MB_ICONERROR);
+        MessageBox("打开串口失败，该串口可能正在使用中...   ", "提示", MB_OK + MB_ICONERROR);
 	}
 }
 
@@ -2225,16 +2256,16 @@ void CMySScomDlg::OnButtonSave()
 	nLength = m_Edit_Recv.GetLength();                               // 获取长度
 	
 	if (nLength <= 0) {
-		MessageBox("尚未接收到任何内容，无须保存！          ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("尚未接收到任何内容，无须保存！   ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 	
 	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite) == 0) {
-		Temp_String = "文件 " + FileName + " 创建失败！         ";
+		Temp_String = "文件 " + FileName + " 创建失败！  ";
 		MessageBox(Temp_String, "抱歉", MB_OK + MB_ICONWARNING);
 		return;
 	} else {
-		Temp_String = "文件 " + FileName + " 创建成功！         ";
+		Temp_String = "文件 " + FileName + " 创建成功！  ";
 		MessageBox(Temp_String, "恭喜", MB_OK + MB_ICONINFORMATION);
 	}
 	
@@ -2247,7 +2278,7 @@ void CMySScomDlg::OnButtonSend()
 	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
 	
 	if (m_Edit_Send.GetLength() <= 0) {
-		MessageBox("发送窗口内容为空，未发送任何数据！    ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("发送窗口内容为空，未发送任何数据！ ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 
@@ -2268,7 +2299,7 @@ void CMySScomDlg::OnButtonSrSend()
 
 		if (m_Check_LoopSend) {
 
-			MessageBox("自动发送功能已开启，请先停用之！    ", "提示", MB_OK + MB_ICONINFORMATION);
+			MessageBox("自动发送功能已开启，请先停用之！ ", "提示", MB_OK + MB_ICONINFORMATION);
 			return;
 		}
 
@@ -2282,7 +2313,7 @@ void CMySScomDlg::OnButtonSrSend()
 
 		if (m_Check_AutoSend) {
 
-			MessageBox("自动发送功能已开启，请先停用之！    ", "提示", MB_OK + MB_ICONINFORMATION);
+			MessageBox("自动发送功能已开启，请先停用之！ ", "提示", MB_OK + MB_ICONINFORMATION);
 			return;
 		}
 
@@ -2299,7 +2330,7 @@ void CMySScomDlg::OnButtonSrSend()
 void CMySScomDlg::OnCheckHexDisplay() 
 {
 	if (m_Check_ShowTime == TRUE) {
-		MessageBox("请先取消显示时间功能，然后再尝试切换到16进制的显示模式......       ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("请先取消显示时间功能，然后再尝试切换到16进制的显示模式......   ", "提示", MB_OK + MB_ICONINFORMATION);
 		m_Check_HexDspl = FALSE;        
         UpdateData(FALSE);
 	} else {
@@ -2320,7 +2351,7 @@ void CMySScomDlg::OnCheckAutoClear()
     TempData = atoi((LPSTR)(LPCTSTR)TempStr);
     
     if ((TempData < 1) || (TempData > 10000)) {        
-        MessageBox("您设置的行数值超出系统允许范围，请设置在1-10000行之间    ", "提示", MB_OK + MB_ICONINFORMATION);
+        MessageBox("您设置的行数值超出系统允许范围，请设置在1-10000行之间  ", "提示", MB_OK + MB_ICONINFORMATION);
         SetDlgItemText(IDC_EDIT_LINES, m_Edit_Lines);                // 还原编辑框内容
         m_Check_AutoClear = FALSE;        
         UpdateData(FALSE);
@@ -2362,7 +2393,7 @@ void CMySScomDlg::OnCheckAutoSend()
 	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
 
 	if (m_Edit_Send.GetLength() <= 0) {
-		MessageBox("貌似发送区为空吧，请问您老想让我发送什么东东？    ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("貌似发送区为空吧，请问您老想让我发送什么东东？ ", "提示", MB_OK + MB_ICONINFORMATION);
 		m_Check_AutoSend = FALSE;
 		UpdateData(FALSE);
 		return;
@@ -2372,7 +2403,7 @@ void CMySScomDlg::OnCheckAutoSend()
 
 		if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {              // 确保输入的数据不会过长
 
-			MessageBox("您输入的数据过长，提交发送请求失败......       ", "提示", MB_OK + MB_ICONINFORMATION);
+			MessageBox("您输入的数据过长，提交发送请求失败......   ", "提示", MB_OK + MB_ICONINFORMATION);
 			m_Check_AutoSend = FALSE;
 			UpdateData(FALSE);
 			return;
@@ -2402,7 +2433,7 @@ void CMySScomDlg::OnCheckReturn()
 void CMySScomDlg::OnCheckShowTime() 
 {
 	if (m_Check_HexDspl == TRUE) {
-		MessageBox("16进制显示模式下不支持显示接收时间功能......       ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("16进制显示模式下不支持显示接收时间功能......    ", "提示", MB_OK + MB_ICONINFORMATION);
 		m_Check_ShowTime = FALSE;        
         UpdateData(FALSE);	
 	} else {
@@ -2480,7 +2511,22 @@ HCURSOR CMySScomDlg::OnQueryDragIcon()
 BOOL CMySScomDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	s_top_offset  = 0;                                               // 该语句不能移动位置
+	s_left_offset = 0;
 	
+	m_bRecvPause = TRUE;
+	m_PortOpened  = FALSE;
+	
+	StrRecved = "";
+	
+	Loop_Counter = 0;
+	
+	RecvedData = 0;
+	SendedData = 0;
+	
+    MaxRecvLines = 0;
+
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
 
@@ -2496,18 +2542,6 @@ BOOL CMySScomDlg::OnInitDialog()
 	InitiateSrSendArea();                                            // 初始化不显示高级发送区内容
 
 	SetControlStatus(FALSE);                                         // 首先禁用各个按钮控件
-
-	m_bRecvPause = TRUE;
-	m_PortOpened  = FALSE;
-
-	StrRecved = "";
-
-	Loop_Counter = 0;
-
-	RecvedData = 0;
-	SendedData = 0;
-
-    MaxRecvLines = 0;
 
 	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
 

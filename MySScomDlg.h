@@ -92,6 +92,9 @@ public:
 	int            SendedData;                                       // 已经发送的字节数
     int            MaxRecvLines;                                     // 最多允许接收的行数
 
+	int            s_top_offset;                                     // 切换显示模式时的上部偏移量
+	int            s_left_offset;                                    // 切换显示模式时的左部偏移量
+
 	CStatusBar     m_StatusBar;                                      // 定义状态栏控制
 
 	BOOL EnumComm(void);

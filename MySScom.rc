@@ -73,7 +73,7 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\MySScom.ico"
 // Dialog
 //
 
-IDD_MYSSCOM_DIALOG DIALOGEX 0, 0, 564, 346
+IDD_MYSSCOM_DIALOG DIALOGEX 0, 0, 563, 348
 STYLE DS_3DLOOK | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | 
     WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 EXSTYLE WS_EX_APPWINDOW
@@ -94,10 +94,10 @@ BEGIN
     PUSHBUTTON      "清空窗口",IDC_BUTTON_CLEAR,62,135,42,19
     CONTROL         "以16进制显示（HEX）",IDC_CHECK_HEXDSPL,"Button",
                     BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
-                    163,88,8
+                    177,88,8
     CONTROL         "接收区数据自动清空",IDC_CHECK_AUTOCLEAR,"Button",
                     BS_AUTOCHECKBOX | BS_LEFT | BS_VCENTER | WS_TABSTOP,13,
-                    191,83,8
+                    192,83,8
     EDITTEXT        IDC_EDIT_LINES,56,203,31,12,ES_CENTER | ES_AUTOHSCROLL | 
                     ES_NUMBER
     CONTROL         "数据清空前自动保存",IDC_CHECK_AUTOSAVE,"Button",
@@ -217,15 +217,15 @@ BEGIN
     PUSHBUTTON      "20",IDC_BUTTON_SR20,540,277,13,12
     CTEXT           "Hex              Data              Send",
                     IDC_STATIC_LABLE,396,18,159,8,SS_CENTERIMAGE
-    LTEXT           "ms",IDC_STATIC_SRAUTO,543,295,8,8
-    CTEXT           "扩展区，待添加...",IDC_STATIC_EX01,12,313,94,9,
+    LTEXT           "ms",IDC_STATIC_SRAUTO,542,295,8,8
+    CTEXT           "扩展区，待添加...",IDC_STATIC_EX01,12,310,94,12,
                     SS_CENTERIMAGE | SS_SUNKEN
     CTEXT           "扩展区域，内容待添加......",IDC_STATIC_EX02,398,313,153,
                     9,SS_CENTERIMAGE | SS_SUNKEN
     LTEXT           "超过",IDC_STATIC_OVER,36,205,16,8
     LTEXT           "行",IDC_STATIC_LINES,90,205,10,8
     CONTROL         "在每行显示接收时间",IDC_CHECK_SHOWTIME,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,13,177,83,8
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,162,83,8
     LTEXT           "校验位：",IDC_STATIC,13,73,33,8
     COMBOBOX        IDC_COMBO_CHECK,50,70,54,65,CBS_DROPDOWNLIST | 
                     WS_VSCROLL | WS_TABSTOP
@@ -305,7 +305,7 @@ BEGIN
         LEFTMARGIN, 4
         RIGHTMARGIN, 558
         TOPMARGIN, 5
-        BOTTOMMARGIN, 339
+        BOTTOMMARGIN, 342
     END
 
     IDD_DIALOG_ABOUT, DIALOG

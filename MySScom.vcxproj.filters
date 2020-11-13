@@ -15,15 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DialogAbout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DialogExfunct.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DialogSrSend.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MySScom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,7 +24,25 @@
     <ClCompile Include="StdAfx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DialogHandset.cpp">
+    <ClCompile Include="MySScomTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogAutoReply.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogAboutMe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogExtrafunct.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogDisplayFilt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogSuperSend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadSerial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,15 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Basetsd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DialogAbout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DialogExfunct.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DialogSrSend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EasySize.h">
@@ -70,17 +70,29 @@
     <ClInclude Include="StdAfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DialogHandset.h">
+    <ClInclude Include="MySScomTool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogAutoReply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogAboutMe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogExtrafunct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogDisplaylFilt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogSuperSend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadSerial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="res\icon1.ico">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="res\icon2.ico">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="res\MySScom.ico">
       <Filter>Resource Files</Filter>
     </CustomBuild>
@@ -94,39 +106,6 @@
     <CustomBuild Include="修改升级记录.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\GPS.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\PHONE.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\POWER.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\SIGNAL1.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\SIGNAL2.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\SIGNAL3.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\SIGNAL4.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\SIGNAL5.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\SMS.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\bitmap1.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\LINE.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\LEON.bmp">
       <Filter>Resource Files</Filter>
     </None>

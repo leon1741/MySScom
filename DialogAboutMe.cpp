@@ -1,9 +1,7 @@
-// DialogAbout.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "MySScom.h"
-#include "DialogAbout.h"
+#include "MySScomDlg.h"
+#include "DialogAboutMe.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,40 +9,45 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CDialogAbout dialog
 
-
-CDialogAbout::CDialogAbout(CWnd* pParent /*=NULL*/)
-	: CDialog(CDialogAbout::IDD, pParent)
+CDialogAboutMe::CDialogAboutMe(CWnd* pParent /*=NULL*/)
+	: CDialog(CDialogAboutMe::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CDialogAbout)
 	m_Edit_About = _T("");
 	m_showfuncfile = FALSE;
-	//}}AFX_DATA_INIT
 }
 
 
-void CDialogAbout::DoDataExchange(CDataExchange* pDX)
+void CDialogAboutMe::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CDialogAbout)
 	DDX_Text(pDX, IDC_EDIT_ABOUT, m_Edit_About);
-	//}}AFX_DATA_MAP
 }
 
 
-BEGIN_MESSAGE_MAP(CDialogAbout, CDialog)
-	//{{AFX_MSG_MAP(CDialogAbout)
+BEGIN_MESSAGE_MAP(CDialogAboutMe, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_READOK, OnButtonReadOK)
 	ON_BN_CLICKED(IDC_BUTTON_SWITCH, OnButtonSwitch)
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-/* ==================================== 自定义函数区--开始 ===================================== */
+
+/* ============================================================================================= */
+/* ====================================                    ===================================== */
+/* ==================================== 传说中华丽的分割线 ===================================== */
+/* ====================================                    ===================================== */
+/* ============================================================================================= */
 
 
-void CDialogAbout::ReadandDisplayFile(bool fileshown)
+/* ==================================== 以下为模块内部函数 ===================================== */
+
+
+/**************************************************************************************************
+**  函数名称:  ReadandDisplayFile
+**  功能描述:  读取并显示文件内容
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CDialogAboutMe::ReadandDisplayFile(bool fileshown)
 {
     CFile   myFile;
 	CString FileName;
@@ -82,9 +85,6 @@ void CDialogAbout::ReadandDisplayFile(bool fileshown)
 }
 
 
-/* ==================================== 自定义函数区--结束 ===================================== */
-
-
 /* ============================================================================================= */
 /* ====================================                    ===================================== */
 /* ==================================== 传说中华丽的分割线 ===================================== */
@@ -95,7 +95,13 @@ void CDialogAbout::ReadandDisplayFile(bool fileshown)
 /* ================================== 各个控件消息处理--开始 =================================== */
 
 
-void CDialogAbout::OnButtonSwitch() 
+/**************************************************************************************************
+**  函数名称:  OnButtonSwitch
+**  功能描述:  切换显示内容
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CDialogAboutMe::OnButtonSwitch() 
 {
 	CEdit* s_Edit_Show;
 	
@@ -118,13 +124,16 @@ void CDialogAbout::OnButtonSwitch()
     UpdateData(FALSE);
 }
 
-void CDialogAbout::OnButtonReadOK() 
+/**************************************************************************************************
+**  函数名称:  OnButtonReadOK
+**  功能描述:  成功返回
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CDialogAboutMe::OnButtonReadOK() 
 {
 	OnOK();
 }
-
-
-/* ================================== 各个控件消息处理--结束 =================================== */
 
 
 /* ============================================================================================= */
@@ -136,7 +145,14 @@ void CDialogAbout::OnButtonReadOK()
 
 /* ==================================== 以下为系统消息处理 ===================================== */
 
-BOOL CDialogAbout::OnInitDialog() 
+
+/**************************************************************************************************
+**  函数名称:  OnInitDialog
+**  功能描述:  初始化
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+BOOL CDialogAboutMe::OnInitDialog() 
 {
     CDialog::OnInitDialog();
 	

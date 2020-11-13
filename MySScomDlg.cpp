@@ -1,10 +1,6 @@
-// MySScomDlg.cpp : implementation file
-//
-
 #include "stdafx.h"
 #include "MySScom.h"
 #include "MySScomDlg.h"
-#include "DialogAbout.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -19,18 +15,16 @@ static const int    Combo_Data[4]  = {5,    6,    7,    8};
 static const double Combo_Stop[4]  = {1,    1.5,  2};
 static const int    Combo_Check[5] = {0,    1,    2,    3,   4};
 
-/////////////////////////////////////////////////////////////////////////////
-// CMySScomDlg dialog
 
 CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMySScomDlg::IDD, pParent)
 {
-	//{{AFX_DATA_INIT(CMySScomDlg)
 	m_Check_AutoSave = FALSE;
 	m_Check_AutoSend = FALSE;
 	m_Check_HexDspl = FALSE;
 	m_Check_HexSend = FALSE;
 	m_Check_AutoClear = FALSE;
+	m_Check_Filter = FALSE;
 	m_Edit_Recv = _T("");
 	m_Edit_Send = _T("");
 	m_Edit_AutoTimer = _T("");
@@ -41,8 +35,6 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	s_NeedChgLne = TRUE;
 	s_DataRecved = FALSE;
 	m_Edit_FilePath = _T("");
-	//}}AFX_DATA_INIT
-	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	AfxInitRichEdit();                                                         /* 初始化RichEdit控件 */
@@ -51,7 +43,6 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CMySScomDlg)
 	DDX_Control(pDX, IDC_PROGRESS_SENDFILE, m_Progress_SendFile);
 	DDX_Control(pDX, IDC_COMBO_CHECK, m_Combo_Check);
 	DDX_Control(pDX, IDC_COMBO_STOP, m_Combo_Stop);
@@ -72,43 +63,69 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_RETURN, m_Check_Return);
 	DDX_Check(pDX, IDC_CHECK_SHOWTIME, m_Check_ShowTime);
 	DDX_Check(pDX, IDC_CHECK_FRAMEDSPL, m_Check_FrameDspl);
+	DDX_Check(pDX, IDC_CHECK_AUTOREPLY, m_Check_AutoReply);
 	DDX_Text(pDX, IDC_EDIT_FILEPATH, m_Edit_FilePath);
-	//}}AFX_DATA_MAP
+	DDX_Check(pDX, IDC_CHECK_FILTER, m_Check_Filter);
+	DDX_Control(pDX, IDC_EDIT_RECV, m_RichEdit_Recv);
 }
 
 BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
-	//{{AFX_MSG_MAP(CMySScomDlg)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON_ONOFF, OnButtonONOFF)
-	ON_BN_CLICKED(IDC_BUTTON_PAUSE, OnButtonPause)
-	ON_BN_CLICKED(IDC_BUTTON_CLEAR, OnButtonClear)
-	ON_BN_CLICKED(IDC_BUTTON_SAVE, OnButtonSave)
-	ON_BN_CLICKED(IDC_BUTTON_SEND, OnButtonSend)
+	ON_WM_TIMER()
+	ON_WM_SIZE()
+	ON_WM_SIZING()
+	ON_WM_CLOSE()
+
+	ON_COMMAND(IDC_MENU_TRAY_ABOUT, OnMenuTrayAbout)
+	ON_COMMAND(IDC_MENU_TRAY_EXIT, OnMenuTrayExit)
+	ON_COMMAND(IDC_MENU_TRAY_HIDE, OnMenuTrayHide)
+	ON_COMMAND(IDC_MENU_TRAY_SHOW, OnMenuTrayShow)
+
+	ON_COMMAND(IDC_MENU_EDIT_COPY, OnMenuEditCopy)
+	ON_COMMAND(IDC_MENU_EDIT_CLEAR, OnMenuEditClear)
+	ON_COMMAND(IDC_MENU_EDIT_FONT, OnMenuEditFont)
+	ON_COMMAND(IDC_MENU_EDIT_ABOUT, OnMenuEditAbout)
+	ON_COMMAND(IDC_MENU_EDIT_COLOR_WHITE, OnMenuEditColorWhite)
+	ON_COMMAND(IDC_MENU_EDIT_COLOR_GRAY, OnMenuEditColorGray)
+	ON_COMMAND(IDC_MENU_EDIT_COLOR_GREEN, OnMenuEditColorGreen)
+	ON_COMMAND(IDC_MENU_EDIT_COLOR_BLUE, OnMenuEditColorBlue)
+	ON_COMMAND(IDC_MENU_EDIT_COLOR_PINK, OnMenuEditColorPink)
+	ON_COMMAND(IDC_MENU_EDIT_COLOR_PURPLE, OnMenuEditColorPurple)
+
+	ON_BN_CLICKED(IDC_BUTTON_ONOFF, OnButtonPortCtrl)
+	ON_BN_CLICKED(IDC_BUTTON_PAUSE, OnButtonRecvPause)
+	ON_BN_CLICKED(IDC_BUTTON_CLEAR, OnButtonClearAll)
+	ON_BN_CLICKED(IDC_BUTTON_SAVE, OnButtonSaveFile)
+	ON_BN_CLICKED(IDC_BUTTON_SEND, OnButtonSendData)
+	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSuperSend)
+	ON_BN_CLICKED(IDC_BUTTON_EXFUNCT, OnButtonExtrafunc)
+	ON_BN_CLICKED(IDC_BUTTON_OPENFILE, OnButtonOpenFile)
+	ON_BN_CLICKED(IDC_BUTTON_SENDFILE, OnButtonSendFile)
+	ON_BN_CLICKED(IDC_BUTTON_SETFILTER, OnButtonConfigDsplFilt)
+	ON_BN_CLICKED(IDC_BUTTON_SETREPLY, OnButtonConfigAutoReply)
+
 	ON_BN_CLICKED(IDC_CHECK_HEXDSPL, OnCheckHexDisplay)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSAVE, OnCheckAutoSave)
 	ON_BN_CLICKED(IDC_CHECK_HEXSEND, OnCheckHexSend)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSEND, OnCheckAutoSend)
-	ON_WM_TIMER()
-	ON_WM_SIZE()
-	ON_WM_SIZING()
-	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
-	ON_WM_CLOSE()
-	ON_COMMAND(IDC_MENU_TRAY_EXIT, OnMenuTrayExit)
-	ON_COMMAND(IDC_MENU_TRAY_HIDE, OnMenuTrayHide)
-	ON_COMMAND(IDC_MENU_TRAY_SHOW, OnMenuTrayShow)
-	ON_MESSAGE(MYWM_NOTIFYICON, OnMyIconNotify)
-	ON_BN_CLICKED(IDC_CHECK_RETURN, OnCheckReturn)
+	ON_BN_CLICKED(IDC_CHECK_RETURN, OnCheckAddReturn)
 	ON_BN_CLICKED(IDC_CHECK_SHOWTIME, OnCheckShowTime)
-	ON_COMMAND(IDC_MENU_TRAY_ABOUT, OnMenuTrayAbout)
-	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSrSend)
+	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
 	ON_BN_CLICKED(IDC_CHECK_FRAMEDSPL, OnCheckFrameDspl)
-	ON_BN_CLICKED(IDC_BUTTON_EXFUNCT, OnButtonExfunct)
-	ON_BN_CLICKED(IDC_BUTTON_OPENFILE, OnButtonOpenFile)
-	ON_BN_CLICKED(IDC_BUTTON_SENDFILE, OnButtonSendFile)
-	//}}AFX_MSG_MAP
-	ON_BN_CLICKED(IDC_BUTTON_HANDSET, &CMySScomDlg::OnBnClickedButtonHandset)
-	ON_BN_CLICKED(IDC_BUTTON_120R, &CMySScomDlg::OnBnClickedButton120r)
+	ON_BN_CLICKED(IDC_CHECK_FILTER, OnCheckDsplFilt)
+	ON_BN_CLICKED(IDC_CHECK_AUTOREPLY, OnCheckAutoReply)
+	
+	ON_MESSAGE(WM_USERMSG_NOTIFYICON, OnUsrMsgHdlIconNotify)
+	ON_MESSAGE(WM_USERMSG_COMDEVLIST, OnUsrMsgHdlComDevList)
+	ON_MESSAGE(WM_USERMSG_DATARECVED, OnUsrMsgHdlDataRecved)
+	ON_MESSAGE(WM_USERMSG_DATATOSEND, OnUsrMsgHdlDatatoSend)
+	ON_MESSAGE(WM_USERMSG_ARDLGCLOSE, OnUsrMsgHdlARDlgClose)
+	ON_MESSAGE(WM_USERMSG_DFDLGCLOSE, OnUsrMsgHdlDFDlgClose)
+	ON_MESSAGE(WM_USERMSG_EFDLGCLOSE, OnUsrMsgHdlEFDlgClose)
+	ON_MESSAGE(WM_USERMSG_SSDLGCLOSE, OnUsrMsgHdlSSDlgClose)
+	ON_WM_SYSCOMMAND()
+	ON_WM_CONTEXTMENU()
 END_MESSAGE_MAP()
 
 BEGIN_EVENTSINK_MAP(CMySScomDlg, CDialog)
@@ -130,112 +147,6 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_BUTTON_SENDFILE,   ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
 END_EASYSIZE_MAP
 
-
-/* ==================================== 自定义函数区--开始 ===================================== */
-
-
-/**************************************************************************************************
-**  函数名称:  ListenProc
-**  功能描述:  串口设备监听函数
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-UINT ListenProc(LPVOID pParam)
-{
-    HANDLE   hNotify;
-    HKEY     hKeyx;
-
-	CMySScomDlg *pDlg = (CMySScomDlg *)pParam;
-
-    hNotify = CreateEvent(NULL, FALSE, TRUE, NULL);                            /* 首先创建一个事件对象 */
-
-    if (hNotify == 0) {
-    	MessageBox(NULL, "ListenProc CreateEvent Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-    	ExitProcess(0);
-    }
-
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("HARDWARE\\DEVICEMAP\\SERIALCOMM"), 0, KEY_NOTIFY, &hKeyx) != ERROR_SUCCESS) {
-    	CloseHandle(hNotify);
-    	MessageBox(NULL, "RegOpenKeyEx Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-    	ExitProcess(0);
-    }
-
-    while (1) {                                                                /* 申请对该注册表项的监听 */
-
-		if (RegNotifyChangeKeyValue(hKeyx, TRUE, REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_LAST_SET, hNotify, TRUE) != ERROR_SUCCESS) {
-    		CloseHandle(hNotify);
-    		RegCloseKey(hKeyx);
-    		MessageBox(NULL, "RegNotifyChangeKeyValue Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-    		ExitProcess(0);
-		}
-
-		if (WaitForSingleObject(hNotify, INFINITE) != WAIT_FAILED) {           /* 收到注册表项变化的通知信号 */
-			if (pDlg->s_PortOpened == FALSE) {                                 /* 只有在端口没有打开的情况下 */
-				pDlg->UpdateComboComs();                                       /* 更新端口号列表框的内容显示 */
-			} else {
-				MessageBox(NULL, "检测到串口设备发生变化！\r\n请点击主窗体的“关闭串口”，然后点击本提示框的“确认键”！\r\n系统将自动扫描串口设备变化并重新进行枚举显示...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-				if (pDlg->s_PortOpened == TRUE) {
-					MessageBox(NULL, "串口尚未关闭，无法刷新设备！！！\r\n请先通过主窗体关闭串口，然后再点击本提示框的“确认键”！！", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-					if (pDlg->s_PortOpened == TRUE) {
-						MessageBox(NULL, "您依然没有关闭串口！！！\r\n系统不再提示，也不会自动扫描和枚举串口设备\r\n请您重新本软件以刷新串口设备...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-					} else {
-						pDlg->UpdateComboComs();
-					}
-				} else {
-					pDlg->UpdateComboComs();
-				}
-			}
-		}
-	}
-
-    CloseHandle(hNotify);
-    RegCloseKey(hKeyx);
-
-    return 0;
-}
-
-/**************************************************************************************************
-**  函数名称:  SPCommProc
-**  功能描述:  串口线程处理函数
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-UINT SPCommProc(LPVOID pParam)
-{
-    OVERLAPPED os;
-    DWORD dwMask, dwTrans;
-    
-    CMySScomDlg *pDlg = (CMySScomDlg *)pParam;
-    
-    dwMask = 0;
-    memset(&os, 0, sizeof(OVERLAPPED));
-    
-    os.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);                          /* 创建事件内核对象 */
-    
-    if (os.hEvent == NULL) {                                                   /* 创建失败 */
-        MessageBox(NULL, "SPCommProc CreateEvent Failed!!!    ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-        return -1;
-    }
-    
-    while (pDlg->s_PortOpened) {
-
-        pDlg->ReadHandleUartData();
-
-        if (!WaitCommEvent(pDlg->s_FileHandle, &dwMask, &os)) {                /* 判断串口通信事件是否已经发生 */
-            
-            if (GetLastError() == ERROR_IO_PENDING) {                          /* 判断是否存在数据等待操作 */
-                GetOverlappedResult(pDlg->s_FileHandle, &os, &dwTrans, TRUE);
-            } else {                                                           /* 关闭事件内核对象 */
-                CloseHandle(os.hEvent);
-                return -1;
-            }
-        }
-    }
-    
-    CloseHandle(os.hEvent);                                                    /* 关闭事件内核对象 */
-    
-    return 0;
-}
 
 /**************************************************************************************************
 **  函数名称:  EnumCommPortList
@@ -312,365 +223,14 @@ BOOL CMySScomDlg::EnumCommPortList()
 	return bSuccess;
 }
 
-/**************************************************************************************************
-**  函数名称:  ReadComm
-**  功能描述:  从串口获取数据
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-DWORD CMySScomDlg::ReadComm(char *buf, DWORD dwLength)
-{
-    DWORD length = 0;
-    COMSTAT ComStat;
-    DWORD dwErrorFlags;
 
-    ClearCommError(s_FileHandle, &dwErrorFlags, &ComStat);                     /* 首先清除错误标志 */
+/* ============================================================================================= */
+/* ====================================                    ===================================== */
+/* ==================================== 传说中华丽的分割线 ===================================== */
+/* ====================================                    ===================================== */
+/* ============================================================================================= */
 
-    ReadFile(s_FileHandle, buf, dwLength, &length, &s_EventoRead);             /* 读取串口数据 */
-
-    return length;
-}
-
-/**************************************************************************************************
-**  函数名称:  WriteComm
-**  功能描述:  向串口发送数据
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-DWORD CMySScomDlg::WriteComm(char *buf, DWORD dwLength)
-{
-    DWORD length = dwLength;
-    COMSTAT ComStat;
-    DWORD dwErrorFlags;
-
-    ClearCommError(s_FileHandle, &dwErrorFlags, &ComStat);                     /* 首先清除错误标志 */
-
-    WriteFile(s_FileHandle, buf, length, &length, &s_EventWrite);              /* 写入串口数据 */
-
-    if (GetLastError() == ERROR_IO_PENDING) {                                  /* 正在处理重叠的部分，获取其长度 */
-        GetOverlappedResult(s_FileHandle, &s_EventWrite, &length, TRUE);
-    } else {                                                                   /* 否则，发送失败，返回0 */
-        length = 0;
-    }
-
-    return length;
-}
-
-/**************************************************************************************************
-**  函数名称:  ConvertHexChar
-**  功能描述:  若是在0-F之间的字符，则转换为相应的十六进制字符，否则返回-1
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-char CMySScomDlg::ConvertHexChar(char ch)
-{
-    if ((ch >= '0') && (ch <= '9')) {
-        return (ch - 0x30);
-    } else if ((ch >= 'A') && (ch <= 'F')) {
-        return (ch - 'A' + 10);
-    } else if ((ch >= 'a') && (ch <= 'f')) {
-        return (ch - 'a' + 10);
-    } else {
-        return (-1);
-    }
-}
-
-/**************************************************************************************************
-**  函数名称:  String2Hex
-**  功能描述:  字符串转换为16进制数据
-**  输入参数:  
-**  返回参数:  
-**  注意事项:  由于这个转换函数的格式限制，在发送框中的十六制字符应该每两个字符之间插入一个空隔
-**************************************************************************************************/
-int CMySScomDlg::String2Hex(CString str, CByteArray &senddata)
-{
-    int hexdata, lowhexdata;
-    int hexdatalen = 0;
-    int len = str.GetLength();
-
-    senddata.SetSize(len / 2);
-    
-    for (int i = 0; i < len; ) {
-
-        char lstr, hstr = str[i];
-        
-        if (hstr == ' ') {
-            i++;
-            continue;
-        }
-        
-        i++;
-        
-        if (i >= len) {
-            break;
-        }
-        
-        lstr       = str[i];
-        hexdata    = ConvertHexChar(hstr);
-        lowhexdata = ConvertHexChar(lstr);
-        
-        if ((hexdata == 16) || (lowhexdata == 16)) {
-            break;
-        } else {
-            hexdata = hexdata * 16 + lowhexdata;
-        }
-        
-        i++;
-        senddata[hexdatalen] = (char)hexdata;
-        hexdatalen++;
-    }
-
-    senddata.SetSize(hexdatalen);
-    
-    return hexdatalen;
-}
-
-/**************************************************************************************************
-**  函数名称:  TransformtoHex
-**  功能描述:  字符串转换为16进制
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-CString CMySScomDlg::TransformtoHex(CString InputStr)
-{
-    unsigned char temp1, temp2;
-	CString TempCStr, ResultCStr;
-    
-    ResultCStr = "";
-    
-    for (int i = 0; i < InputStr.GetLength(); i++) {
-
-		temp1 = InputStr[i];
-
-		if (temp1 == 0xFF) {                                                   /* 收到了FF字符，则需要进行反转义判断 */
-
-			temp2 = InputStr[i + 1];
-
-			if (temp2 == 0x01) {                                               /* FF 01，表示原字符为00 */
-				TempCStr.Format("%.2X ", 0x00);
-				i++;
-			} else if (temp2 == 0x02) {                                        /* FF 02，表示原字符为FF */
-				TempCStr.Format("%.2X ", 0xFF);
-				i++;
-			} else {                                                           /* 其他组合，表示原字符未经过转义，直接处理即可 */
-				TempCStr.Format("%.2X ", temp1);
-			}
-		} else {                                                               /* 其他字符，表示原字符未经过转义，直接处理即可 */
-			TempCStr.Format("%.2X ", temp1);
-		}
-
-		TempCStr = TempCStr.Right(3);                                          /* 截取右边有效位 */
-		ResultCStr += TempCStr;
-    }
-    
-    return ResultCStr;
-}
-
-/**************************************************************************************************
-**  函数名称:  CharisValid
-**  功能描述:  判断字符是否合法
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-bool CMySScomDlg::CharisValid(unsigned char inchar)
-{
-	if ((inchar >= '0') && (inchar <= '9')) {
-		return TRUE;
-	} else if ((inchar >= 'a') && (inchar <= 'f')) {
-		return TRUE;
-	} else if ((inchar >= 'A') && (inchar <= 'F')) {
-		return TRUE;
-	} else {
-		return FALSE;
-	}
-}
-
-/**************************************************************************************************
-**  函数名称:  GetKeyValue
-**  功能描述:  转换按键键值
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-char CMySScomDlg::GetKeyValue(unsigned int keyvalue)
-{
-    char result;
-
-    if ((keyvalue >= 48) && (keyvalue <= 57)) {                                /* 大键盘的数字键 */
-
-        if (GetKeyState(VK_SHIFT) < 0) {                                       /* Shift键有效 */
-
-            switch (keyvalue)
-            {
-                case 49:                                                       /* "!"键 */
-                    return '!';
-
-                case 50:                                                       /* "@"键 */
-                    return '@';
-
-                case 51:                                                       /* "#"键 */
-                    return '#';
-
-                case 52:                                                       /* "$"键 */
-                    return '$';
-
-                case 53:                                                       /* "%"键 */
-                    return '%';
-
-                case 54:                                                       /* "^"键 */
-                    return '^';
-
-                case 55:                                                       /* "&"键 */
-                    return '&';
-
-                case 56:                                                       /* "*"键 */
-                    return '*';
-
-                case 57:                                                       /* "("键 */
-                    return '(';
-
-                case 48:                                                       /* ")"键 */
-                    return ')';
-            }
-
-        } else {                                                               /* Shift键无效 */
-            return (keyvalue - 48 + '0');
-        }
-    }
-
-    if ((keyvalue >= 96) && (keyvalue <= 105)) {                               /* 小键盘的数字键 */
-        return (keyvalue - 96 + '0');
-    }
-
-    if ((keyvalue >= 65) && (keyvalue <= 90)) {                                /* 按下了字母键 */
-
-        if (GetKeyState(VK_CAPITAL) > 0) {                                     /* 大写键有效 */
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* Shift键有效 */
-                result = keyvalue - 65 + 'a';
-            } else {                                                           /* Shift键无效 */
-                result = keyvalue - 65 + 'A';
-            }
-        } else {                                                               /* 大写键无效 */
-            if (::GetKeyState(VK_SHIFT) < 0) {                                 /* Shift键有效 */
-                result = keyvalue - 65 + 'A';
-            } else {                                                           /* Shift键无效 */
-                result = keyvalue - 65 + 'a';
-            }
-        }
-
-        return result;
-    }
-
-    switch (keyvalue)
-    {
-        case 32:                                                               /* 空格键 */
-            return ' ';
-
-        case 106:                                                              /* 小键盘"*"键 */
-            return '*';
-
-        case 107:                                                              /* 小键盘"+"键 */
-            return '+';
-
-        case 109:                                                              /* 小键盘"-"键 */
-            return '-';
-
-        case 110:                                                              /* 小键盘"."键 */
-            return '.';
-
-        case 111:                                                              /* 小键盘"/"键 */
-            return '/';
-
-        case 186:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* ":"键 */
-                return ':';
-            } else {                                                           /* ";"键 */
-                return ';';
-            }
-            break;
-
-        case 187:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "+"键 */
-                return '+';
-            } else {                                                           /* "="键 */
-                return '=';
-            }
-            break;
-
-        case 188:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "<"键 */
-                return '<';
-            } else {                                                           /* ","键 */
-                return ',';
-            }
-            break;
-
-        case 189:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "_"键 */
-                return '_';
-            } else {                                                           /* "-"键 */
-                return '-';
-            }
-            break;
-
-        case 190:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* ">"键 */
-                return '>';
-            } else {                                                           /* "."键 */
-                return '.';
-            }
-            break;
-
-        case 191:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "?"键 */
-                return '?';
-            } else {                                                           /* "/"键 */
-                return '/';
-            }
-            break;
-
-        case 192:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "~"键 */
-                return '~';
-            } else {                                                           /* "`"键 */
-                return '`';
-            }
-            break;
-
-        case 219:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "{"键 */
-                return '{';
-            } else {                                                           /* "["键 */
-                return '[';
-            }
-            break;
-
-        case 220:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "|"键 */
-                return '|';
-            } else {                                                           /* "\"键 */
-                return '\\';
-            }
-            break;
-
-        case 221:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* "}"键 */
-                return '}';
-            } else {                                                           /* "]"键 */
-                return ']';
-            }
-            break;
-
-        case 222:
-            if (GetKeyState(VK_SHIFT) < 0) {                                   /* """键 */
-                return '\"';
-            } else {                                                           /* "'"键 */
-                return '\'';
-            }
-            break;
-    }
-
-    return 0;
-}
+/* ==================================== 以下为控件状态设置 ===================================== */
 
 /**************************************************************************************************
 **  函数名称:  SetControlStatus
@@ -681,17 +241,26 @@ char CMySScomDlg::GetKeyValue(unsigned int keyvalue)
 void CMySScomDlg::SetControlStatus(bool Enable)
 {
     GetDlgItem(IDC_BUTTON_PAUSE)->EnableWindow(Enable);
-
     GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(Enable);
     GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(Enable);
-
     GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
     GetDlgItem(IDC_CHECK_AUTOCLEAR)->EnableWindow(Enable);
     GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
     GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_SHOWTIME)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_FILTER)->EnableWindow(Enable);
+	GetDlgItem(IDC_STATIC_OVER)->EnableWindow(Enable);
+	GetDlgItem(IDC_STATIC_LINES)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_LINES)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
+	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(Enable);
 
-    if ((!m_Check_AutoClear) || (!Enable)) {
+    if ((IsDlgButtonChecked(IDC_CHECK_AUTOCLEAR) == FALSE) || (Enable == FALSE)) {
         GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
 		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(FALSE);
     } else {
@@ -699,24 +268,27 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(TRUE);
     }
 
-	if (m_Check_HexDspl == FALSE) {
+	if (IsDlgButtonChecked(IDC_CHECK_HEXDSPL) == FALSE) {
 		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_AUTOREPLY)->EnableWindow(FALSE);
 	} else {
 		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(Enable);
+		GetDlgItem(IDC_CHECK_AUTOREPLY)->EnableWindow(Enable);
 	}
 
-    GetDlgItem(IDC_CHECK_SHOWTIME)->EnableWindow(Enable);
+	if (Enable == TRUE) {
+		if (IsDlgButtonChecked(IDC_CHECK_AUTOREPLY) == TRUE) {
+			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(TRUE);
+		} else {
+			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(FALSE);
+		}
 
-    GetDlgItem(IDC_STATIC_OVER)->EnableWindow(Enable);
-    GetDlgItem(IDC_STATIC_LINES)->EnableWindow(Enable);
-    GetDlgItem(IDC_EDIT_LINES)->EnableWindow(Enable);
-    
-    GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
-    GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
-    GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(Enable);
-
-	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(Enable);
+		if (IsDlgButtonChecked(IDC_CHECK_FILTER) == TRUE) {
+			GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(TRUE);
+		} else {
+			GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(FALSE);
+		}
+	}
 }
 
 /**************************************************************************************************
@@ -728,21 +300,14 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 void CMySScomDlg::SetSendCtrlArea(bool Enable)
 {
 	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
-
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
-
 	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(Enable);
-	GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(Enable);
-
 	GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(Enable);
-
 	GetDlgItem(IDC_EDIT_FILEPATH)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(Enable);
-
 	SetDlgItemText(IDC_BUTTON_SENDFILE, (Enable == TRUE) ? "开始发送" : "停止发送");
-
 	GetDlgItem(IDC_EDIT_SEND)->ShowWindow((Enable == TRUE) ? SW_SHOW : SW_HIDE);
 	GetDlgItem(IDC_BUTTON_SEND)->ShowWindow((Enable == TRUE) ? SW_SHOW : SW_HIDE);
 	GetDlgItem(IDC_PROGRESS_SENDFILE)->ShowWindow((Enable == TRUE) ? SW_HIDE : SW_SHOW);
@@ -752,6 +317,162 @@ void CMySScomDlg::SetSendCtrlArea(bool Enable)
 	}
 }
 
+
+/* ============================================================================================= */
+/* ====================================                    ===================================== */
+/* ==================================== 传说中华丽的分割线 ===================================== */
+/* ====================================                    ===================================== */
+/* ============================================================================================= */
+
+/* ==================================== 以下为消息处理函数 ===================================== */
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlIconNotify
+**  功能描述:  处理托盘图标消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlIconNotify(WPARAM wParam, LPARAM lParam)
+{
+	UINT    uMouseMsg = LOWORD(lParam);
+	CMenu   oMenu;
+	CPoint  oPoint;
+
+	switch (uMouseMsg)
+	{
+		case WM_LBUTTONDBLCLK:                                                 /* 如果是左键双击 */
+			ShowWindow(IsWindowVisible() ? SW_HIDE : SW_SHOWNORMAL);
+			break;
+
+		case WM_RBUTTONDOWN:                                                   /* 如果是右键 */
+			if (oMenu.LoadMenu(IDR_MENU_TRAY)) {
+				CMenu* pPopup = oMenu.GetSubMenu(0);
+				ASSERT(pPopup != NULL);
+				GetCursorPos(&oPoint);                                         /* 确定鼠标位置以便在该位置附近显示菜单 */
+				SetForegroundWindow();
+				pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, oPoint.x, oPoint.y, this); 
+			}
+			break;
+	}
+
+	return 0;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlComDevList
+**  功能描述:  处理更新串口号下拉列表内容的消息 （串口设备监听线程监听到串口设备发生变化时，发送本消息给主窗体通知其刷新列表显示）
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlComDevList(WPARAM wParam, LPARAM lParam)
+{
+	UpdateComboComs();
+	
+	return true;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlDataRecved
+**  功能描述:  处理接收到了串口数据的消息 （串口数据监听线程收到串口数据时，发送本消息给主窗体进行数据解析处理）
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlDataRecved(WPARAM wParam, LPARAM lParam)
+{
+	unsigned char buff[MAX_SEND_BYTE];
+
+	memcpy(buff, (unsigned char *)lParam, wParam);
+
+	HandleUSARTData(buff, wParam);
+
+	return true;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlDatatoSend
+**  功能描述:  处理有串口数据需要发送的消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlDatatoSend(WPARAM wParam, LPARAM lParam)
+{
+	unsigned char buff[MAX_SEND_BYTE];
+	
+	memcpy(buff, (unsigned char *)lParam, wParam);
+
+	SendDatatoComm(buff, wParam, FALSE);
+
+	return true;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlARDlgClose
+**  功能描述:  处理自动回复窗口关闭的消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlARDlgClose(WPARAM wParam, LPARAM lParam)
+{
+	//GetDlgItem(IDC_BUTTON_EXFUNCT)->EnableWindow(TRUE);
+
+	return true;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlDFDlgClose
+**  功能描述:  处理显示过滤窗口关闭的消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlDFDlgClose(WPARAM wParam, LPARAM lParam)
+{
+	//GetDlgItem(IDC_BUTTON_EXFUNCT)->EnableWindow(TRUE);
+
+	return true;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlEFDlgClose
+**  功能描述:  处理附加功能窗口关闭的消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlEFDlgClose(WPARAM wParam, LPARAM lParam)
+{
+	GetDlgItem(IDC_BUTTON_EXFUNCT)->EnableWindow(TRUE);
+
+	return true;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlSSDlgClose
+**  功能描述:  处理高级发送窗口关闭的消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlSSDlgClose(WPARAM wParam, LPARAM lParam)
+{
+	SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
+	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(TRUE);
+	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(TRUE);
+	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
+	GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
+
+	return true;
+}
+
+
+/* ============================================================================================= */
+/* ====================================                    ===================================== */
+/* ==================================== 传说中华丽的分割线 ===================================== */
+/* ====================================                    ===================================== */
+/* ============================================================================================= */
+
+/* ==================================== 以下为自定义处理函数 =================================== */
+
 /**************************************************************************************************
 **  函数名称:  CloseAllChildWin
 **  功能描述:  关闭所有子窗口
@@ -760,77 +481,17 @@ void CMySScomDlg::SetSendCtrlArea(bool Enable)
 **************************************************************************************************/
 void CMySScomDlg::CloseAllChildWin(void)
 {
-    if (s_PDlgSrSend->IsWindowVisible()) {                                     /* 关闭高级发送窗口 */
-        s_PDlgSrSend->ShowHideSrDlgWindow(FALSE);
-        InformSrDlgClose();
-    }
+	s_PDlgSuprSend->ShowHideDlgWindow(FALSE);                                  /* 关闭高级发送窗口 */
+	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_SSDLGCLOSE, 0, 0); 
 
-    if (s_PDlgExfunc->IsWindowVisible()) {                                     /* 关闭附加功能窗口 */
-        s_PDlgExfunc->ShowHideExDlgWindow(FALSE);
-        InformExDlgClose();
-    }
+	s_PDlgExtrfunc->ShowHideDlgWindow(FALSE);                                  /* 关闭附加功能窗口 */
+	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_EFDLGCLOSE, 0, 0);   
 
-    #if EN_HANDSET > 0
-    if (s_PDlgHandset->IsWindowVisible()) {                                    /* 关闭模拟手柄窗口 */
-        s_PDlgHandset->ShowHideHstWindow(FALSE);
-        InformHstDlgClose();
-    }
-    #endif
-}
+	s_PDlgDsplFilt->ShowHideDlgWindow(FALSE);                                  /* 关闭过滤设置窗口 */
+	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_DFDLGCLOSE, 0, 0);
 
-/**************************************************************************************************
-**  函数名称:  InformSrDlgClose
-**  功能描述:  处理高级发送窗口的消息
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::InformSrDlgClose(void)
-{
-	SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
-	
-	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(TRUE);
-	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
-	GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
-}
-
-/**************************************************************************************************
-**  函数名称:  InformExDlgClose
-**  功能描述:  处理附加功能窗口的消息
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::InformExDlgClose(void)
-{
-	GetDlgItem(IDC_BUTTON_EXFUNCT)->EnableWindow(TRUE);
-}
-
-/**************************************************************************************************
-**  函数名称:  InformHstDlgClose
-**  功能描述:  处理模拟手柄窗口的消息
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::InformHstDlgClose(void)
-{
-	#if EN_HANDSET > 0
-    GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
-
-	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
-
-	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(TRUE);
-	GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(TRUE);
-	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
-	GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
-    #endif
+	s_PDlgAutoRply->ShowHideDlgWindow(FALSE);                                  /* 关闭自动回复窗口 */
+	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_ARDLGCLOSE, 0, 0);
 }
 
 /**************************************************************************************************
@@ -866,14 +527,37 @@ void CMySScomDlg::UpdateEditStr(CString showstr)
 {
 	int     linecnt;
 	CString TimeStr, TempStr;
+	unsigned char sbuf[MAX_SEND_BYTE];
 
     /* 如果没有开启自动清空数据的功能，同时窗口内已经接收了太多的内容，为了防止CPU占用率过高，因此需要强制清空 */
+
     if ((m_Check_AutoClear == FALSE) && (s_RecvedByte >= MAX_DISP_BYTE)) {
         s_RecvedLine = 0;                                                      /* 首先清空变量值 */
         s_RecvedByte = 0;
         m_Edit_Recv = "";
         SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);                            /* 清空编辑框内容 */
+		MessageBox("接收到的数据内容实在太多啦，我受不了啦\r\n所以就擅自清理掉了，还望您老不要生气哈......\r\n从系统稳定性出发，小的建议您老最好还是开启自动清空功能\r\n否则，老是给我塞啊塞却又从不清理一下的话，我很容易崩溃的哦~~~", "提示", MB_OK + MB_ICONINFORMATION);
     }
+
+    /* 如果开启了显示过滤功能，则进行字符串匹配，不需要显示的字符串内容不予显示，只是更新一下状态栏的统计信息 */
+	if ((m_Check_Filter == TRUE) && (s_PDlgDsplFilt->StringCanDisplay(showstr) == FALSE)) {
+		UpdateStatusBarNow();
+		return;
+	}
+
+	/* 如果在16进制显示模式下，同时开启了自动回复的功能。则判断接收到的字符中是否有满足条件的字段，并进行自动回复 */
+	if ((m_Check_HexDspl == TRUE) && (m_Check_AutoReply == TRUE)) {
+		for (int i = 0; i < s_PDlgAutoRply->GetTotalStringNo(); i++) {
+			TempStr = s_PDlgAutoRply->GetRecvString(i);
+			if ((TempStr.GetLength() > 0) && (showstr.Find(TempStr, 0) != -1)) {
+				TempStr = s_PDlgAutoRply->GetSendString(i);
+				if (TempStr.GetLength() > 0) {
+					strncpy_s((char *)&sbuf[0], sizeof(sbuf), (LPCTSTR)TempStr, TempStr.GetLength());
+					SendDatatoComm(sbuf, TempStr.GetLength(), TRUE);
+				}
+			}
+		}
+	}
     
     if (m_Check_HexDspl == TRUE) {                                             /* 16进制模式下 */
 		linecnt = s_RecvedByte;                                                /* 以字符数来判断结果 */
@@ -939,19 +623,16 @@ void CMySScomDlg::UpdateEditDisplay(void)
 	CString TimeStr, TempStr;
     CTime   NowTime;
 
-	if (s_datahdling == TRUE) return;                                          /* 处理串口数据时，不处理显示 */
-    
     if (m_Check_HexDspl == TRUE) {                                             /* 16进制模式下 */
+
         TempStr = TransformtoHex(s_RecvString);                                /* 转换结果为16进制显示 */
 
 		if (s_NeedChgLne == TRUE) {                                            /* 如果需要换行显示 */
-			
 			if (m_Check_ShowTime == TRUE) {                                    /* 启用时间显示功能 */
 				NowTime = CTime::GetCurrentTime();                             /* 获取现在时间 */
 				TimeStr = NowTime.Format("[%H:%M:%S] ");
 				TempStr = TimeStr + TempStr; 
 			}
-			
 			s_NeedChgLne = FALSE;
 		}
     } else {                                                                   /* 字符模式下 */
@@ -969,24 +650,16 @@ void CMySScomDlg::UpdateEditDisplay(void)
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
+void CMySScomDlg::HandleUSARTData(unsigned char *sbuf, DWORD len)
 {
     DWORD   i;
     CString ShowStr, TempStr, TimeStr;
     CTime   NowTime;
 
-    if (s_RecvPaused == TRUE) return;
-
-	s_datahdling = TRUE;                                                       /* 这里标记当前正在处理串口数据 */
-
 	TempStr = "";
 	ShowStr = "";
 
-	#if EN_HANDSET > 0
-    if (s_PDlgHandset->IsWindowVisible() == TRUE) {                            /* 在模拟手柄已经开启的情况下 */
-		s_PDlgHandset->HandleUSARTData(ptr, len);
-	}
-    #endif
+	if (s_RecvPaused == TRUE) return;                                          /* 暂停接收时，不进行处理 */
 
     for (i = 0; i < len; i++) {                                                /* 将数组转换为Cstring型变量 */
 
@@ -994,12 +667,12 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 
 			/* 考虑到00字符的特殊性，需要对其进行转义才能存储。转义规则如下：00转义成FF 01，FF转义成FF 02，其他字符不转义 */
 
-			if (ptr[i] == 0) {                                                 /* 00 转义成 FF 01 */
+			if (sbuf[i] == 0) {                                                /* 00 转义成 FF 01 */
 				TempStr.Format("%c%c", 0xFF, 0x01);
-			} else if ((unsigned char)(ptr[i]) == 0xFF) {                      /* FF 转义成 FF 02 */
+			} else if ((unsigned char)(sbuf[i]) == 0xFF) {                     /* FF 转义成 FF 02 */
 				TempStr.Format("%c%c", 0xFF, 0x02);
 			} else {
-				TempStr.Format("%c", ptr[i]);
+				TempStr.Format("%c", sbuf[i]);
 			}
 
 			ShowStr += TempStr;                                                /* 保存数据内容 */
@@ -1011,10 +684,10 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 			
 		} else {                                                               /* 当前处于字符显示模式 */
 
-			if (s_NeedChgLne == TRUE) {                                        /* 如果需要换行显示 */
-				
-				if (m_Check_ShowTime == TRUE) {                                /* 启用时间显示功能 */
-					NowTime = CTime::GetCurrentTime();                         /* 获取现在时间 */
+			if (s_NeedChgLne == TRUE) {                                        /* 如果接收完一整行 */
+
+				if (m_Check_ShowTime == TRUE) {                                /* 如果启用了时间显示功能 */
+					NowTime = CTime::GetCurrentTime();                         /* 获取当前系统时间 */
 					TimeStr = NowTime.Format("[%H:%M:%S] ");
 					ShowStr = ShowStr + TimeStr;
 				}
@@ -1022,11 +695,11 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 				s_NeedChgLne = FALSE;
 			}
 
-			TempStr.Format("%c", ptr[i]);                                      /* 处理接收到的数据 */
-
+			TempStr.Format("%c", sbuf[i]);                                     /* 处理接收到的数据 */
 			ShowStr += TempStr;                                                /* 保存数据内容 */
-			
+
 			if (TempStr == "\n") {                                             /* 本次接收到回车符 */
+
 				s_RecvedLine++;                                                /* 接收到的行数累加 */
 			    s_NeedChgLne = TRUE;                                           /* 标记需要换行显示 */
 			}
@@ -1036,26 +709,6 @@ void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 	s_RecvedByte += len;                                                       /* 接收字节数累加 */
     s_DataRecved  = TRUE;
 	s_RecvString += ShowStr;                                                   /* 注意这里要用加号，不然会造成之前的数据丢失 */
-
-	s_datahdling = FALSE;                                                      /* 这里表示串口数据处理完毕 */
-}
-
-/**************************************************************************************************
-**  函数名称:  ReadHandleUartData
-**  功能描述:  处理所接收到的数据
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::ReadHandleUartData(void)
-{
-    char buf[MAX_RECV_BYTE];
-    DWORD length = 0;
-
-    length = ReadComm(buf, MAX_RECV_BYTE);
-
-    if (length > 0) {
-        HandleUSARTData(buf, length);
-    }
 }
 
 /**************************************************************************************************
@@ -1115,15 +768,15 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 
 #if VERSION_CTRL == VERSION_YAXON
 	if (DialogMain.Width() > 1300) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
 	} else if (DialogMain.Width() > 1200) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - Designed By LEON (LEON1741@126.com)";
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - Designed By LEON (LEON1741@126.com)";
 	} else if (DialogMain.Width() > 1100) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - Designed By LEON";
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - Designed By LEON";
 	} else if (DialogMain.Width() > 1000) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部 - LEON";
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - LEON";
 	} else if (DialogMain.Width() > 900) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络终端研发部";
+		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部";
 	} else if (DialogMain.Width() > 850) {
 		DisplayStr = " 欢迎使用MySScom - 雅迅网络";
 	} else if (DialogMain.Width() > 800) {
@@ -1153,7 +806,7 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 
 	s_CStatusBar.SetPaneText(0, DisplayStr);
         
-    DisplayStr = s_PortOpened ? " 串口已打开" : " 串口未打开";  
+    DisplayStr = (SerialDevisOpened() == TRUE) ? " 串口已打开" : " 串口未打开";  
     s_CStatusBar.SetPaneText(1, DisplayStr);
 
     DisplayStr.Format(" Lines: %.5d", s_RecvedLine);
@@ -1176,73 +829,47 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-bool CMySScomDlg::SendDatatoComm(CString datastr, BOOL needhex)
+bool CMySScomDlg::SendDatatoComm(unsigned char *sbuf, int slen, BOOL needhex)
 {
-	int i, j, len;
-	unsigned char tchar;
-	char temp[MAX_SEND_BYTE];
+	int j, len;
+	CString  tempstr;
+	unsigned char temp[MAX_SEND_BYTE];
 	CByteArray hexdata;	
 	
     if (needhex) {                                                             /* 如果需要以16进制发送 */
 
-		if (datastr.GetLength() > MAX_SEND_BYTE * 3) {                         /* 数据长度过大 */
+		if (slen > MAX_SEND_BYTE * 3) {                                        /* 数据长度过大 */
 			return FALSE;
 		}
 
-		for (i = 0; i <= datastr.GetLength(); ) {                              /* 本循环体用于判断数据内容是否合法 */
-
-			tchar = datastr[i++];                                              /* 判断第1个字符是否有效 */
-			
-			if (!CharisValid(tchar)) {
-				return FALSE;
-			}
-			
-			tchar = datastr[i++];                                              /* 判断第2个字符是否有效 */
-			
-			if (!CharisValid(tchar)) {
-				return FALSE;
-			}
-			
-			if (i >= datastr.GetLength() - 1) {                                /* 如果是最后一个数据，则不需要判断其空格 */
-				break;
-			}
-			
-			tchar = datastr[i++];                                              /* 判断第3个字符是否为空格 */
-			
-			if (tchar != ' ') {
-				return FALSE;
-			}
+		tempstr.Format("%s", sbuf);
+		if (ParseCStrisLegal(tempstr) == FALSE) {                              /* 字符串内容非法 */
+			return FALSE;
 		}
-        
-        len = String2Hex(datastr, hexdata);                                    /* 将字符串转换为实际对应的数据 */
+
+        len = String2Hex(tempstr, hexdata);                                    /* 将字符串转换为实际对应的数据 */
 		
         for (j = 0; j < len; j++) {                                            /* 将实际数据保存至数组 */
             temp[j] = hexdata.GetAt(j);
         }
         
-        len = WriteComm(temp, len);                                            /* 写入串口，直接发送 */
-		
-        s_SendedByte += len;                                                   /* 发送字节数累加 */
+        s_SendedByte += SendSerialData(temp, len);                             /* 写入串口发送，发送字节数累加 */
         
     } else {                                                                   /* 字符模式下，直接发送 */
 
-		if (datastr.GetLength() > MAX_SEND_BYTE) {                             /* 数据长度过大 */
+		if (slen > MAX_SEND_BYTE) {                                            /* 数据长度过大 */
 			return FALSE;
 		}
-        
-        strncpy_s(temp, (LPCTSTR)datastr, sizeof(temp));                       /* 拷贝数据内容 */
-        
-        len = WriteComm(temp, datastr.GetLength());                            /* 写入串口，直接发送 */
-		
-        s_SendedByte += len;                                                   /* 发送字节数累加 */
+
+        s_SendedByte += SendSerialData(sbuf, slen);                            /* 写入串口发送，发送字节数累加 */
     }
 	
-    if (m_Check_Return) {                                                      /* 补发回车换行符 */
+    if (m_Check_Return == TRUE) {                                              /* 补发回车换行符 */
 		
         temp[0] = '\r';
         temp[1] = '\n';
         
-        s_SendedByte += WriteComm(temp, 2);
+        s_SendedByte += SendSerialData(temp, 2);
     }
 
     UpdateStatusBarNow();                                                      /* 更新状态栏统计数据的显示 */
@@ -1258,13 +885,13 @@ bool CMySScomDlg::SendDatatoComm(CString datastr, BOOL needhex)
 **************************************************************************************************/
 bool CMySScomDlg::SendFileDatatoComm(void)
 {
-	CFile         filename;
-	int           baudrate, sendbyte;
-	unsigned long fileleng;
-	char         *filebuff;                                                    /* 用于存放文件数据 */
-	double        tempbyte;
-	CString       dsplystr;
-	unsigned int  totltime, lefttime;
+	CFile          filename;
+	int            baudrate, sendbyte;
+	unsigned long  fileleng;
+	unsigned char *filebuff;                                                   /* 用于存放文件数据 */
+	double         tempbyte;
+	CString        dsplystr;
+	unsigned int   totltime, lefttime;
 
 	if (filename.Open(m_Edit_FilePath, CFile::modeReadWrite | CFile::typeBinary) == 0) {
 		MessageBox("读取文件失败，请确认路径正确且文件未处于打开状态！    ", "提示", MB_OK + MB_ICONINFORMATION);
@@ -1283,11 +910,11 @@ bool CMySScomDlg::SendFileDatatoComm(void)
 		sendbyte = fileleng - s_FileDatPos;
 	}
 	
-    filebuff = new char[sendbyte];                                             /* 分配内存空间 */
+    filebuff = new unsigned char[sendbyte];                                    /* 分配内存空间 */
 	filename.Seek(s_FileDatPos, CFile::begin);                                 /* 定位到上次发送的位置 */
     filename.Read(filebuff, sendbyte);                                         /* 读取文件内容 */
 
-	sendbyte = WriteComm(filebuff, sendbyte);                                  /* 发送数据，并统计长度 */
+	sendbyte = SendSerialData(filebuff, sendbyte);                             /* 发送数据，并统计长度 */
 	s_FileDatPos += sendbyte;
 	s_SendedByte += sendbyte;
 
@@ -1306,58 +933,10 @@ bool CMySScomDlg::SendFileDatatoComm(void)
 	if (s_FileDatPos >= fileleng) {                                            /* 全部数据发送完毕 */
 		s_FileDatPos = 0;
 		KillTimer(Timer_No_SendFile);
-		SetSendCtrlArea(TRUE);                                                 /* 禁用其他发送控件 */
+		SetSendCtrlArea(TRUE);                                                 /* 启用其他发送控件 */
 	}
 
 	return TRUE;
-}
-
-/**************************************************************************************************
-**  函数名称:  FormatQuotesStrRead
-**  功能描述:  将读取出来的字符串进行格式化
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-CString CMySScomDlg::FormatQuotesStrRead(CString tmpstr)
-{
-	int i, j;
-	CString fmtstr;
-
-	fmtstr = "";
-
-	for (i = 0, j = 0; i < tmpstr.GetLength(); i++) {
-		if ((tmpstr[i] == '\\') && (tmpstr[i + 1] == '"')) {
-			fmtstr += '"';
-			i++;
-		} else {
-			fmtstr += tmpstr[i];
-		}
-	}
-
-	return fmtstr;
-}
-
-/**************************************************************************************************
-**  函数名称:  FormatQuotesStrWrite
-**  功能描述:  将要写入的字符串进行格式化
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-CString CMySScomDlg::FormatQuotesStrWrite(CString tmpstr)
-{
-    int i, j;
-	CString fmtstr;
-
-	fmtstr = "";
-	
-	for (i = 0, j = 0; i < tmpstr.GetLength(); i++) {
-		if (tmpstr[i] == '"') {
-			fmtstr += '\\';
-		}
-		fmtstr += tmpstr[i];
-	}
-
-	return fmtstr;
 }
 
 /**************************************************************************************************
@@ -1368,168 +947,30 @@ CString CMySScomDlg::FormatQuotesStrWrite(CString tmpstr)
 **************************************************************************************************/
 void CMySScomDlg::CreateSettingFile(void)
 {
-    // 以下语句判断目录下是否存在INI文件，若不存在则创建该文件并写入默认值
+    CString temp;
+	
+	// 以下语句判断目录下是否存在INI文件，若不存在则创建该文件并写入默认值
 
     if (!(::GetPrivateProfileInt("SystemInfo", "Created", 0, ".\\Settings.ini"))) {
 
-        ::WritePrivateProfileString("SystemInfo", "Created",  "1",     ".\\Settings.ini");
-        
-        ::WritePrivateProfileString("PortConfig", "CommPort",  "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "BaudRate",  "4",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "DataBits",  "3",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "CheckBits", "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "StopBits",  "0",    ".\\Settings.ini");
-
-        ::WritePrivateProfileString("RecvConfig", "ShowSData", "1",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "ShowDirec", "1",    ".\\Settings.ini");
-
-        ::WritePrivateProfileString("RecvConfig", "HexDispl",  "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "AutoClar",  "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "AutoSave",  "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "FramDspl",  "1",    ".\\Settings.ini");
-
-        ::WritePrivateProfileString("RecvConfig", "ShowTime", "1",     ".\\Settings.ini");
-
-        ::WritePrivateProfileString("SendConfig", "HexaSend", "0",     ".\\Settings.ini");
-        ::WritePrivateProfileString("SendConfig", "AutoTime", "1000",  ".\\Settings.ini");
- 
-        ::WritePrivateProfileString("SendConfig", "AddReturn", "0",    ".\\Settings.ini");
-
-        ::WritePrivateProfileString("SendConfig", "SendData",  "",     ".\\Settings.ini");
-
-		::WritePrivateProfileString("SrSendArea", "SrHexa01",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa02",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa03",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa04",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa05",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa06",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa07",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa08",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa09",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa10",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa11",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa12",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa13",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa14",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa15",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa16",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa17",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa18",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa19",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa20",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa21",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa22",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa23",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa24",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa25",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa26",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa27",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa28",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa29",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa30",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa31",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa32",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa33",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa34",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa35",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa36",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa37",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa38",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa39",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrHexa40",  "",     ".\\Settings.ini");
-		
-		::WritePrivateProfileString("SrSendArea", "SrData01",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData02",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData03",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData04",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData05",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData06",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData07",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData08",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData09",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData10",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData11",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData12",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData13",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData14",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData15",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData16",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData17",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData18",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData19",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData20",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData21",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData22",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData23",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData24",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData25",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData26",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData27",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData28",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData29",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData30",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData31",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData32",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData33",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData34",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData35",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData36",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData37",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData38",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData39",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrData40",  "",     ".\\Settings.ini");
-
-		::WritePrivateProfileString("SrSendArea", "SrTime01",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime02",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime03",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime04",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime05",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime06",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime07",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime08",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime09",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime10",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime11",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime12",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime13",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime14",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime15",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime16",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime17",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime18",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime19",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime20",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime21",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime22",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime23",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime24",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime25",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime26",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime27",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime28",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime29",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime30",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime31",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime32",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime33",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime34",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime35",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime36",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime37",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime38",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime39",  "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrTime40",  "",     ".\\Settings.ini");
-		
-		::WritePrivateProfileString("SrSendArea", "LoopTime",  "1000", ".\\Settings.ini");
-
-		::WritePrivateProfileString("SrSendArea", "SrsDlgXPos", "0",   ".\\Settings.ini");
-		::WritePrivateProfileString("SrSendArea", "SrsDlgYPos", "0",   ".\\Settings.ini");
-
-		::WritePrivateProfileString("ExfuncArea", "ExfDlgXPos", "0",   ".\\Settings.ini");
-		::WritePrivateProfileString("ExfuncArea", "ExfDlgYPos", "0",   ".\\Settings.ini");
-
-		::WritePrivateProfileString("HandsetWin", "HstDlgXPos", "0",   ".\\Settings.ini");
-		::WritePrivateProfileString("HandsetWin", "HstDlgYPos", "0",   ".\\Settings.ini");
+        ::WritePrivateProfileString("SystemInfo", "Created",    "1",    ".\\Settings.ini");
+        ::WritePrivateProfileString("PortConfig", "CommPort",   "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("PortConfig", "BaudRate",   "4",    ".\\Settings.ini");
+        ::WritePrivateProfileString("PortConfig", "DataBits",   "3",    ".\\Settings.ini");
+        ::WritePrivateProfileString("PortConfig", "CheckBits",  "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("PortConfig", "StopBits",   "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("RecvConfig", "ShowSData",  "1",    ".\\Settings.ini");
+        ::WritePrivateProfileString("RecvConfig", "ShowDirec",  "1",    ".\\Settings.ini");
+        ::WritePrivateProfileString("RecvConfig", "HexDispl",   "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("RecvConfig", "AutoClar",   "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("RecvConfig", "AutoSave",   "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("RecvConfig", "FramDspl",   "1",    ".\\Settings.ini");
+        ::WritePrivateProfileString("RecvConfig", "ShowTime",   "1",    ".\\Settings.ini");
+        ::WritePrivateProfileString("SendConfig", "HexaSend",   "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("SendConfig", "AutoTime",   "1000", ".\\Settings.ini");
+        ::WritePrivateProfileString("SendConfig", "AddReturn",  "0",    ".\\Settings.ini");
+        ::WritePrivateProfileString("SendConfig", "SendStrH",   "",     ".\\Settings.ini");
+		::WritePrivateProfileString("SendConfig", "SendStrC",   "",     ".\\Settings.ini");
 	}
 }
 
@@ -1545,6 +986,9 @@ void CMySScomDlg::InitiateAllParas(void)
     char TempChar[MAX_SEND_BYTE];
     CString TempStr;
 
+	s_DialogPos_X = (::GetPrivateProfileInt("DialogPos", "DialogPos_X",  0, ".\\Settings.ini"));
+	s_DialogPos_Y = (::GetPrivateProfileInt("DialogPos", "DialogPos_Y",  0, ".\\Settings.ini"));
+
     TempData = (::GetPrivateProfileInt("PortConfig", "CommPort",  0, ".\\Settings.ini"));
     m_Combo_ComNo.SetCurSel(TempData);
     TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate",  4, ".\\Settings.ini"));
@@ -1556,453 +1000,42 @@ void CMySScomDlg::InitiateAllParas(void)
     TempData = (::GetPrivateProfileInt("PortConfig", "StopBits",  0, ".\\Settings.ini"));
     m_Combo_Stop.SetCurSel(TempData);
 
-    m_Check_HexDspl    = (::GetPrivateProfileInt("RecvConfig", "HexDispl", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-    m_Check_ShowTime   = (::GetPrivateProfileInt("RecvConfig", "ShowTime", 1, ".\\Settings.ini")) ? TRUE : FALSE;
-    m_Check_FrameDspl  = (::GetPrivateProfileInt("RecvConfig", "FramDspl", 1, ".\\Settings.ini")) ? TRUE : FALSE;
+    m_Check_HexDspl   = (::GetPrivateProfileInt("RecvConfig", "HexDispl", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+    m_Check_ShowTime  = (::GetPrivateProfileInt("RecvConfig", "ShowTime", 1, ".\\Settings.ini")) ? TRUE : FALSE;
+    m_Check_FrameDspl = (::GetPrivateProfileInt("RecvConfig", "FramDspl", 1, ".\\Settings.ini")) ? TRUE : FALSE;
 
     ::GetPrivateProfileString("SendConfig", "AutoLines", "1000", TempChar, 5, ".\\Settings.ini");
     m_Edit_Lines.Format("%s", TempChar);
     SetDlgItemText(IDC_EDIT_LINES, TempChar);
 
-    m_Check_HexSend   = (::GetPrivateProfileInt("SendConfig", "HexaSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+    m_Check_HexSend = (::GetPrivateProfileInt("SendConfig", "HexaSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
     ::GetPrivateProfileString("SendConfig", "AutoTime", "1000", TempChar, 5, ".\\Settings.ini");
     m_Edit_AutoTimer.Format("%s", TempChar);
 
-    m_Check_Return    = (::GetPrivateProfileInt("SendConfig", "AddReturn", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+    m_Check_Return = (::GetPrivateProfileInt("SendConfig", "AddReturn", 0, ".\\Settings.ini")) ? TRUE : FALSE;
 
-    ::GetPrivateProfileString("SendConfig", "SendData", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-    m_Edit_Send.Format("%s", TempChar);
-    SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+    ::GetPrivateProfileString("SendConfig", "SendStrC", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+    TempStr.Format("%s", TempChar);
+	s_SendStr_Chr = FormatQuotesStrRead(TempStr);
 
-	if (m_Check_HexDspl) {                                                     /* 根据读入的参数值初始化提示框内容 */
+	::GetPrivateProfileString("SendConfig", "SendStrH", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+	s_SendStr_Hex.Format("%s", TempChar);
+
+	if (m_Check_HexDspl == TRUE) {                                             /* 根据读入的参数值初始化提示框内容 */
         SetDlgItemText(IDC_STATIC_LINES, "字符");
     } else {
         SetDlgItemText(IDC_STATIC_LINES, "行");
     }
+
+	if (m_Check_HexSend == TRUE) {                                             /* 根据读入的参数值初始化提示框内容 */
+		m_Edit_Send = s_SendStr_Hex;
+	} else {
+		m_Edit_Send = s_SendStr_Chr;
+	}
+
+	SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
     
-	s_PDlgSrSend->m_Check_01 = (::GetPrivateProfileInt("SrSendArea", "SrHexa01", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_02 = (::GetPrivateProfileInt("SrSendArea", "SrHexa02", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_03 = (::GetPrivateProfileInt("SrSendArea", "SrHexa03", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_04 = (::GetPrivateProfileInt("SrSendArea", "SrHexa04", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_05 = (::GetPrivateProfileInt("SrSendArea", "SrHexa05", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_06 = (::GetPrivateProfileInt("SrSendArea", "SrHexa06", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_07 = (::GetPrivateProfileInt("SrSendArea", "SrHexa07", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_08 = (::GetPrivateProfileInt("SrSendArea", "SrHexa08", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_09 = (::GetPrivateProfileInt("SrSendArea", "SrHexa09", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_10 = (::GetPrivateProfileInt("SrSendArea", "SrHexa10", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_11 = (::GetPrivateProfileInt("SrSendArea", "SrHexa11", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_12 = (::GetPrivateProfileInt("SrSendArea", "SrHexa12", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_13 = (::GetPrivateProfileInt("SrSendArea", "SrHexa13", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_14 = (::GetPrivateProfileInt("SrSendArea", "SrHexa14", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_15 = (::GetPrivateProfileInt("SrSendArea", "SrHexa15", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_16 = (::GetPrivateProfileInt("SrSendArea", "SrHexa16", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_17 = (::GetPrivateProfileInt("SrSendArea", "SrHexa17", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_18 = (::GetPrivateProfileInt("SrSendArea", "SrHexa18", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_19 = (::GetPrivateProfileInt("SrSendArea", "SrHexa19", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_20 = (::GetPrivateProfileInt("SrSendArea", "SrHexa20", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_21 = (::GetPrivateProfileInt("SrSendArea", "SrHexa21", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_22 = (::GetPrivateProfileInt("SrSendArea", "SrHexa22", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_23 = (::GetPrivateProfileInt("SrSendArea", "SrHexa23", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_24 = (::GetPrivateProfileInt("SrSendArea", "SrHexa24", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_25 = (::GetPrivateProfileInt("SrSendArea", "SrHexa25", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_26 = (::GetPrivateProfileInt("SrSendArea", "SrHexa26", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_27 = (::GetPrivateProfileInt("SrSendArea", "SrHexa27", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_28 = (::GetPrivateProfileInt("SrSendArea", "SrHexa28", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_29 = (::GetPrivateProfileInt("SrSendArea", "SrHexa29", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_30 = (::GetPrivateProfileInt("SrSendArea", "SrHexa30", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_31 = (::GetPrivateProfileInt("SrSendArea", "SrHexa31", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_32 = (::GetPrivateProfileInt("SrSendArea", "SrHexa32", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_33 = (::GetPrivateProfileInt("SrSendArea", "SrHexa33", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_34 = (::GetPrivateProfileInt("SrSendArea", "SrHexa34", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_35 = (::GetPrivateProfileInt("SrSendArea", "SrHexa35", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_36 = (::GetPrivateProfileInt("SrSendArea", "SrHexa36", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_37 = (::GetPrivateProfileInt("SrSendArea", "SrHexa37", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_38 = (::GetPrivateProfileInt("SrSendArea", "SrHexa38", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_39 = (::GetPrivateProfileInt("SrSendArea", "SrHexa39", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	s_PDlgSrSend->m_Check_40 = (::GetPrivateProfileInt("SrSendArea", "SrHexa40", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData01", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_01, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData02", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_02, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData03", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_03, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData04", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_04, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData05", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_05, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData06", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_06, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData07", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_07, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData08", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_08, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData09", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_09, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData10", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_10, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData11", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_11, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData12", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_12, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData13", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_13, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData14", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_14, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData15", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_15, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData16", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_16, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData17", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_17, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData18", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_18, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData19", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_19, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData20", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_20, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData21", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_21, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData22", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_22, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData23", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_23, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData24", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_24, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData25", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_25, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData26", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_26, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData27", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_27, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData28", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_28, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData29", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_29, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData30", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_30, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData31", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_31, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData32", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_32, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData33", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_33, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData34", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_34, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData35", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_35, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData36", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_36, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData37", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_37, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData38", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_38, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData39", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_39, TempStr);
-
-	memset(TempChar, 0, MAX_SEND_BYTE);
-	::GetPrivateProfileString("SrSendArea", "SrData40", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-	TempStr.Format("%s", TempChar);
-	TempStr = FormatQuotesStrRead(TempStr);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_40, TempStr);
-
-    ::GetPrivateProfileString("SrSendArea", "SrTime01", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T01.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T01, s_PDlgSrSend->m_Edit_T01);
-	::GetPrivateProfileString("SrSendArea", "SrTime02", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T02.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T02, s_PDlgSrSend->m_Edit_T02);
-	::GetPrivateProfileString("SrSendArea", "SrTime03", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T03.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T03, s_PDlgSrSend->m_Edit_T03);
-	::GetPrivateProfileString("SrSendArea", "SrTime04", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T04.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T04, s_PDlgSrSend->m_Edit_T04);
-	::GetPrivateProfileString("SrSendArea", "SrTime05", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T05.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T05, s_PDlgSrSend->m_Edit_T05);
-	::GetPrivateProfileString("SrSendArea", "SrTime06", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T06.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T06, s_PDlgSrSend->m_Edit_T06);
-	::GetPrivateProfileString("SrSendArea", "SrTime07", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T07.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T07, s_PDlgSrSend->m_Edit_T07);
-	::GetPrivateProfileString("SrSendArea", "SrTime08", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T08.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T08, s_PDlgSrSend->m_Edit_T08);
-	::GetPrivateProfileString("SrSendArea", "SrTime09", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T09.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T09, s_PDlgSrSend->m_Edit_T09);
-	::GetPrivateProfileString("SrSendArea", "SrTime10", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T10.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T10, s_PDlgSrSend->m_Edit_T10);
-	::GetPrivateProfileString("SrSendArea", "SrTime11", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T11.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T11, s_PDlgSrSend->m_Edit_T11);
-	::GetPrivateProfileString("SrSendArea", "SrTime12", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T12.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T12, s_PDlgSrSend->m_Edit_T12);
-	::GetPrivateProfileString("SrSendArea", "SrTime13", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T13.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T13, s_PDlgSrSend->m_Edit_T13);
-	::GetPrivateProfileString("SrSendArea", "SrTime14", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T14.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T14, s_PDlgSrSend->m_Edit_T14);
-	::GetPrivateProfileString("SrSendArea", "SrTime15", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T15.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T15, s_PDlgSrSend->m_Edit_T15);
-	::GetPrivateProfileString("SrSendArea", "SrTime16", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T16.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T16, s_PDlgSrSend->m_Edit_T16);
-	::GetPrivateProfileString("SrSendArea", "SrTime17", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T17.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T17, s_PDlgSrSend->m_Edit_T17);
-	::GetPrivateProfileString("SrSendArea", "SrTime18", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T18.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T18, s_PDlgSrSend->m_Edit_T18);
-	::GetPrivateProfileString("SrSendArea", "SrTime19", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T19.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T19, s_PDlgSrSend->m_Edit_T19);
-	::GetPrivateProfileString("SrSendArea", "SrTime20", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T20.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T20, s_PDlgSrSend->m_Edit_T20);
-	::GetPrivateProfileString("SrSendArea", "SrTime21", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T21.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T21, s_PDlgSrSend->m_Edit_T21);
-	::GetPrivateProfileString("SrSendArea", "SrTime22", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T22.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T22, s_PDlgSrSend->m_Edit_T22);
-	::GetPrivateProfileString("SrSendArea", "SrTime23", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T23.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T23, s_PDlgSrSend->m_Edit_T23);
-	::GetPrivateProfileString("SrSendArea", "SrTime24", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T24.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T24, s_PDlgSrSend->m_Edit_T24);
-	::GetPrivateProfileString("SrSendArea", "SrTime25", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T25.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T25, s_PDlgSrSend->m_Edit_T25);
-	::GetPrivateProfileString("SrSendArea", "SrTime26", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T26.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T26, s_PDlgSrSend->m_Edit_T26);
-	::GetPrivateProfileString("SrSendArea", "SrTime27", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T27.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T27, s_PDlgSrSend->m_Edit_T27);
-	::GetPrivateProfileString("SrSendArea", "SrTime28", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T28.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T28, s_PDlgSrSend->m_Edit_T28);
-	::GetPrivateProfileString("SrSendArea", "SrTime29", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T29.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T29, s_PDlgSrSend->m_Edit_T29);
-	::GetPrivateProfileString("SrSendArea", "SrTime30", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T30.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T30, s_PDlgSrSend->m_Edit_T30);
-	::GetPrivateProfileString("SrSendArea", "SrTime31", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T31.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T31, s_PDlgSrSend->m_Edit_T31);
-	::GetPrivateProfileString("SrSendArea", "SrTime32", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T32.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T32, s_PDlgSrSend->m_Edit_T32);
-	::GetPrivateProfileString("SrSendArea", "SrTime33", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T33.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T33, s_PDlgSrSend->m_Edit_T33);
-	::GetPrivateProfileString("SrSendArea", "SrTime34", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T34.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T34, s_PDlgSrSend->m_Edit_T34);
-	::GetPrivateProfileString("SrSendArea", "SrTime35", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T35.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T35, s_PDlgSrSend->m_Edit_T35);
-	::GetPrivateProfileString("SrSendArea", "SrTime36", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T36.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T36, s_PDlgSrSend->m_Edit_T36);
-	::GetPrivateProfileString("SrSendArea", "SrTime37", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T37.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T37, s_PDlgSrSend->m_Edit_T37);
-	::GetPrivateProfileString("SrSendArea", "SrTime38", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T38.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T38, s_PDlgSrSend->m_Edit_T38);
-	::GetPrivateProfileString("SrSendArea", "SrTime39", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T39.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T39, s_PDlgSrSend->m_Edit_T39);
-	::GetPrivateProfileString("SrSendArea", "SrTime40", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_T40.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_T40, s_PDlgSrSend->m_Edit_T40);
-
-	::GetPrivateProfileString("SrSendArea", "LoopTime", "", TempChar, 5, ".\\Settings.ini");
-	s_PDlgSrSend->m_Edit_AutoTime.Format("%s", TempChar);
-	s_PDlgSrSend->SetDlgItemText(IDC_EDIT_AUTOTIME, s_PDlgSrSend->m_Edit_AutoTime);
-
-	s_SrsDlgXPos = (::GetPrivateProfileInt("SrSendArea", "SrsDlgXPos",  0, ".\\Settings.ini"));
-	s_SrsDlgYPos = (::GetPrivateProfileInt("SrSendArea", "SrsDlgYPos",  0, ".\\Settings.ini"));
-    
-	s_ExfDlgXPos = (::GetPrivateProfileInt("ExfuncArea", "ExfDlgXPos",  0, ".\\Settings.ini"));
-	s_ExfDlgYPos = (::GetPrivateProfileInt("ExfuncArea", "ExfDlgYPos",  0, ".\\Settings.ini"));
-
-	s_HstDlgXPos = (::GetPrivateProfileInt("HandsetWin", "HstDlgXPos",  0, ".\\Settings.ini"));
-	s_HstDlgYPos = (::GetPrivateProfileInt("HandsetWin", "HstDlgYPos",  0, ".\\Settings.ini"));
-
-    UpdateData(FALSE);                                                         /* 更新编辑框内容 */
-
-	s_PDlgSrSend->UpdateData(FALSE);
-	s_PDlgExfunc->UpdateData(FALSE);
-
-    #if EN_HANDSET > 0
-	s_PDlgHandset->UpdateData(FALSE);
-    #endif
+	UpdateData(FALSE);                                                         /* 更新编辑框内容 */
 }
 
 /**************************************************************************************************
@@ -2014,9 +1047,20 @@ void CMySScomDlg::InitiateAllParas(void)
 void CMySScomDlg::RecordAllParas(void)
 {
     int TempData;                                                              /* 需要注意的是：自动发送使能和循环发送使能两项无须保存 */
-    CString ParaStr;
+    CString ParaStr, TempStr;
+	CRect rect;
+
+	GetWindowRect(&rect);
+	s_DialogPos_X = rect.left;
+	s_DialogPos_Y = rect.top;
     
-    TempData = m_Combo_ComNo.GetCurSel();
+	ParaStr.Format("%d", s_DialogPos_X);
+	::WritePrivateProfileString("DialogPos", "DialogPos_X", ParaStr, ".\\Settings.ini");
+
+	ParaStr.Format("%d", s_DialogPos_Y);
+	::WritePrivateProfileString("DialogPos", "DialogPos_Y", ParaStr, ".\\Settings.ini");
+	
+	TempData = m_Combo_ComNo.GetCurSel();
     ParaStr.Format("%d", TempData);
     ::WritePrivateProfileString("PortConfig", "CommPort",  ParaStr, ".\\Settings.ini");
     TempData = m_Combo_Baud.GetCurSel();
@@ -2032,321 +1076,30 @@ void CMySScomDlg::RecordAllParas(void)
     ParaStr.Format("%d", TempData);
     ::WritePrivateProfileString("PortConfig", "StopBits",  ParaStr, ".\\Settings.ini");
 
-    ::WritePrivateProfileString("RecvConfig", "HexDispl",   m_Check_HexDspl     ? "1" : "0", ".\\Settings.ini");
-    ::WritePrivateProfileString("RecvConfig", "ShowTime",   m_Check_ShowTime    ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("RecvConfig", "FramDspl",   m_Check_FrameDspl   ? "1" : "0", ".\\Settings.ini");
+    ::WritePrivateProfileString("RecvConfig", "HexDispl",   m_Check_HexDspl   ? "1" : "0", ".\\Settings.ini");
+    ::WritePrivateProfileString("RecvConfig", "ShowTime",   m_Check_ShowTime  ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("RecvConfig", "FramDspl",   m_Check_FrameDspl ? "1" : "0", ".\\Settings.ini");
 
     GetDlgItemText(IDC_EDIT_LINES, ParaStr);
     ::WritePrivateProfileString("SendConfig", "AutoLines", ParaStr, ".\\Settings.ini");
 
-    ::WritePrivateProfileString("SendConfig", "HexaSend",  m_Check_HexSend   ? "1" : "0", ".\\Settings.ini");
+    ::WritePrivateProfileString("SendConfig", "HexaSend",  m_Check_HexSend ? "1" : "0", ".\\Settings.ini");
     GetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);
     ::WritePrivateProfileString("SendConfig", "AutoTime",  m_Edit_AutoTimer, ".\\Settings.ini");
 
-    ::WritePrivateProfileString("SendConfig", "AddReturn", m_Check_Return    ? "1" : "0", ".\\Settings.ini");
+    ::WritePrivateProfileString("SendConfig", "AddReturn", m_Check_Return  ? "1" : "0", ".\\Settings.ini");
 
-    GetDlgItemText(IDC_EDIT_SEND, ParaStr);
-    ::WritePrivateProfileString("SendConfig", "SendData",  ParaStr, ".\\Settings.ini");
+    GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+	if (m_Check_HexSend == TRUE) {                                                /* 首先同步更新一下编辑框的内容 */
+		s_SendStr_Hex = m_Edit_Send;
+	} else {
+		s_SendStr_Chr = m_Edit_Send;
+	}
 
-	::WritePrivateProfileString("SrSendArea", "SrHexa01",  s_PDlgSrSend->m_Check_01 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa02",  s_PDlgSrSend->m_Check_02 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa03",  s_PDlgSrSend->m_Check_03 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa04",  s_PDlgSrSend->m_Check_04 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa05",  s_PDlgSrSend->m_Check_05 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa06",  s_PDlgSrSend->m_Check_06 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa07",  s_PDlgSrSend->m_Check_07 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa08",  s_PDlgSrSend->m_Check_08 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa09",  s_PDlgSrSend->m_Check_09 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa10",  s_PDlgSrSend->m_Check_10 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa11",  s_PDlgSrSend->m_Check_11 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa12",  s_PDlgSrSend->m_Check_12 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa13",  s_PDlgSrSend->m_Check_13 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa14",  s_PDlgSrSend->m_Check_14 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa15",  s_PDlgSrSend->m_Check_15 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa16",  s_PDlgSrSend->m_Check_16 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa17",  s_PDlgSrSend->m_Check_17 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa18",  s_PDlgSrSend->m_Check_18 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa19",  s_PDlgSrSend->m_Check_19 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa20",  s_PDlgSrSend->m_Check_20 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa21",  s_PDlgSrSend->m_Check_21 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa22",  s_PDlgSrSend->m_Check_22 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa23",  s_PDlgSrSend->m_Check_23 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa24",  s_PDlgSrSend->m_Check_24 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa25",  s_PDlgSrSend->m_Check_25 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa26",  s_PDlgSrSend->m_Check_26 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa27",  s_PDlgSrSend->m_Check_27 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa28",  s_PDlgSrSend->m_Check_28 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa29",  s_PDlgSrSend->m_Check_29 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa30",  s_PDlgSrSend->m_Check_30 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa31",  s_PDlgSrSend->m_Check_31 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa32",  s_PDlgSrSend->m_Check_32 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa33",  s_PDlgSrSend->m_Check_33 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa34",  s_PDlgSrSend->m_Check_34 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa35",  s_PDlgSrSend->m_Check_35 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa36",  s_PDlgSrSend->m_Check_36 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa37",  s_PDlgSrSend->m_Check_37 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa38",  s_PDlgSrSend->m_Check_38 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa39",  s_PDlgSrSend->m_Check_39 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SrSendArea", "SrHexa40",  s_PDlgSrSend->m_Check_40 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("SendConfig", "SendStrH",  s_SendStr_Hex, ".\\Settings.ini");
 
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_01, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData01", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_02, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData02", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_03, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData03", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_04, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData04", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_05, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData05", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_06, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData06", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_07, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData07", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_08, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData08", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_09, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData09", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_10, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData10", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_11, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData11", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_12, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData12", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_13, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData13", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_14, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData14", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_15, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData15", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_16, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData16", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_17, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData17", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_18, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData18", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_19, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData19", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_20, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData20", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_21, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData21", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_22, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData22", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_23, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData23", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_24, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData24", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_25, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData25", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_26, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData26", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_27, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData27", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_28, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData28", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_29, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData29", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_30, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData30", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_31, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData31", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_32, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData32", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_33, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData33", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_34, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData34", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_35, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData35", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_36, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData36", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_37, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData37", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_38, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData38", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_39, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData39", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_40, ParaStr);
-	ParaStr = FormatQuotesStrWrite(ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrData40", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T01, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime01", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T02, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime02", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T03, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime03", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T04, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime04", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T05, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime05", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T06, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime06", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T07, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime07", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T08, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime08", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T09, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime09", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T10, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime10", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T11, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime11", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T12, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime12", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T13, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime13", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T14, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime14", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T15, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime15", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T16, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime16", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T17, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime17", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T18, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime18", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T19, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime19", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T20, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime20", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T21, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime21", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T22, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime22", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T23, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime23", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T24, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime24", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T25, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime25", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T26, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime26", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T27, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime27", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T28, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime28", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T29, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime29", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T30, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime30", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T31, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime31", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T32, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime32", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T33, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime33", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T34, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime34", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T35, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime35", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T36, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime36", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T37, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime37", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T38, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime38", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T39, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime39", ParaStr, ".\\Settings.ini");
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_T40, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "SrTime40", ParaStr, ".\\Settings.ini");
-
-	s_PDlgSrSend->GetDlgItemText(IDC_EDIT_AUTOTIME, ParaStr);
-	::WritePrivateProfileString("SrSendArea", "LoopTime", ParaStr, ".\\Settings.ini");
-
-	ParaStr.Format("%d", s_SrsDlgXPos);
-    ::WritePrivateProfileString("SrSendArea", "SrsDlgXPos", ParaStr, ".\\Settings.ini");
-	ParaStr.Format("%d", s_SrsDlgYPos);
-    ::WritePrivateProfileString("SrSendArea", "SrsDlgYPos", ParaStr, ".\\Settings.ini");
-
-	ParaStr.Format("%d", s_ExfDlgXPos);
-    ::WritePrivateProfileString("ExfuncArea", "ExfDlgXPos", ParaStr, ".\\Settings.ini");
-	ParaStr.Format("%d", s_ExfDlgYPos);
-    ::WritePrivateProfileString("ExfuncArea", "ExfDlgYPos", ParaStr, ".\\Settings.ini");
-
-	ParaStr.Format("%d", s_HstDlgXPos);
-    ::WritePrivateProfileString("HandsetWin", "HstDlgXPos", ParaStr, ".\\Settings.ini");
-	ParaStr.Format("%d", s_HstDlgYPos);
-    ::WritePrivateProfileString("HandsetWin", "HstDlgYPos", ParaStr, ".\\Settings.ini");
+	ParaStr = FormatQuotesStrWrite(s_SendStr_Chr);
+	::WritePrivateProfileString("SendConfig", "SendStrC",  ParaStr, ".\\Settings.ini");
 }
 
 /**************************************************************************************************
@@ -2434,9 +1187,7 @@ void CMySScomDlg::InitiateComboBaud(void)
     CString TempStr;
     
     for (int i = 0; i < (sizeof(Combo_Baud) / sizeof(Combo_Baud[0])); i++) {
-
         TempStr.Format("%d bps", Combo_Baud[i]);
-
         m_Combo_Baud.AddString(TempStr);
     }
 }
@@ -2452,9 +1203,7 @@ void CMySScomDlg::InitiateComboData(void)
     CString TempStr;
     
     for (int i = 0; i < (sizeof(Combo_Data) / sizeof(Combo_Data[0])); i++) {
-        
         TempStr.Format("%d 位", Combo_Data[i]);
-        
         m_Combo_Data.AddString(TempStr);
     }
 }
@@ -2485,6 +1234,118 @@ void CMySScomDlg::InitiateComboStop(void)
     m_Combo_Stop.AddString("1  位");
     m_Combo_Stop.AddString("1.5位");
     m_Combo_Stop.AddString("2  位");
+}
+
+/**************************************************************************************************
+**  函数名称:  InitiateChildWins
+**  功能描述:  初始化各个子窗体页面
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+bool CMySScomDlg::InitiateChildWins(void)
+{
+	s_PDlgSuprSend = new CDialogSuperSend();                                   /* 以下语句创建高级发送窗体，并隐藏待用 */
+
+	if (s_PDlgSuprSend != NULL){
+
+		int Result = s_PDlgSuprSend->Create(IDD_DIALOG_SRSEND, this);
+
+		if (!Result) {
+			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
+			return FALSE;
+		}
+
+		s_PDlgSuprSend->ShowWindow(SW_HIDE);
+		s_PDlgSuprSend->InitiateAllParas();
+	}
+
+	s_PDlgExtrfunc = new CDialogExtrafunct();                                  /* 以下语句创建附加功能窗体，并隐藏待用 */
+
+	if (s_PDlgExtrfunc != NULL){
+
+		int Result = s_PDlgExtrfunc->Create(IDD_DIALOG_EXFUNCT, this);
+
+		if (!Result) {
+			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
+			return FALSE;
+		}
+
+		s_PDlgExtrfunc->ShowWindow(SW_HIDE);
+		s_PDlgExtrfunc->InitiateAllParas();
+	}
+
+	s_PDlgDsplFilt = new CDialogDsplFilt();                                    /* 以下语句创建显示过滤设置窗体，并隐藏待用 */
+
+	if (s_PDlgDsplFilt != NULL){
+
+		int Result = s_PDlgDsplFilt->Create(IDD_DIALOG_FILTER, this);
+
+		if (!Result) {
+			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
+			return FALSE;
+		}
+
+		s_PDlgDsplFilt->ShowWindow(SW_HIDE);
+		s_PDlgDsplFilt->InitiateAllParas();
+	}
+
+	s_PDlgAutoRply = new CDialogAutoReply();                                   /* 以下语句创建自动回复窗体，并隐藏待用 */
+
+	if (s_PDlgAutoRply != NULL){
+
+		int Result = s_PDlgAutoRply->Create(IDD_DIALOG_AUTOREPLY, this);
+
+		if (!Result) {
+			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
+			return FALSE;
+		}
+
+		s_PDlgAutoRply->ShowWindow(SW_HIDE);
+		s_PDlgAutoRply->InitiateAllParas();
+	}
+
+	return TRUE;
+}
+
+/**************************************************************************************************
+**  函数名称:  InitiateToolsTip
+**  功能描述:  初始化主界面下各个控件的悬浮提示信息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::InitiateToolsTip(void)
+{
+	m_tooltip.Create(this);
+	m_tooltip.Activate(TRUE);
+
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_COMNO),     IDS_STRING_001);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_BAUD),      IDS_STRING_002);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_DATA),      IDS_STRING_003);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_STOP),      IDS_STRING_004);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_ONOFF),    IDS_STRING_005);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE),    IDS_STRING_006);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_CLEAR),    IDS_STRING_007);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SAVE),     IDS_STRING_008);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXDSPL),   IDS_STRING_009);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOCLEAR), IDS_STRING_010);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSAVE),  IDS_STRING_011);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SEND),     IDS_STRING_015);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXSEND),   IDS_STRING_016);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSEND),  IDS_STRING_017);
+	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_TIMER),      IDS_STRING_018);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_RETURN),    IDS_STRING_020);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_CHECK),     IDS_STRING_021);
+	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_LINES),      IDS_STRING_024);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_EXFUNCT),  IDS_STRING_025);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SRSEND),   IDS_STRING_026);
+	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_027);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_OPENFILE), IDS_STRING_028);
+	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SENDFILE), IDS_STRING_029);
+	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_FILEPATH),   IDS_STRING_030);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_SHOWTIME),  IDS_STRING_031);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_FRAMEDSPL), IDS_STRING_032);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_FILTER),    IDS_STRING_033);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOREPLY), IDS_STRING_034);
 }
 
 /**************************************************************************************************
@@ -2538,7 +1399,7 @@ BOOL CMySScomDlg::TaskBarAddIcon(HWND hwnd, UINT uID, HICON hicon, LPSTR lpszTip
     d.uID    = uID;
     d.uFlags = NIF_ICON | NIF_TIP | NIF_MESSAGE;
     d.hIcon  = hicon;
-    d.uCallbackMessage = MYWM_NOTIFYICON;
+    d.uCallbackMessage = WM_USERMSG_NOTIFYICON;
     
     if (lpszTip) {
         lstrcpy(d.szTip, lpszTip);
@@ -2566,35 +1427,28 @@ BOOL CMySScomDlg::TaskBarDeleteIcon(HWND hwnd, UINT uID)
     return Shell_NotifyIcon(NIM_DELETE, &d);
 }
 
-
-/* ==================================== 自定义函数区--结束 ===================================== */
-
-
 /* ============================================================================================= */
 /* ====================================                    ===================================== */
 /* ==================================== 传说中华丽的分割线 ===================================== */
 /* ====================================                    ===================================== */
 /* ============================================================================================= */
 
-
 /* ================================== 各个控件消息处理--开始 =================================== */
 
-
 /**************************************************************************************************
-**  函数名称:  OnButtonONOFF
+**  函数名称:  OnButtonPortCtrl
 **  功能描述:  串口开关
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnButtonONOFF() 
+void CMySScomDlg::OnButtonPortCtrl() 
 {
-    DCB  dcb;
     CString TempStr;
-    COMMTIMEOUTS TimeOuts;
+    SRL_DEV_PARA_T spara;
     
-    if (s_PortOpened == TRUE) {                                                /* 如果串口已经打开，那么执行关闭操作 */
+    if (SerialDevisOpened() == TRUE) {                                         /* 如果串口已经打开，那么执行关闭操作 */
 
-        if ((m_Check_AutoSend == TRUE) || (s_PDlgSrSend->s_issenddata == TRUE)) {
+        if ((m_Check_AutoSend == TRUE) || (s_PDlgSuprSend->s_issenddata == TRUE)) {
             MessageBox("请首先停用自动发送功能再尝试关闭串口...  ", "提示", MB_OK + MB_ICONINFORMATION);
             return;
         }
@@ -2604,42 +1458,17 @@ void CMySScomDlg::OnButtonONOFF()
             return;
         }
         
-        SetCommMask(s_FileHandle, 0);                                          /* 设置过滤掩码 */
-        
-        WaitForSingleObject(s_SerialHdle->m_hThread, IGNORE);                  /* 关闭线程 */
-        
-        s_SerialHdle = NULL;
-        
-        CloseHandle(s_FileHandle);                                             /* 关闭串口句柄 */
+		CloseSerialDevice();                                                   /* 关闭串口设备 */
+		CloseAllChildWin();                                                    /* 关闭各个子窗体 */
+
+		SetControlStatus(FALSE);
 
         SetDlgItemText(IDC_BUTTON_ONOFF, "打开串口");
-
         GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(TRUE);
         GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(TRUE);
         GetDlgItem(IDC_COMBO_DATA)->EnableWindow(TRUE);
         GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(TRUE);
         GetDlgItem(IDC_COMBO_STOP)->EnableWindow(TRUE);
-
-        SetControlStatus(FALSE);
-
-		if (s_PDlgSrSend->IsWindowVisible()) {                                     /* 关闭高级发送窗口 */
-			s_PDlgSrSend->ShowHideSrDlgWindow(FALSE);
-			InformSrDlgClose();
-		}
-
-		if (s_PDlgExfunc->IsWindowVisible()) {                                     /* 关闭附加功能窗口 */
-			s_PDlgExfunc->ShowHideExDlgWindow(FALSE);
-			InformExDlgClose();
-		}
-
-		#if EN_HANDSET > 0
-        if (s_PDlgHandset->IsWindowVisible()) {                                /* 关闭模拟手柄窗口 */
-			s_PDlgHandset->ShowHideHstWindow(FALSE);
-			InformHstDlgClose();
-		}
-        #endif
-
-        s_PortOpened = FALSE;
 
         return;
     }
@@ -2650,112 +1479,42 @@ void CMySScomDlg::OnButtonONOFF()
         MessageBox("连串口号都没有选择，你叫我打开什么东东...？   ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
+
+	m_Combo_ComNo.GetLBText(ComNumber, TempStr);                               /* 获取串口号选择项 */
+    CString ComDevFile = "\\\\.\\" + TempStr;
+
+    TempStr.Format("%d", Combo_Baud[m_Combo_Baud.GetCurSel()]);                /* 获取波特率选择项 */
+    spara.baudrate = atoi(TempStr);
     
-    m_Combo_ComNo.GetLBText(ComNumber, TempStr);
-    CString ComComNo = "\\\\.\\" + TempStr;
-
-    s_FileHandle = CreateFile(ComComNo, GENERIC_READ | GENERIC_WRITE, 0,       /* 打开串口，获取句柄 */
-        NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
-
-    if (s_FileHandle == INVALID_HANDLE_VALUE) {                                /* 串口打开失败 */
-        MessageBox("打开串口失败，该串口可能正在使用中...   ", "提示", MB_OK + MB_ICONERROR);
-        return;
-    }
-
-    int ComBaudSel = m_Combo_Baud.GetCurSel();                                 /* 获取波特率的选择项 */
-    TempStr.Format("%d", Combo_Baud[ComBaudSel]);
-    ComBaudSel = atoi(TempStr);
+    TempStr.Format("%d", Combo_Data[m_Combo_Data.GetCurSel()]);                /* 获取数据位选择项 */
+    spara.databits = atoi(TempStr);
     
-    int ComDataSel = m_Combo_Data.GetCurSel();                                 /* 获取数据位的选择项 */
-    TempStr.Format("%d", Combo_Data[ComDataSel]);
-    ComDataSel = atoi(TempStr);
-    
-    int ComCheckSel = m_Combo_Check.GetCurSel();                               /* 获取校验位的选择项 */
-    TempStr.Format("%c", Combo_Check[ComCheckSel]);
-    ComCheckSel = atoi(TempStr);
-    
-    int ComStopSel = m_Combo_Stop.GetCurSel();                                 /* 获取停止位的选择项 */
-    TempStr.Format("%d", Combo_Stop[ComStopSel]);
-    ComStopSel = atoi(TempStr);
+    TempStr.Format("%d", Combo_Check[m_Combo_Check.GetCurSel()]);              /* 获取校验位选择项 */
+    spara.checkbit = atoi(TempStr);
 
-    SetupComm(s_FileHandle, MAX_RECV_BYTE, MAX_SEND_BYTE);                     /* 设置缓存大小 */
-    SetCommMask(s_FileHandle, EV_RXCHAR);                                      /* 设置过滤掩码 - 所有字符全接收 */
-    
-    TimeOuts.ReadIntervalTimeout         = MAXDWORD;                           /* 读间隔超时 */
-    TimeOuts.ReadTotalTimeoutConstant    = 0;                                  /* 读时间常量 */
-    TimeOuts.ReadTotalTimeoutMultiplier  = 0;                                  /* 读时间系数 */
-    TimeOuts.WriteTotalTimeoutConstant   = 50;                                 /* 写时间常量 */
-    TimeOuts.WriteTotalTimeoutMultiplier = 2000;                               /* 写时间系数 */
+    TempStr.Format("%d", Combo_Stop[m_Combo_Stop.GetCurSel()]);                /* 获取停止位选择项 */
+    spara.stopbits = atoi(TempStr);
 
-    SetCommTimeouts(s_FileHandle, &TimeOuts);                                  /* 设置超时参数 */
+	if (OpenSerialDevice(ComDevFile, &spara) == FALSE) {                       /* 打开串口并初始化 */
+		return;
+	}
 
-    if (!GetCommState(s_FileHandle, &dcb)) {                                   /* 首先获取当前的工作参数 */
-        MessageBox("串口工作参数获取失败，请确认该串口是否有效...   ", "提示", MB_OK + MB_ICONERROR);
-        return;
-    }
-    
-    dcb.fBinary      = TRUE;                                                   /* 二进制模式 */
-    dcb.BaudRate     = ComBaudSel;                                             /* 设置波特率 */
-    dcb.ByteSize     = ComDataSel;                                             /* 设置数据位 */
-    dcb.StopBits     = ComStopSel;
-    dcb.fParity      = TRUE;                                                   /* 开启校验功能 */
-    dcb.Parity       = ComCheckSel;
-    dcb.XonChar      = XON;
-    dcb.XoffChar     = XOFF;
-    dcb.fOutxCtsFlow = 0;
-    dcb.fRtsControl  = 0;
-    dcb.fInX         = 0;
-    dcb.fOutX        = 0;
-    
-    if (dcb.XoffLim = 50) {
-        dcb.XonLim = 1;
-    } else {
-        dcb.XonLim = 0;
-    }
-        
-    if (SetCommState(s_FileHandle, &dcb)) {                                    /* 首先配置串口参数 */
-        
-        s_SerialHdle = AfxBeginThread(SPCommProc, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL);     /* 新开一个线程用于监听串口数据 */
-        
-        if (s_SerialHdle == NULL) {                                            /* 如果线程创建失败 */
-
-            CloseHandle(s_FileHandle);                                         /* 关闭串口句柄 */
-
-            MessageBox("出现异常！串口监听线程创建失败...   ", "提示", MB_OK + MB_ICONERROR);
-            return;
-
-        } else {                                                               /* 开始正常工作 */
-
-            s_SerialHdle->ResumeThread();
-
-            s_PortOpened = TRUE;
-            
-            SetControlStatus(TRUE);                                            /* 启用各个按钮控件 */
-            
-            SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
-            
-            GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
-            GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
-            GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
-            GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(FALSE);
-            GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);
-        }
-
-    } else {                                                                   /* 串口配置失败，关闭串口句柄 */
-
-        CloseHandle(s_FileHandle);
-        MessageBox("串口参数配置失败，请确认各个参数是否合法...   ", "提示", MB_OK + MB_ICONERROR);
-        return;
-    }
+    SetControlStatus(TRUE);                                                    /* 启用各个按钮控件 */
+    SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
+    GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);
 }
 
 /**************************************************************************************************
-**  函数名称:  OnButtonPause
+**  函数名称:  OnButtonRecvPause
 **  功能描述:  暂停接收/恢复接收
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnButtonPause() 
+void CMySScomDlg::OnButtonRecvPause() 
 {
     if (s_RecvPaused == FALSE) {
         s_RecvPaused = TRUE;
@@ -2769,12 +1528,12 @@ void CMySScomDlg::OnButtonPause()
 }
 
 /**************************************************************************************************
-**  函数名称:  OnButtonClear
+**  函数名称:  OnButtonClearAll
 **  功能描述:  清除窗口内已经接收的数据
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnButtonClear()
+void CMySScomDlg::OnButtonClearAll()
 {
     m_Edit_Recv = "";
     SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
@@ -2789,12 +1548,12 @@ void CMySScomDlg::OnButtonClear()
 }
 
 /**************************************************************************************************
-**  函数名称:  OnButtonSave
+**  函数名称:  OnButtonSaveFile
 **  功能描述:  将接收到的数据保存到文件中
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnButtonSave()
+void CMySScomDlg::OnButtonSaveFile()
 {
     CTime   NowTime  = CTime::GetCurrentTime();                                /* 获取现在时间 */
     CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";           /* 指定文件名 */
@@ -2814,41 +1573,45 @@ void CMySScomDlg::OnButtonSave()
 }
 
 /**************************************************************************************************
-**  函数名称:  OnButtonSend
+**  函数名称:  OnButtonSendData
 **  功能描述:  发送窗口内输入的数据
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnButtonSend()
+void CMySScomDlg::OnButtonSendData()
 {
-    GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+    unsigned char buff[MAX_SEND_BYTE];
+	
+	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
     
     if (m_Edit_Send.GetLength() <= 0) {
         MessageBox("发送窗口内容为空，未发送任何数据！ ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 	
-	if (SendDatatoComm(m_Edit_Send, m_Check_HexSend) == FALSE) {
+	strncpy_s((char *)&buff[0], sizeof(buff), (LPCTSTR)m_Edit_Send, m_Edit_Send.GetLength());
+
+	if (SendDatatoComm(buff, m_Edit_Send.GetLength(), m_Check_HexSend) == FALSE) {
 		MessageBox("您输入的数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
 		return;
 	}
 }
 
 /**************************************************************************************************
-**  函数名称:  OnButtonSrSend
+**  函数名称:  OnButtonSuperSend
 **  功能描述:  显示高级发送窗口
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnButtonSrSend() 
+void CMySScomDlg::OnButtonSuperSend() 
 {
-	if (s_PDlgSrSend->IsWindowVisible()) {                                     /* 高级发送窗口已经打开，尝试关闭 */
+	if (s_PDlgSuprSend->IsWindowVisible()) {                                     /* 窗口已经打开，尝试关闭 */
 
-		if ((s_PDlgSrSend->s_issenddata) == TRUE) {
+		if ((s_PDlgSuprSend->s_issenddata) == TRUE) {
 			MessageBox("请先停止自动循环发送功能，再尝试关闭高级发送窗口......   ", "提示", MB_OK + MB_ICONINFORMATION);
 			return;
 		} else {
-			s_PDlgSrSend->ShowHideSrDlgWindow(FALSE);
+			s_PDlgSuprSend->ShowHideDlgWindow(FALSE);
 			SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
 			
 			GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(TRUE);
@@ -2858,19 +1621,15 @@ void CMySScomDlg::OnButtonSrSend()
 			GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
 			GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
 			GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
-
-            #if EN_HANDSET > 0
-			GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
-            #endif
 		}
 		
-	} else {                                                                   /* 高级发送窗口尚未打开，尝试打开 */
+	} else {                                                                   /* 窗口尚未打开，尝试打开 */
 
 		if (m_Check_AutoSend) {
 			MessageBox("请先停止单条数据的自动发送功能，再尝试打开高级发送窗口......   ", "提示", MB_OK + MB_ICONINFORMATION);
 			return;
 		} else {
-			s_PDlgSrSend->ShowHideSrDlgWindow(TRUE);
+			s_PDlgSuprSend->ShowHideDlgWindow(TRUE);
 			SetDlgItemText(IDC_BUTTON_SRSEND, "正常发送");
 
 			GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(FALSE);
@@ -2880,70 +1639,21 @@ void CMySScomDlg::OnButtonSrSend()
 			GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(FALSE);
 			GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(FALSE);
 			GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(FALSE);
-
-            #if EN_HANDSET > 0
-			GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(FALSE);
-            #endif
 		}
 	}
 }
 
 /**************************************************************************************************
-**  函数名称:  OnButtonExfunct
+**  函数名称:  OnButtonExtrafunc
 **  功能描述:  显示附加功能窗口
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnButtonExfunct() 
+void CMySScomDlg::OnButtonExtrafunc() 
 {
-	if (s_PDlgExfunc->IsWindowVisible() == FALSE) {                            /* 高级发送窗口尚未打开，尝试打开 */
-		s_PDlgExfunc->ShowHideExDlgWindow(TRUE);
-		GetDlgItem(IDC_BUTTON_EXFUNCT)->EnableWindow(FALSE);
+	if (s_PDlgExtrfunc->IsWindowVisible() == FALSE) {                            /* 窗口尚未打开，尝试打开 */
+		s_PDlgExtrfunc->ShowHideDlgWindow(TRUE);
 	}
-}
-
-/**************************************************************************************************
-**  函数名称:  OnBnClickedButtonHandset
-**  功能描述:  显示模拟手柄窗口
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::OnBnClickedButtonHandset()
-{
-	#if EN_HANDSET > 0
-    
-    if (s_PDlgHandset->IsWindowVisible() == FALSE) {                            /* 模拟手柄窗口尚未打开，尝试打开 */
-		s_PDlgHandset->ShowHideHstWindow(TRUE);
-		GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(FALSE);
-
-		GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(FALSE);
-		GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(FALSE);
-
-		GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(FALSE);
-		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(FALSE);
-		GetDlgItem(IDC_STATIC_MS)->EnableWindow(FALSE);
-	}
-
-    #else
-
-    MessageBox("功能尚未实现，敬请关注！    ", "提示", MB_OK + MB_ICONINFORMATION);
-
-    #endif
-}
-
-/**************************************************************************************************
-**  函数名称:  OnBnClickedButton120r
-**  功能描述:  显示模拟120R窗口
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::OnBnClickedButton120r()
-{
-	MessageBox("功能尚未实现，敬请关注！    ", "提示", MB_OK + MB_ICONINFORMATION);
 }
 
 /**************************************************************************************************
@@ -2957,11 +1667,11 @@ void CMySScomDlg::OnButtonOpenFile()
 	CFile myFile;
 	
 	CFileDialog dlg(TRUE, "*.bin", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR, 
-							"所有支持的文件(*.bin;*.hex;*.dat)|*.bin;*.hex;*.dat|\
-							bin文件(*.bin)|*.bin|\
-							hex文件(*.hex)|*.hex|\
-							dat文件(*.dat)|*.dat|\
-							所有文件(*.*)|*.*||");
+						  "所有支持的文件(*.bin;*.hex;*.dat)|*.bin;*.hex;*.dat|\
+						   bin文件(*.bin)|*.bin|\
+						   hex文件(*.hex)|*.hex|\
+						   dat文件(*.dat)|*.dat|\
+						   所有文件(*.*)|*.*||");
 	
 	if (dlg.DoModal() != IDOK) {                                               /* 未选择任何文件 */
 		return;
@@ -2995,10 +1705,15 @@ void CMySScomDlg::OnButtonSendFile()
 			MessageBox("读取文件失败，请确认路径正确且文件未处于打开状态！    ", "提示", MB_OK + MB_ICONINFORMATION);
 			return;
 		} else {
-			s_FileDatPos = 0;
-			SetTimer(Timer_No_SendFile, FILESEND_BYTE, NULL);                  /* 开启定时器 */
-			SetSendCtrlArea(FALSE);                                            /* 禁用其他发送控件 */
-			m_Progress_SendFile.SetPos(0);
+			if (myFile.GetLength() <= 0) {
+				MessageBox("文件内容为空，发送终止！    ", "提示", MB_OK + MB_ICONINFORMATION);
+				return;
+			} else {
+				s_FileDatPos = 0;
+				SetTimer(Timer_No_SendFile, FILESEND_BYTE, NULL);              /* 开启定时器 */
+				SetSendCtrlArea(FALSE);                                        /* 禁用其他发送控件 */
+				m_Progress_SendFile.SetPos(0);
+			}
 		}
 	} else {                                                                   /* 正在发送过程中，则停止发送 */
 		s_FileDatPos = 0;
@@ -3008,8 +1723,34 @@ void CMySScomDlg::OnButtonSendFile()
 }
 
 /**************************************************************************************************
+**  函数名称:  OnButtonConfigAutoReply
+**  功能描述:  打开自动回复功能的设置窗口
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnButtonConfigAutoReply()
+{
+	if (s_PDlgAutoRply->IsWindowVisible() == FALSE) {                            /* 窗口尚未打开，尝试打开 */
+		s_PDlgAutoRply->ShowHideDlgWindow(TRUE);
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  OnButtonConfigDsplFilt
+**  功能描述:  打开显示过滤法则的设置窗口
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnButtonConfigDsplFilt()
+{
+	if (s_PDlgDsplFilt->IsWindowVisible() == FALSE) {                            /* 窗口尚未打开，尝试打开 */
+		s_PDlgDsplFilt->ShowHideDlgWindow(TRUE);
+	}
+}
+
+/**************************************************************************************************
 **  函数名称:  OnCheckHexDisplay
-**  功能描述:  是否显示为16进制字符
+**  功能描述:  显示16进制字符复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
@@ -3018,17 +1759,27 @@ void CMySScomDlg::OnCheckHexDisplay()
     m_Check_HexDspl = !m_Check_HexDspl;
 
 	GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(m_Check_HexDspl);
+	GetDlgItem(IDC_CHECK_AUTOREPLY)->EnableWindow(m_Check_HexDspl);
+	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(m_Check_HexDspl);
 
-    if (m_Check_HexDspl) {
+    if (m_Check_HexDspl == TRUE) {
         SetDlgItemText(IDC_STATIC_LINES, "字符");
+		if (IsDlgButtonChecked(IDC_CHECK_AUTOREPLY) == TRUE) {
+			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(TRUE);
+		} else {
+			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(FALSE);
+		}
     } else {
         SetDlgItemText(IDC_STATIC_LINES, "行");
+		if (s_PDlgAutoRply->IsWindowVisible() == TRUE) {
+			s_PDlgAutoRply->ShowHideDlgWindow(FALSE);
+		}
     }
 }
 
 /**************************************************************************************************
 **  函数名称:  OnCheckAutoClear
-**  功能描述:  是否开启自动清除功能
+**  功能描述:  自动清除功能复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
@@ -3043,15 +1794,15 @@ void CMySScomDlg::OnCheckAutoClear()
 
     TempData = atoi((LPSTR)(LPCTSTR)TempStr);
     
-    if (TempData < 10) {        
-        MessageBox("您设置的行数值过小，系统不建议使用。请设置一个大于10的值！     ", "提示", MB_OK + MB_ICONINFORMATION);
+    if (TempData < 100) {        
+        MessageBox("您设置的行数值过小，系统不建议使用。请设置一个大于100的值！     ", "提示", MB_OK + MB_ICONINFORMATION);
         SetDlgItemText(IDC_EDIT_LINES, m_Edit_Lines);                          /* 还原编辑框内容 */
         m_Check_AutoClear = FALSE;        
         UpdateData(FALSE);
         return;
     }
 
-    if (m_Check_AutoClear) {
+    if (m_Check_AutoClear == TRUE) {
         GetDlgItem(IDC_STATIC_OVER)->EnableWindow(FALSE);
         GetDlgItem(IDC_STATIC_LINES)->EnableWindow(FALSE);
         GetDlgItem(IDC_EDIT_LINES)->EnableWindow(FALSE);
@@ -3066,7 +1817,7 @@ void CMySScomDlg::OnCheckAutoClear()
 
 /**************************************************************************************************
 **  函数名称:  OnCheckAutoSave
-**  功能描述:  是否开启自动保存功能
+**  功能描述:  自动保存功能复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
@@ -3077,18 +1828,30 @@ void CMySScomDlg::OnCheckAutoSave()
 
 /**************************************************************************************************
 **  函数名称:  OnCheckHexSend
-**  功能描述:  是否发送16进制数据
+**  功能描述:  发送16进制数据复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckHexSend()
-{   
+{
     m_Check_HexSend = !m_Check_HexSend;
+	
+	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);                                /* 首先保存当前内容，然后更新显示 */
+
+	if (m_Check_HexSend == FALSE) {                                            /* 之前是16进制模式，则现在是字符模式 */
+		s_SendStr_Hex = m_Edit_Send;
+		SetDlgItemText(IDC_EDIT_SEND, s_SendStr_Chr);
+	} else {                                                                   /* 之前是字符模式，则现在是16进制模式 */
+		s_SendStr_Chr = m_Edit_Send;
+		SetDlgItemText(IDC_EDIT_SEND, s_SendStr_Hex);
+	}
+	
+	UpdateData(TRUE);
 }
 
 /**************************************************************************************************
 **  函数名称:  OnCheckAutoSend
-**  功能描述:  是否开启自动发送功能
+**  功能描述:  自动发送功能复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
@@ -3106,9 +1869,7 @@ void CMySScomDlg::OnCheckAutoSend()
     }
 
     if (m_Check_AutoSend) {
-
         if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {                        /* 确保输入的数据不会过长 */
-
             MessageBox("您输入的数据过长，提交发送请求失败......   ", "提示", MB_OK + MB_ICONINFORMATION);
             m_Check_AutoSend = FALSE;
             UpdateData(FALSE);
@@ -3116,43 +1877,33 @@ void CMySScomDlg::OnCheckAutoSend()
         }
 
         NeedAutoSendData();                                                    /* 开始尝试自动发送数据 */
-
 		GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(FALSE);
-
-        #if EN_HANDSET > 0
-        GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(FALSE);
-        #endif
 
     } else {
 
         KillTimer(Timer_No_AutoSend);                                          /* 否则，用户取消了自动发送的功能 */
         GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
         GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
-
         GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);                       /* 重新启用发送按钮 */
 		GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(TRUE);
-
-        #if EN_HANDSET > 0
-        GetDlgItem(IDC_BUTTON_HANDSET)->EnableWindow(TRUE);
-        #endif
     }
 }
 
 /**************************************************************************************************
-**  函数名称:  OnCheckReturn
-**  功能描述:  发送时是否补加回车符
+**  函数名称:  OnCheckAddReturn
+**  功能描述:  发送时补加回车符复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::OnCheckReturn()
+void CMySScomDlg::OnCheckAddReturn()
 {
     m_Check_Return = !m_Check_Return;
 }
 
 /**************************************************************************************************
 **  函数名称:  OnCheckShowTime
-**  功能描述:  行头位置是否显示时间
+**  功能描述:  行头位置显示时间复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
@@ -3163,13 +1914,211 @@ void CMySScomDlg::OnCheckShowTime()
 
 /**************************************************************************************************
 **  函数名称:  OnCheckFrameDspl
-**  功能描述:  实现帧格式显示自动换行功能
+**  功能描述:  帧格式显示自动换行功能复选框状态切换
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckFrameDspl() 
 {
 	m_Check_FrameDspl = !m_Check_FrameDspl;
+}
+
+/**************************************************************************************************
+**  函数名称:  OnCheckAutoReply
+**  功能描述:  自动回复复选框状态切换
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnCheckAutoReply()
+{
+	m_Check_AutoReply = !m_Check_AutoReply;
+
+	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(m_Check_AutoReply);
+
+	if (m_Check_AutoReply == FALSE) {
+		if (s_PDlgAutoRply->IsWindowVisible() == TRUE) {                         /* 窗口尚未关闭 */
+			s_PDlgAutoRply->ShowHideDlgWindow(FALSE);
+		}
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  OnCheckDsplFilt
+**  功能描述:  显示内容过滤复选框状态切换
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnCheckDsplFilt()
+{
+	m_Check_Filter = !m_Check_Filter;
+
+	GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(m_Check_Filter);
+
+	if (m_Check_Filter == FALSE) {
+		if (s_PDlgDsplFilt->IsWindowVisible() == TRUE) {                       /* 窗口尚未关闭 */
+			s_PDlgDsplFilt->ShowHideDlgWindow(FALSE);
+		}
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditCopy
+**  功能描述:  编辑框菜单 - 复制所选内容
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditCopy()
+{
+	CString selstr;
+	HGLOBAL clipbuffer;
+	char    *buffer;
+
+	selstr = m_RichEdit_Recv.GetSelText();
+
+	if (OpenClipboard() == TRUE) {
+		EmptyClipboard();
+		clipbuffer = GlobalAlloc(GMEM_DDESHARE, selstr.GetLength() + 1);
+		buffer = (char *)GlobalLock(clipbuffer);
+		strcpy_s(buffer, selstr.GetLength() + 1, LPCSTR(selstr));
+		GlobalUnlock(clipbuffer);
+		SetClipboardData(CF_TEXT, buffer);
+		CloseClipboard();
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditClear
+**  功能描述:  编辑框菜单 - 清除全部内容
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditClear()
+{
+	if (MessageBox("确认要将所接收到的全部内容清空？", "提示", MB_OKCANCEL + MB_ICONQUESTION) != IDOK) {
+		return;
+	}
+	
+	OnButtonClearAll();
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditFont
+**  功能描述:  编辑框菜单 - 显示字体设置
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditFont()
+{
+	CHARFORMAT cf;
+	LOGFONT lf;
+
+	memset(&cf, 0, sizeof(CHARFORMAT));
+	memset(&lf, 0, sizeof(LOGFONT));
+
+	m_RichEdit_Recv.GetDefaultCharFormat(cf);
+
+	BOOL bIsBold = cf.dwEffects & CFE_BOLD;
+	BOOL bIsItalic = cf.dwEffects & CFE_ITALIC;
+	BOOL bIsUnderline = cf.dwEffects & CFE_UNDERLINE;
+	BOOL bIsStrickout = cf.dwEffects & CFE_STRIKEOUT;
+
+	//设置属性
+	lf.lfCharSet = cf.bCharSet;
+	lf.lfHeight = cf.yHeight/15;
+	lf.lfPitchAndFamily = cf.bPitchAndFamily;
+	lf.lfItalic = bIsItalic;
+	lf.lfWeight = (bIsBold ? FW_BOLD : FW_NORMAL);
+	lf.lfUnderline = bIsUnderline;
+	lf.lfStrikeOut = bIsStrickout;
+	sprintf_s(lf.lfFaceName, cf.szFaceName);
+
+	CFontDialog dlg(&lf);
+
+	dlg.m_cf.rgbColors = cf.crTextColor;
+
+	if (dlg.DoModal() == IDOK) {
+		dlg.GetCharFormat(cf);
+		m_RichEdit_Recv.SetDefaultCharFormat(cf);
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditAbout
+**  功能描述:  编辑框菜单 - 程序介绍说明
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditAbout()
+{
+	CDialogAboutMe Dlgabout;
+
+	Dlgabout.DoModal();
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditColorWhite
+**  功能描述:  编辑框菜单 - 背景颜色设置 - 雪花白
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditColorWhite()
+{
+	m_RichEdit_Recv.SetBackgroundColor(FALSE, RGB_WHITE);
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditColorGray
+**  功能描述:  编辑框菜单 - 背景颜色设置 - 科技灰
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditColorGray()
+{
+	m_RichEdit_Recv.SetBackgroundColor(FALSE, RGB_GRAY);
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditColorGreen
+**  功能描述:  编辑框菜单 - 背景颜色设置 - 薄荷绿
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditColorGreen()
+{
+	m_RichEdit_Recv.SetBackgroundColor(FALSE, RGB_LIGHT_GREEN);
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditColorBlue
+**  功能描述:  编辑框菜单 - 背景颜色设置 - 碧空蓝
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditColorBlue()
+{
+	m_RichEdit_Recv.SetBackgroundColor(FALSE, RGB_LIGHT_BLUE);
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditColorPink
+**  功能描述:  编辑框菜单 - 背景颜色设置 - 浪漫粉
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditColorPink()
+{
+	m_RichEdit_Recv.SetBackgroundColor(FALSE, RGB_LIGHT_PINK);
+}
+
+/**************************************************************************************************
+**  函数名称:  OnMenuEditColorPurple
+**  功能描述:  编辑框菜单 - 背景颜色设置 - 轻纱紫
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnMenuEditColorPurple()
+{
+	m_RichEdit_Recv.SetBackgroundColor(FALSE, RGB_LIGHT_PURPLE);
 }
 
 /**************************************************************************************************
@@ -3180,7 +2129,7 @@ void CMySScomDlg::OnCheckFrameDspl()
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayAbout()
 {
-    CDialogAbout Dlgabout;
+    CDialogAboutMe Dlgabout;
     
     Dlgabout.DoModal();
 }
@@ -3204,9 +2153,8 @@ void CMySScomDlg::OnMenuTrayShow()
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayHide()
 {
-    ShowWindow(SW_HIDE);
-
     CloseAllChildWin();                                                        /* 关闭各个子窗体 */
+	ShowWindow(SW_HIDE);
 }
 
 /**************************************************************************************************
@@ -3220,6 +2168,13 @@ void CMySScomDlg::OnMenuTrayExit()
     CloseAllChildWin();                                                        /* 关闭各个子窗体 */
 	
 	RecordAllParas();                                                          /* 保存各个参数数据 */
+
+	s_PDlgSuprSend->RecordAllParas();
+	s_PDlgExtrfunc->RecordAllParas();
+	s_PDlgDsplFilt->RecordAllParas();
+	s_PDlgAutoRply->RecordAllParas();
+
+	CloseSerialDevice();                                                       /* 关闭串口设备 */
     
     TaskBarDeleteIcon(GetSafeHwnd(), IDR_MAINFRAME);                           /* 删除任务栏的图标 */
     
@@ -3227,15 +2182,11 @@ void CMySScomDlg::OnMenuTrayExit()
 }
 
 
-/* ================================== 各个控件消息处理--结束 =================================== */
-
-
 /* ============================================================================================= */
 /* ====================================                    ===================================== */
 /* ==================================== 传说中华丽的分割线 ===================================== */
 /* ====================================                    ===================================== */
 /* ============================================================================================= */
-
 
 /* ==================================== 以下为系统消息处理 ===================================== */
 
@@ -3293,73 +2244,20 @@ BOOL CMySScomDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
-	/* 以下语句创建高级发送窗体，并隐藏待用 */
-
-	s_PDlgSrSend = new CDialogSrSend();
-	
-	if (s_PDlgSrSend != NULL){
-		
-		int Result = s_PDlgSrSend->Create(IDD_DIALOG_SRSEND, this);
-		
-		if (!Result) {
-			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
-			return FALSE;
-		}
-
-		s_PDlgSrSend->ShowWindow(SW_HIDE);
-	}
-
-	/* 以下语句创建附加功能窗体，并隐藏待用 */
-	
-	s_PDlgExfunc = new CDialogExfunct();
-	
-	if (s_PDlgExfunc != NULL){
-		
-		int Result = s_PDlgExfunc->Create(IDD_DIALOG_EXFUNCT, this);
-		
-		if (!Result) {
-			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
-			return FALSE;
-		}
-		
-		s_PDlgExfunc->ShowWindow(SW_HIDE);
-	}
-
-    #if EN_HANDSET > 0
-
-	/* 以下语句创建模拟手柄窗体，并隐藏待用 */
-
-	s_PDlgHandset = new CDialogHandset();
-	
-	if (s_PDlgHandset != NULL){
-		
-		int Result = s_PDlgHandset->Create(IDD_DIALOG_HANDSET, this);
-		
-		if (!Result) {
-			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
-			return FALSE;
-		}
-
-		s_PDlgHandset->ShowWindow(SW_HIDE);
-	}
-
-    #else
-
-    SetDlgItemText(IDC_BUTTON_HANDSET, "尚待添加");
-
-    #endif
-
-    s_SerialHdle = NULL;
-    s_RecvPaused = FALSE;
-    s_PortOpened = FALSE;
-    s_RecvString = "";
-    s_LopSendCnt = 0;    
-    s_RecvedLine = 0;
-    s_RecvedByte = 0;
-    s_SendedByte = 0;
+	s_RecvPaused = FALSE;
+	s_RecvString = "";
+	s_LopSendCnt = 0;
+	s_RecvedLine = 0;
+	s_RecvedByte = 0;
+	s_SendedByte = 0;
 	s_FileDatPos = 0;
 
-    CreateDirectory(RecordPath, NULL);                                         /* 创建Record文件夹，用于保存数据 */
+	CreateDirectory(RecordPath, NULL);                                         /* 创建Record文件夹，用于保存数据 */
+	CreateSettingFile();                                                       /* 创建程序配置参数文件并初始化各个参数 */
+
+	if (InitiateChildWins() == FALSE) {                                        /* 创建各个子窗体的页面 */
+		return FALSE;
+	}
 	
 	GetDlgItem(IDC_PROGRESS_SENDFILE)->ShowWindow(SW_HIDE);                    /* 隐藏进度条，并初始化配置 */
 	m_Progress_SendFile.SetRange(0, PROGRESS_POS);
@@ -3367,17 +2265,6 @@ BOOL CMySScomDlg::OnInitDialog()
 
     SetIcon(m_hIcon, TRUE);
     SetIcon(m_hIcon, FALSE);
-
-    memset(&s_EventoRead, 0, sizeof(OVERLAPPED));
-    memset(&s_EventWrite, 0, sizeof(OVERLAPPED));
-    
-    if (!(s_EventoRead.hEvent = CreateEvent(NULL, TRUE, TRUE, NULL))) {
-        return FALSE;
-    }
-    
-    if (!(s_EventWrite.hEvent = CreateEvent(NULL, TRUE, TRUE, NULL))) {
-        return FALSE;
-    }
 
     s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
     s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
@@ -3388,63 +2275,28 @@ BOOL CMySScomDlg::OnInitDialog()
     InitiateComboData();                                                       /* 初始化选择数据位的列表框 */
     InitiateComboCheck();                                                      /* 初始化选择校验位的列表框 */
     InitiateComboStop();                                                       /* 初始化选择停止位的列表框 */
+	InitiateAllParas();                                                        /* 初始化主界面下各控件参数 */
+	InitiateToolsTip();                                                        /* 初始化控件的悬浮提示信息 */
 
     SetControlStatus(FALSE);                                                   /* 首先禁用各个按钮控件 */
 
-    SetTimer(Timer_No_RecvData,  EDIT_REFRESH_TIME, NULL);
-    SetTimer(Timer_No_StatusBar, 1000, NULL);
-    
-    // CG: The following block was added by the ToolTips component. 
-    {       
-        m_tooltip.Create(this);
-        m_tooltip.Activate(TRUE);
-
-        m_tooltip.AddTool(GetDlgItem(IDC_COMBO_COMNO),     IDS_STRING_001);
-        m_tooltip.AddTool(GetDlgItem(IDC_COMBO_BAUD),      IDS_STRING_002);
-        m_tooltip.AddTool(GetDlgItem(IDC_COMBO_DATA),      IDS_STRING_003);
-        m_tooltip.AddTool(GetDlgItem(IDC_COMBO_STOP),      IDS_STRING_004);
-        m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_ONOFF),    IDS_STRING_005);
-        m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE),    IDS_STRING_006);
-        m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_CLEAR),    IDS_STRING_007);
-        m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SAVE),     IDS_STRING_008);
-        m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXDSPL),   IDS_STRING_009);
-        m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOCLEAR), IDS_STRING_010);
-        m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSAVE),  IDS_STRING_011);
-        m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SEND),     IDS_STRING_015);
-        m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXSEND),   IDS_STRING_016);
-        m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSEND),  IDS_STRING_017);
-        m_tooltip.AddTool(GetDlgItem(IDC_EDIT_TIMER),      IDS_STRING_018);
-        m_tooltip.AddTool(GetDlgItem(IDC_CHECK_RETURN),    IDS_STRING_020);
-        m_tooltip.AddTool(GetDlgItem(IDC_COMBO_CHECK),     IDS_STRING_021);
-		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_HANDSET),  IDS_STRING_023);
-		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_LINES),      IDS_STRING_024);
-		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_EXFUNCT),  IDS_STRING_025);
-		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SRSEND),   IDS_STRING_026);
-		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_027);
-		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_OPENFILE), IDS_STRING_028);
-		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SENDFILE), IDS_STRING_029);
-		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_FILEPATH),   IDS_STRING_030);
-		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_SHOWTIME),  IDS_STRING_031);
-		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_FRAMEDSPL), IDS_STRING_032);
-    }
+    SetTimer(Timer_No_UpdateDsp, UPDATEEDIT_TIME, NULL);
+    SetTimer(Timer_No_StatusBar, STATUSBAR_TIME, NULL);
 
     INIT_EASYSIZE;                                                             /* 初始化各个控件的位置 */
 
-    CreateSettingFile();                                                       /* 创建程序配置参数文件并初始化各个参数 */
-    InitiateAllParas();
-
-	s_ListenHdle = AfxBeginThread(ListenProc, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL);
-
-	if (s_ListenHdle == NULL) {                                                /* 如果线程创建失败 */
-        MessageBox("  出现异常！监听串口设备的线程创建失败...", "提示", MB_OK + MB_ICONERROR);
+	if (CreateDeviceThread() == FALSE) {                                       /* 如果线程创建失败 */
+        MessageBox("串口设备监听线程创建失败！请重启程序！", "提示", MB_OK + MB_ICONERROR);
         return FALSE;
-    } else {                                                                   /* 开始正常工作 */
-        s_ListenHdle->ResumeThread();
     }
 
-	s_PDlgSrSend->InitateSrDlgPos();                                           /* 这句话一定要放在最后面 */
-
+	s_PDlgSuprSend->InitateSrDlgPos();                                         /* 这句话一定要放在最后面 */
+	
     TaskBarAddIcon(GetSafeHwnd(), IDR_MAINFRAME, AfxGetApp()->LoadIcon(IDR_MAINFRAME), "MySScom");
+
+	CRect rect;                                                                /* 初始化主窗体位置，并限制高度和宽度 */
+	GetWindowRect(&rect);
+	SetWindowPos(NULL, s_DialogPos_X, s_DialogPos_Y, MIN_WIN_WIDTH, MIN_WIN_HIGHT, SWP_NOSIZE);
 
     return TRUE;
 }
@@ -3457,11 +2309,13 @@ BOOL CMySScomDlg::OnInitDialog()
 **************************************************************************************************/
 void CMySScomDlg::OnTimer(UINT nIDEvent) 
 {
-    switch (nIDEvent)
+    unsigned char buff[MAX_SEND_BYTE];
+	
+	switch (nIDEvent)
     {
-        case Timer_No_RecvData:                                                /* 接收到串口数据 */
+        case Timer_No_UpdateDsp:                                              /* 更新编辑框内容显示 */
             if (s_DataRecved == TRUE) {
-                UpdateEditDisplay();                                           /* 更新编辑框内容显示 */
+                UpdateEditDisplay();
                 s_DataRecved = FALSE;
             }
             break;
@@ -3472,7 +2326,8 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
             
         case Timer_No_AutoSend:                                                /* 自动发送数据 */
             GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
-			if (SendDatatoComm(m_Edit_Send, m_Check_HexSend) == FALSE) {       /* 数据非法，则停止定时器 */
+			strncpy_s((char *)&buff[0], sizeof(buff), (LPCTSTR)m_Edit_Send, m_Edit_Send.GetLength());
+			if (SendDatatoComm(buff, m_Edit_Send.GetLength(), m_Check_HexSend) == FALSE) {
 				OnCheckAutoSend();
 				UpdateData(FALSE);
 				MessageBox("您输入的数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
@@ -3510,24 +2365,23 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 **************************************************************************************************/
 BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg) 
 {
-    char keyvalue;
+    unsigned char keyvalue;
     
     m_tooltip.RelayEvent(pMsg);
 
     if (pMsg->message == WM_KEYDOWN) {
 
+		if (SerialDevisOpened() == TRUE) {
+			if ((GetFocus() == GetDlgItem(IDC_EDIT_INPUT)) || GetFocus() == GetDlgItem(IDC_EDIT_RECV)) {
+				keyvalue = GetKeyValue(pMsg->wParam);
+				if (keyvalue > 0) {
+					s_SendedByte += SendSerialData(&keyvalue, 1);
+				}
+			}
+		}
+
         if ((pMsg->wParam == VK_ESCAPE) || (pMsg->wParam == VK_RETURN)) {      /* 返回键和确认键需要进行预处理 */
             return true;
-        } else {                                                               /* 其他按键，需要进行有效性检测 */
-            if (s_PortOpened == TRUE) {
-                if ((GetFocus() == GetDlgItem(IDC_EDIT_INPUT)) || GetFocus() == GetDlgItem(IDC_EDIT_RECV)) {
-                    keyvalue = GetKeyValue(pMsg->wParam);
-                    if (keyvalue > 0) {
-                        WriteComm(&keyvalue, 1);
-                        s_SendedByte++;
-                    }
-                }
-            }
         }
     }
 
@@ -3542,7 +2396,7 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 **************************************************************************************************/
 void CMySScomDlg::OnClose() 
 {
-    if ((m_Check_AutoSend == TRUE) || (s_PDlgSrSend->s_issenddata == TRUE)) {
+    if ((m_Check_AutoSend == TRUE) || (s_PDlgSuprSend->s_issenddata == TRUE)) {
 		MessageBox("请首先停用自动发送功能再尝试关闭本窗口...  ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
     }
@@ -3560,10 +2414,6 @@ void CMySScomDlg::OnClose()
 **************************************************************************************************/
 void CMySScomDlg::OnSize(UINT nType, int cx, int cy) 
 {
-    if (nType == SIZE_MINIMIZED) {                                             /* 如果是要窗体最小化 */
-        CloseAllChildWin();                                                    /* 关闭所有子窗口 */
-    }
-    
     CDialog::OnSize(nType, cx, cy);
 
     UPDATE_EASYSIZE;
@@ -3583,39 +2433,43 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 
 	UpdateStatusBarNow();
 
-    EASYSIZE_MINSIZE(660, 497, fwSide, pRect);                                 /* 限制窗体的最小尺寸 */
+    EASYSIZE_MINSIZE(MIN_WIN_WIDTH, MIN_WIN_HIGHT, fwSide, pRect);             /* 限制窗体的最小尺寸 */
 }
 
 /**************************************************************************************************
-**  函数名称:  OnMyIconNotify
-**  功能描述:  处理托盘图标消息
+**  函数名称:  OnContextMenu
+**  功能描述:  处理上下文菜单消息
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-LRESULT CMySScomDlg::OnMyIconNotify(WPARAM wParam, LPARAM lParam)
+void CMySScomDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-    UINT uMouseMsg = LOWORD(lParam);
-    CMenu oMenu;
-    CPoint oPoint;
-    
-    switch (uMouseMsg)
-    {
-        case WM_LBUTTONDBLCLK:                                                 /* 如果是左键双击 */
-            ShowWindow(IsWindowVisible() ? SW_HIDE : SW_SHOWNORMAL);
-            break;
-        
-        case WM_RBUTTONDOWN:                                                   /* 如果是右键 */
-            if (oMenu.LoadMenu(IDR_MENU_TRAY)) {
-                CMenu* pPopup = oMenu.GetSubMenu(0);
-                ASSERT(pPopup != NULL);
-                
-                GetCursorPos(&oPoint);                                         /* 确定鼠标位置以便在该位置附近显示菜单 */
-                SetForegroundWindow();
-                pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, oPoint.x, oPoint.y, this); 
-            }
-            break;
-    }
+	CMenu popMenu, *pPopup;
+	
+	if (pWnd->m_hWnd == m_RichEdit_Recv.m_hWnd) {                              /* 如果在编辑框内右击 */
 
-	return 0;
+		popMenu.LoadMenu(IDR_MENU_EDIT);                                       /* 载入菜单 */
+		pPopup = popMenu.GetSubMenu(0);                                        /* 获得菜单指针 */
+
+		pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+		pPopup->Detach();
+		popMenu.DestroyMenu();
+	}
 }
+
+/**************************************************************************************************
+**  函数名称:  OnSysCommand
+**  功能描述:  处理系统消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	if (nID == SC_MINIMIZE) {                                                  /* 如果是要窗体最小化 */
+		CloseAllChildWin();                                                    /* 关闭所有子窗口 */
+	}
+
+	CDialog::OnSysCommand(nID, lParam);
+}
+
 

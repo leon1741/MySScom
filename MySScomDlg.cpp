@@ -78,6 +78,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_WM_SIZING()
 	ON_BN_CLICKED(IDC_BUTTON_COUNT, OnButtonCount)
 	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
+	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSrSend)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -91,6 +92,7 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_STATIC_CONTROL, ES_BORDER,          ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,       0)
 	EASYSIZE(IDC_STATIC_RECEIVE, IDC_STATIC_CONTROL, ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_STATIC_SEND,    IDC_STATIC_CONTROL, ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
+	EASYSIZE(IDC_STATIC_SRSEND,  IDC_STATIC_RECEIVE, ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_RECV,      ES_BORDER,          ES_BORDER,          ES_BORDER,          ES_BORDER,       0)
 	EASYSIZE(IDC_EDIT_SEND,      ES_BORDER,          ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,       0)
 END_EASYSIZE_MAP
@@ -476,6 +478,13 @@ void CMySScomDlg::InitiateComboStop(void)
 	}
 }
 
+void CMySScomDlg::InitiateSrSendArea(void)
+{
+	m_SrSend_Visible = FALSE;
+
+	HideSrSendArea();                                                // 默认状态下不显示高级发送功能
+}
+
 void CMySScomDlg::SendEditDatatoComm(void)
 {
 	if (m_bSendPause == FALSE) {                                     // 确认是否允许发送数据
@@ -561,6 +570,80 @@ void CMySScomDlg::ContinueToSendFile(void)
 		
 		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
 	}
+}
+
+void CMySScomDlg::HideSrSendArea(void)
+{
+	CRect DialogMain, RecvEdit, SendEdit;
+	CRect RecvStatic, SendStatic, SrSdStatic;
+	
+	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
+	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
+	GetDlgItem(IDC_STATIC_SRSEND)->GetWindowRect(&SrSdStatic);
+	
+	GetDlgItem(IDC_EDIT_RECV)->GetWindowRect(&RecvEdit);
+	GetDlgItem(IDC_EDIT_SEND)->GetWindowRect(&SendEdit);
+	
+	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
+	
+	GetDlgItem(IDC_STATIC_SRSEND)->ShowWindow(FALSE);
+	
+	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
+											   (RecvStatic.top - DialogMain.top - 23), 
+		                                       (RecvStatic.Width() + SrSdStatic.Width() + 10), 
+											   (RecvStatic.Height()));
+	
+	GetDlgItem(IDC_EDIT_RECV)->MoveWindow((RecvEdit.left - DialogMain.left - 4), 
+		                                  (RecvEdit.top - DialogMain.top - 23), 
+		                                  (RecvEdit.Width() + SrSdStatic.Width() + 10), 
+										  (RecvEdit.Height()));
+
+	GetDlgItem(IDC_STATIC_SEND)->MoveWindow((SendStatic.left - DialogMain.left - 4), 
+	                                        (SendStatic.top - DialogMain.top - 23), 
+	                                        (SendStatic.Width() + SrSdStatic.Width() + 10), 
+											(SendStatic.Height()));
+
+	GetDlgItem(IDC_EDIT_SEND)->MoveWindow((SendEdit.left - DialogMain.left - 4), 
+	                                      (SendEdit.top - DialogMain.top - 23), 
+		                                  (SendEdit.Width() + SrSdStatic.Width() + 10), 
+										  (SendEdit.Height()));
+}
+
+void CMySScomDlg::ShowSrSendArea(void)
+{
+	CRect DialogMain, RecvEdit, SendEdit;
+	CRect RecvStatic, SendStatic, SrSdStatic;
+	
+	GetDlgItem(IDC_STATIC_RECEIVE)->GetWindowRect(&RecvStatic);
+	GetDlgItem(IDC_STATIC_SEND)->GetWindowRect(&SendStatic);
+	GetDlgItem(IDC_STATIC_SRSEND)->GetWindowRect(&SrSdStatic);
+	
+	GetDlgItem(IDC_EDIT_RECV)->GetWindowRect(&RecvEdit);
+	GetDlgItem(IDC_EDIT_SEND)->GetWindowRect(&SendEdit);
+	
+	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
+	
+	GetDlgItem(IDC_STATIC_SRSEND)->ShowWindow(TRUE);
+	
+	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow((RecvStatic.left - DialogMain.left - 4), 
+											   (RecvStatic.top - DialogMain.top - 23), 
+		                                       (RecvStatic.Width() - SrSdStatic.Width() - 10), 
+											   (RecvStatic.Height()));
+	
+	GetDlgItem(IDC_EDIT_RECV)->MoveWindow((RecvEdit.left - DialogMain.left - 4), 
+		                                  (RecvEdit.top - DialogMain.top - 23), 
+		                                  (RecvEdit.Width() - SrSdStatic.Width() - 10), 
+										  (RecvEdit.Height()));
+
+	GetDlgItem(IDC_STATIC_SEND)->MoveWindow((SendStatic.left - DialogMain.left - 4), 
+	                                        (SendStatic.top - DialogMain.top - 23), 
+	                                        (SendStatic.Width() - SrSdStatic.Width() - 10), 
+											(SendStatic.Height()));
+
+	GetDlgItem(IDC_EDIT_SEND)->MoveWindow((SendEdit.left - DialogMain.left - 4), 
+	                                      (SendEdit.top - DialogMain.top - 23), 
+		                                  (SendEdit.Width() - SrSdStatic.Width() - 10), 
+										  (SendEdit.Height()));
 }
 
 
@@ -833,6 +916,21 @@ void CMySScomDlg::OnButtonCount()
 	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }
 
+void CMySScomDlg::OnButtonSrSend() 
+{
+	if (m_SrSend_Visible == TRUE) {                                  // 如果已经启用高级发送功能，则禁用之
+		HideSrSendArea();
+		m_SrSend_Visible = FALSE;
+		SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
+	} else {                                                         // 如果没有启用高级发送功能，则启用之
+		ShowSrSendArea();
+		m_SrSend_Visible = TRUE;
+		SetDlgItemText(IDC_BUTTON_SRSEND, "普通发送");
+	}
+	
+	INIT_EASYSIZE;                                                   // 重新初始化各个控件的位置
+}
+
 void CMySScomDlg::OnCheckHexDisplay() 
 {
 	m_Check_HexDspl = !m_Check_HexDspl;
@@ -945,8 +1043,6 @@ BOOL CMySScomDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
 
-	INIT_EASYSIZE;
-
 	s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
 	s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
 
@@ -956,6 +1052,7 @@ BOOL CMySScomDlg::OnInitDialog()
 	InitiateComboBaud();                                             // 初始化选择波特率的列表框
 	InitiateComboData();                                             // 初始化选择数据位的列表框
 	InitiateComboStop();                                             // 初始化选择停止位的列表框
+	InitiateSrSendArea();                                            // 初始化不显示高级发送区内容
 
 	m_Combo_ComNo.SetCurSel(0);
 	m_Combo_Baud.SetCurSel(2);
@@ -1010,6 +1107,8 @@ BOOL CMySScomDlg::OnInitDialog()
 		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_RECV),       IDS_STRING_020);
 		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_021);
 	}
+
+	INIT_EASYSIZE;                                                   // 注意本语句一定要置于初始化的最后
 
 	return TRUE;
 }
@@ -1095,4 +1194,5 @@ void CMySScomDlg::OnOnCommMscomm()
 		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
     }
 }
+
 

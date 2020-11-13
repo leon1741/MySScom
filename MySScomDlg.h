@@ -61,6 +61,8 @@ public:
 	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
 	bool           m_bSendPause;                                     // 判断是否需要暂停发送
 
+	bool           m_SrSend_Visible;                                 // 判断高级发送区是否可见
+
 	int            Send_Status;                                      // 判断处于发送长文件还是短数据的状态
 	int            Send_Counter;                                     // 发送大数据时，本次发送的数据段计数单元
 
@@ -93,8 +95,13 @@ public:
 	void InitiateComboData(void);
 	void InitiateComboStop(void);
 
+	void InitiateSrSendArea(void);
+
 	void SendEditDatatoComm(void);
 	void ContinueToSendFile(void);
+
+	void HideSrSendArea(void);
+	void ShowSrSendArea(void);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)
@@ -132,6 +139,7 @@ protected:
 	afx_msg void OnOnCommMscomm();
 	afx_msg void OnButtonCount();
 	afx_msg void OnCheckAutoClear();
+	afx_msg void OnButtonSrSend();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

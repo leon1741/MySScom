@@ -281,7 +281,6 @@ END_EASYSIZE_MAP
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-
 BOOL CMySScomDlg::EnumComm()
 {
 	sPorts.RemoveAll();
@@ -561,11 +560,13 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
 
-			if (m_Edit_Recv.GetLength() >= MAX_RECV_CHAR(MaxRecvLines)) {      // 在16进制模式下，对数据内容长度进行判断
+			if (RecvedData >= MaxRecvLines) {                        // 在16进制模式下，对数据内容长度进行判断
+
+				RecvedLine = 0;                                      // 首先清空变量值
+				RecvedData = 0;
 				
 				if (m_Check_AutoSave) {
-
-					SaveEditContent();                               // 首先保存编辑框的数据
+					SaveEditContent();                               // 保存编辑框的数据
 				}
 
 				StrRecved   = "";
@@ -582,11 +583,13 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
 			
-            if (s_Edit_Recv->GetLineCount() >= MaxRecvLines) {       // 在字符模式下，对数据行数进行判断
+            if (RecvedLine >= MaxRecvLines) {                        // 在字符模式下，对数据行数进行判断
+
+				RecvedLine = 0;                                      // 首先清空变量值
+				RecvedData = 0;
 				
 				if (m_Check_AutoSave) {
-					
-					SaveEditContent();                               // 首先保存编辑框的数据
+					SaveEditContent();                               // 保存编辑框的数据
 				}
 
 				StrRecved   = "";
@@ -652,10 +655,11 @@ void CMySScomDlg::HandleUSARTData(void)
 
 			TempStr.Format("%c", bt);
 			
-			if (m_Check_ShowTime == TRUE) {                          // 只有在启用该功能的情况下执行判断
+			if (m_Check_ShowTime == TRUE) {                          // 只有在启用时间显示功能时才判断
 				
-				if (TempStr == "\n") {                               // 接收到回车符，切换到下一行显示
+				if (TempStr == "\n") {                               // 本次接收到了回车符，切换到下一行显示
 					m_NeedTime = TRUE;
+					RecvedLine++;
 				} else {
 					if (m_NeedTime == TRUE) {
 						NowTime = CTime::GetCurrentTime();	         // 获取现在时间
@@ -664,6 +668,17 @@ void CMySScomDlg::HandleUSARTData(void)
 						StrRecved += TimeStr;                        // 在行头显示时间
 						m_NeedTime = FALSE;
 					}
+				}
+			} else {                                                 // 不需要在行头位置显示时间
+				
+				if (m_Check_HexDspl == FALSE) {                      // 16进制模式下不进行判断
+
+					if (TempStr == "\n") {                           // 本次接收到回车符
+						RecvedLine++;
+					}
+				} else {
+
+					RecvedLine = 0;                                  // 
 				}
 			}
 			
@@ -766,20 +781,43 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 {
 	CTime   Nowtime;
 	CString TempStr, DisplayStr;
+	CRect   DialogMain;
+
+	this->GetWindowRect(&DialogMain);                                // 获取主界面在屏幕上的位置
+	
+	if (DialogMain.Width() < 900) {
+		DisplayStr = " 欢迎使用MySScom";	
+		m_StatusBar.SetPaneText(0, DisplayStr);
+	} else if ((DialogMain.Width() >= 900) && (DialogMain.Width() < 1050)) {
+		DisplayStr = " 欢迎使用MySScom - Designed By LEON";	
+		m_StatusBar.SetPaneText(0, DisplayStr);
+	} else if ((DialogMain.Width() >= 1050) && (DialogMain.Width() < 1200)) {
+		DisplayStr = " 欢迎使用MySScom - Designed By LEON (QQ: 39110103)";	
+		m_StatusBar.SetPaneText(0, DisplayStr);
+	} else if ((DialogMain.Width() >= 1200) && (DialogMain.Width() < 1350)) {
+		DisplayStr = " 欢迎使用MySScom - Designed By LEON (QQ: 39110103, LEON1741@126.com)";	
+		m_StatusBar.SetPaneText(0, DisplayStr);
+	} else {
+		DisplayStr = " 欢迎使用MySScom - Designed By LEON (QQ: 39110103, LEON1741@126.com. \"Never Stop Trying\"!)";	
+		m_StatusBar.SetPaneText(0, DisplayStr);
+	}
 	
 	Nowtime = CTime::GetCurrentTime();
 	
 	DisplayStr = m_PortOpened ? " 串口已打开" : " 串口未打开";	
 	m_StatusBar.SetPaneText(1, DisplayStr);
 
-	DisplayStr.Format(" Recv: %.6d", RecvedData);
+	DisplayStr.Format(" Lines: %.5d", RecvedLine);
 	m_StatusBar.SetPaneText(2, DisplayStr);
-
-	DisplayStr.Format(" Send: %.6d", SendedData);
+		
+	DisplayStr.Format(" Recv: %.6d", RecvedData);
 	m_StatusBar.SetPaneText(3, DisplayStr);
 
-	DisplayStr = " 当前时间: " + Nowtime.Format("%Y-%m-%d") + " " + Nowtime.Format("%H:%M:%S");
+	DisplayStr.Format(" Send: %.6d", SendedData);
 	m_StatusBar.SetPaneText(4, DisplayStr);
+
+	DisplayStr = " 当前时间: " + Nowtime.Format("%Y-%m-%d") + " " + Nowtime.Format("%H:%M:%S");
+	m_StatusBar.SetPaneText(5, DisplayStr);
 }
 
 /**************************************************************************************************
@@ -986,6 +1024,12 @@ void CMySScomDlg::InitiateAllParas(void)
 	::GetPrivateProfileString("SrSendArea", "LoopTime", "1000", TempStr, 5, ".\\Settings.ini");
 	m_Edit_LoopTimer.Format("%s", TempStr);
 	SetDlgItemText(IDC_EDIT_SRAUTO, TempPara);
+
+	if (m_Check_HexDspl) {                                           // 根据读入的参数值初始化提示框内容
+		SetDlgItemText(IDC_STATIC_LINES, "字符");
+	} else {
+		SetDlgItemText(IDC_STATIC_LINES, "行");
+	}
 	
 	UpdateData(FALSE);                                               // 更新编辑框内容
 }
@@ -1113,6 +1157,7 @@ void CMySScomDlg::InitiateStatusBar(void)
 		ID_INDICATOR_NUM,
 		ID_INDICATOR_SCRL,
 		ID_INDICATOR_OVR,
+		ID_INDICATOR_REC,
 	};
 
 	CTime   time;
@@ -1128,19 +1173,22 @@ void CMySScomDlg::InitiateStatusBar(void)
 	m_strTime = " 当前时间: " + time.Format("%Y-%m-%d") + " " + time.Format("%H:%M:%S");
 	
 	m_StatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 1);
-	m_StatusBar.SetPaneText(0, " 欢迎使用MySScom - 雅迅网络研发一部测试组");
+	m_StatusBar.SetPaneText(0, " 欢迎使用MySScom");
 	
-	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 80);
+	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 90);
 	m_StatusBar.SetPaneText(1, " 串口未打开");
 
 	m_StatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 90);
-	m_StatusBar.SetPaneText(2, " Recv: 000000");
+	m_StatusBar.SetPaneText(2, " Lines: 00000");
 	
-	m_StatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 90);
-	m_StatusBar.SetPaneText(3, " Send: 000000");
+	m_StatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneText(3, " Recv: 000000");
+	
+	m_StatusBar.SetPaneInfo(4, nID, SBPS_NORMAL, 100);
+	m_StatusBar.SetPaneText(4, " Send: 000000");
 
-	m_StatusBar.SetPaneInfo(4, nID, SBPS_NORMAL, 200);
-	m_StatusBar.SetPaneText(4, m_strTime);
+	m_StatusBar.SetPaneInfo(5, nID, SBPS_NORMAL, 200);
+	m_StatusBar.SetPaneText(5, m_strTime);
 	
 	RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);
 }
@@ -1817,6 +1865,12 @@ BOOL CMySScomDlg::TaskBarDeleteIcon(HWND hwnd, UINT uID)
 
 /* ================================== 高级发送功能处理--开始 =================================== */
 
+/**************************************************************************************************
+**  函数名称:  
+**  功能描述:  
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrAuto() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -1851,106 +1905,232 @@ void CMySScomDlg::OnCheckSrAuto()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend01
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend01() 
 {
 	m_Check_SrSend_01 = !m_Check_SrSend_01;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend02
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend02() 
 {
 	m_Check_SrSend_02 = !m_Check_SrSend_02;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend03
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend03() 
 {
 	m_Check_SrSend_03 = !m_Check_SrSend_03;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend04
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend04() 
 {
 	m_Check_SrSend_04 = !m_Check_SrSend_04;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend05
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend05() 
 {
 	m_Check_SrSend_05 = !m_Check_SrSend_05;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend06
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend06() 
 {
 	m_Check_SrSend_06 = !m_Check_SrSend_06;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend07
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend07() 
 {
 	m_Check_SrSend_07 = !m_Check_SrSend_07;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend08
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend08() 
 {
 	m_Check_SrSend_08 = !m_Check_SrSend_08;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend09
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend09() 
 {
 	m_Check_SrSend_09 = !m_Check_SrSend_09;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend10
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend10() 
 {
 	m_Check_SrSend_10 = !m_Check_SrSend_10;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend11
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend11() 
 {
 	m_Check_SrSend_11 = !m_Check_SrSend_11;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend12
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend12() 
 {
 	m_Check_SrSend_12 = !m_Check_SrSend_12;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend13
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend13() 
 {
 	m_Check_SrSend_13 = !m_Check_SrSend_13;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend14
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend14() 
 {
 	m_Check_SrSend_14 = !m_Check_SrSend_14;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend15
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend15() 
 {
 	m_Check_SrSend_15 = !m_Check_SrSend_15;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend16
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend16() 
 {
 	m_Check_SrSend_16 = !m_Check_SrSend_16;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend17
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend17() 
 {
 	m_Check_SrSend_17 = !m_Check_SrSend_17;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend18
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend18() 
 {
 	m_Check_SrSend_18 = !m_Check_SrSend_18;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend19
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend19() 
 {
 	m_Check_SrSend_19 = !m_Check_SrSend_19;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckSrSend20
+**  功能描述:  高级发送区的复选框消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckSrSend20() 
 {
 	m_Check_SrSend_20 = !m_Check_SrSend_20;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend01
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend01() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -1962,6 +2142,12 @@ void CMySScomDlg::OnButtonSrSend01()
 	TrytoSrSendData(TempStr, m_Check_SrSend_01);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend02
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend02() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -1973,6 +2159,12 @@ void CMySScomDlg::OnButtonSrSend02()
 	TrytoSrSendData(TempStr, m_Check_SrSend_02);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend03
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend03() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -1984,6 +2176,12 @@ void CMySScomDlg::OnButtonSrSend03()
 	TrytoSrSendData(TempStr, m_Check_SrSend_03);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend04
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend04() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -1995,6 +2193,12 @@ void CMySScomDlg::OnButtonSrSend04()
 	TrytoSrSendData(TempStr, m_Check_SrSend_04);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend05
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend05() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2006,6 +2210,12 @@ void CMySScomDlg::OnButtonSrSend05()
 	TrytoSrSendData(TempStr, m_Check_SrSend_05);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend06
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend06() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2017,6 +2227,12 @@ void CMySScomDlg::OnButtonSrSend06()
 	TrytoSrSendData(TempStr, m_Check_SrSend_06);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend07
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend07() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2028,6 +2244,12 @@ void CMySScomDlg::OnButtonSrSend07()
 	TrytoSrSendData(TempStr, m_Check_SrSend_07);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend08
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend08() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2039,6 +2261,12 @@ void CMySScomDlg::OnButtonSrSend08()
 	TrytoSrSendData(TempStr, m_Check_SrSend_08);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend09
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend09() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2050,6 +2278,12 @@ void CMySScomDlg::OnButtonSrSend09()
 	TrytoSrSendData(TempStr, m_Check_SrSend_09);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend10
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend10() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2061,6 +2295,12 @@ void CMySScomDlg::OnButtonSrSend10()
 	TrytoSrSendData(TempStr, m_Check_SrSend_10);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend11
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend11() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2072,6 +2312,12 @@ void CMySScomDlg::OnButtonSrSend11()
 	TrytoSrSendData(TempStr, m_Check_SrSend_11);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend12
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend12() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2083,6 +2329,12 @@ void CMySScomDlg::OnButtonSrSend12()
 	TrytoSrSendData(TempStr, m_Check_SrSend_12);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend13
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend13() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2094,6 +2346,12 @@ void CMySScomDlg::OnButtonSrSend13()
 	TrytoSrSendData(TempStr, m_Check_SrSend_13);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend14
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend14() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2105,6 +2363,12 @@ void CMySScomDlg::OnButtonSrSend14()
 	TrytoSrSendData(TempStr, m_Check_SrSend_14);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend15
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend15() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2116,6 +2380,12 @@ void CMySScomDlg::OnButtonSrSend15()
 	TrytoSrSendData(TempStr, m_Check_SrSend_15);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend16
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend16() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2127,6 +2397,12 @@ void CMySScomDlg::OnButtonSrSend16()
 	TrytoSrSendData(TempStr, m_Check_SrSend_16);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend17
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend17() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2138,6 +2414,12 @@ void CMySScomDlg::OnButtonSrSend17()
 	TrytoSrSendData(TempStr, m_Check_SrSend_17);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend18
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend18() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2149,6 +2431,12 @@ void CMySScomDlg::OnButtonSrSend18()
 	TrytoSrSendData(TempStr, m_Check_SrSend_18);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend19
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend19() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2160,6 +2448,12 @@ void CMySScomDlg::OnButtonSrSend19()
 	TrytoSrSendData(TempStr, m_Check_SrSend_19);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend20
+**  功能描述:  高级发送区的按钮消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend20() 
 {
 	assert(m_SrSendEnable == TRUE);
@@ -2185,6 +2479,12 @@ void CMySScomDlg::OnButtonSrSend20()
 /* ================================== 各个控件消息处理--开始 =================================== */
 
 
+/**************************************************************************************************
+**  函数名称:  OnButtonONOFF
+**  功能描述:  串口开关
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonONOFF() 
 {
 	CString TempStr, SettingStr;
@@ -2207,9 +2507,6 @@ void CMySScomDlg::OnButtonONOFF()
 		GetDlgItem(IDC_COMBO_STOP)->EnableWindow(TRUE);
 
 		SetControlStatus(FALSE);
-
-		RecvedData = 0;                                              // 累计单元清零
-		SendedData = 0;
 
 		m_PortOpened = FALSE;
 
@@ -2285,6 +2582,12 @@ void CMySScomDlg::OnButtonONOFF()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonPause
+**  功能描述:  暂停接收/恢复接收
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonPause() 
 {
 	if (m_bRecvPause == FALSE) {
@@ -2298,6 +2601,12 @@ void CMySScomDlg::OnButtonPause()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonClear
+**  功能描述:  清除窗口内已经接收的数据
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonClear() 
 {
 	StrRecved = "";
@@ -2309,10 +2618,17 @@ void CMySScomDlg::OnButtonClear()
 		m_NeedTime = TRUE;                                           // 下一次收到数据时显示时间
 	}
 
+	RecvedLine = 0;
 	RecvedData = 0;
 	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSave
+**  功能描述:  将接收到的数据保存到文件中
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSave() 
 {
 	CFile   MyFile;	                                                 // 定义文件类
@@ -2344,6 +2660,12 @@ void CMySScomDlg::OnButtonSave()
 	MyFile.Close();	                                                 // 关闭文件
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSend
+**  功能描述:  发送窗口内输入的数据
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSend() 
 {
 	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
@@ -2356,14 +2678,27 @@ void CMySScomDlg::OnButtonSend()
 	SendEditDatatoComm();
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonCount
+**  功能描述:  清除计数器
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonCount() 
 {
+	RecvedLine = 0;
 	RecvedData = 0;
 	SendedData = 0;
 
 	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonSrSend
+**  功能描述:  是否显示高级发送窗口
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonSrSend() 
 {
 	if (m_SrSendEnable == TRUE) {                                    // 如果已经启用高级发送功能，则禁用之
@@ -2398,6 +2733,12 @@ void CMySScomDlg::OnButtonSrSend()
 	INIT_EASYSIZE;                                                   // 重新初始化各个控件的位置
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonHelp
+**  功能描述:  显示帮助窗口
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnButtonHelp() 
 {
 	CDialogAbout Dlgabout;
@@ -2405,6 +2746,12 @@ void CMySScomDlg::OnButtonHelp()
 	Dlgabout.DoModal();
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckHexDisplay
+**  功能描述:  是否显示为16进制字符
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckHexDisplay() 
 {
 	if (m_Check_ShowTime == TRUE) {
@@ -2413,10 +2760,23 @@ void CMySScomDlg::OnCheckHexDisplay()
         UpdateData(FALSE);
 	} else {
 		m_Check_HexDspl = !m_Check_HexDspl;
+
+		if (m_Check_HexDspl) {
+			SetDlgItemText(IDC_STATIC_LINES, "字符");
+		} else {
+			SetDlgItemText(IDC_STATIC_LINES, "行");
+		}
+
 		UpdateEditDisplay();                                             // 更新显示
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckAutoClear
+**  功能描述:  是否开启自动清除功能
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckAutoClear() 
 {
     int     TempData;
@@ -2452,16 +2812,34 @@ void CMySScomDlg::OnCheckAutoClear()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckAutoSave
+**  功能描述:  是否开启自动保存功能
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckAutoSave() 
 {
 	m_Check_AutoSave = !m_Check_AutoSave;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckHexSend
+**  功能描述:  是否发送16进制数据
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckHexSend() 
 {	
 	m_Check_HexSend = !m_Check_HexSend;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckAutoSend
+**  功能描述:  是否开启自动发送功能
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckAutoSend() 
 {
 	assert(m_SrSendEnable == FALSE);
@@ -2503,11 +2881,23 @@ void CMySScomDlg::OnCheckAutoSend()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckReturn
+**  功能描述:  发送时是否补加回车符
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckReturn() 
 {
 	m_Check_Return = !m_Check_Return;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnCheckShowTime
+**  功能描述:  行头位置是否显示时间
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnCheckShowTime() 
 {
 	if (m_Check_HexDspl == TRUE) {
@@ -2519,6 +2909,12 @@ void CMySScomDlg::OnCheckShowTime()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnMenuTrayAbout
+**  功能描述:  托盘菜单 - 关于程序
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnMenuTrayAbout() 
 {
 	CDialogAbout Dlgabout;
@@ -2526,16 +2922,34 @@ void CMySScomDlg::OnMenuTrayAbout()
 	Dlgabout.DoModal();
 }
 
+/**************************************************************************************************
+**  函数名称:  OnMenuTrayShow
+**  功能描述:  托盘菜单 - 显示界面
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnMenuTrayShow() 
 {
 	ShowWindow(SW_SHOW);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnMenuTrayHide
+**  功能描述:  托盘菜单 - 隐藏界面
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnMenuTrayHide() 
 {
 	ShowWindow(SW_HIDE);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnMenuTrayExit
+**  功能描述:  托盘菜单 - 退出程序
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnMenuTrayExit() 
 {
 	RecordAllParas();                                                // 保存各个参数数据
@@ -2558,6 +2972,12 @@ void CMySScomDlg::OnMenuTrayExit()
 /* ==================================== 以下为系统消息处理 ===================================== */
 
 
+/**************************************************************************************************
+**  函数名称:  OnPaint
+**  功能描述:  处理窗体重绘消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnPaint() 
 {
 	if (IsIconic())
@@ -2581,11 +3001,23 @@ void CMySScomDlg::OnPaint()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnQueryDragIcon
+**  功能描述:  获取窗体图标
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 HCURSOR CMySScomDlg::OnQueryDragIcon()
 {
 	return (HCURSOR) m_hIcon;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnInitDialog
+**  功能描述:  窗口初始化
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 BOOL CMySScomDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -2600,6 +3032,7 @@ BOOL CMySScomDlg::OnInitDialog()
 	
 	Loop_Counter = 0;
 	
+	RecvedLine = 0;
 	RecvedData = 0;
 	SendedData = 0;
 	
@@ -2663,6 +3096,12 @@ BOOL CMySScomDlg::OnInitDialog()
 	return TRUE;
 }
 
+/**************************************************************************************************
+**  函数名称:  OnTimer
+**  功能描述:  定时器消息处理
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnTimer(UINT nIDEvent) 
 {
 	switch (nIDEvent)
@@ -2693,6 +3132,12 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 	CDialog::OnTimer(nIDEvent);
 }
 
+/**************************************************************************************************
+**  函数名称:  PreTranslateMessage
+**  功能描述:  系统消息预处理函数
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg) 
 {
 	m_tooltip.RelayEvent(pMsg);
@@ -2708,11 +3153,23 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnClose
+**  功能描述:  处理窗口关闭消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnClose() 
 {
 	ShowWindow(SW_HIDE);                                             // 隐藏主窗口但是不退出
 }
 
+/**************************************************************************************************
+**  函数名称:  OnSize
+**  功能描述:  处理窗口大小缩放消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnSize(UINT nType, int cx, int cy) 
 {
 	CDialog::OnSize(nType, cx, cy);
@@ -2722,6 +3179,12 @@ void CMySScomDlg::OnSize(UINT nType, int cx, int cy)
 	RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);      // 同步状态栏的位置
 }
 
+/**************************************************************************************************
+**  函数名称:  OnSizing
+**  功能描述:  处理窗口大小缩放消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect) 
 {
 	CDialog::OnSizing(fwSide, pRect);
@@ -2729,6 +3192,12 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 	EASYSIZE_MINSIZE(800, 546, fwSide, pRect);                       // 限制窗体的最小尺寸
 }
 
+/**************************************************************************************************
+**  函数名称:  OnOnCommMscomm
+**  功能描述:  处理串口通信控件消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnOnCommMscomm() 
 {
     if (m_DataRecvd == FALSE) {
@@ -2736,6 +3205,12 @@ void CMySScomDlg::OnOnCommMscomm()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnMyIconNotify
+**  功能描述:  处理托盘图标消息
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
 void CMySScomDlg::OnMyIconNotify(WPARAM wParam, LPARAM lParam)
 {
 	UINT uMouseMsg = LOWORD(lParam);

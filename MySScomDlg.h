@@ -16,8 +16,6 @@
 #define  Timer_No_AutoSend             0x03                          // 自动发送数据定时器
 #define  Timer_No_LoopSend             0x04                          // 高级发送功能的循环定时器
 
-#define  MAX_RECV_CHAR(n)              (n * 3 * 100)                 // 最多允许接收的字符个数，根据行数来计算
-
 #define  MAX_SEND_BYTE                 1024                          // 一次最多允许发送的字节数
 #define  MAX_LOOP_BYTE                 500000                        // 循环发送区每一次允许发送的最大字节数
 
@@ -92,6 +90,7 @@ public:
 	bool           m_DataRecvd;                                      // 是否已经收到串口数据
 
 	int            Loop_Counter;                                     // 循环发送数据的计数器
+	int            RecvedLine;                                       // 已经接收的行数
 	int            RecvedData;                                       // 已经接收的字节数
 	int            SendedData;                                       // 已经发送的字节数
     int            MaxRecvLines;                                     // 最多允许接收的行数

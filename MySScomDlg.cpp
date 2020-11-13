@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "MySScom.h"
 #include "MySScomDlg.h"
+#include "DialogAbout.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -13,9 +14,10 @@ static char THIS_FILE[] = __FILE__;
 
 static const CString RecordPath = "Record\\";                        // 定义存放数据文件的文件夹的路径
 
-static const int Combo_Baud[9] = {2400, 4800, 9600, 19200, 38400, 57600, 76800, 115200, 153600};
-static const int Combo_Data[4] = {5,    6,    7,    8};
-static const int Combo_Stop[4] = {0,    1,    2,    3};
+static const int Combo_Baud[9]  = {2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800};
+static const int Combo_Data[4]  = {5,    6,    7,    8};
+static const int Combo_Stop[4]  = {0,    1,    2,    3};
+static const int Combo_Check[5] = {'n',  'o',  'e',  'm',   's'};
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -69,6 +71,7 @@ void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CMySScomDlg)
+	DDX_Control(pDX, IDC_COMBO_CHECK, m_Combo_Check);
 	DDX_Control(pDX, IDC_COMBO_STOP, m_Combo_Stop);
 	DDX_Control(pDX, IDC_COMBO_DATA, m_Combo_Data);
 	DDX_Control(pDX, IDC_COMBO_BAUD, m_Combo_Baud);
@@ -177,6 +180,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_MESSAGE(MYWM_NOTIFYICON, OnMyIconNotify)
 	ON_BN_CLICKED(IDC_CHECK_RETURN, OnCheckReturn)
 	ON_BN_CLICKED(IDC_CHECK_SHOWTIME, OnCheckShowTime)
+	ON_COMMAND(IDC_MENU_TRAY_ABOUT, OnMenuTrayAbout)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -357,9 +361,15 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 	
 	GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOCLEAR)->EnableWindow(Enable);
-    GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
+    //GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
+
+	if ((!m_Check_AutoClear) || (!Enable)) {
+		GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
+	} else {
+		GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(TRUE);
+	}
 
 	GetDlgItem(IDC_CHECK_SHOWTIME)->EnableWindow(Enable);
 
@@ -383,6 +393,19 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 void CMySScomDlg::SetSendButtonStatus(bool Enable)
 {
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
+}
+
+/**************************************************************************************************
+**  函数名称:  SetSrSendCtrlStatus
+**  功能描述:  设置高级发送区控件的状态
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::SetSrSendCtrlStatus(bool Enable)
+{
+	GetDlgItem(IDC_CHECK_SRAUTO)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(Enable);
+	GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(Enable);
 }
 
 /**************************************************************************************************
@@ -702,14 +725,17 @@ void CMySScomDlg::CreateSettingFile(void)
 
 		::WritePrivateProfileString("SystemInfo", "Created",  "1",     ".\\Settings.ini");
 		
-		::WritePrivateProfileString("PortConfig", "CommPort", "0",     ".\\Settings.ini");
-		::WritePrivateProfileString("PortConfig", "BaudRate", "2",     ".\\Settings.ini");
-		::WritePrivateProfileString("PortConfig", "DataBits", "3",     ".\\Settings.ini");
-		::WritePrivateProfileString("PortConfig", "StopBits", "1",     ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "CommPort",  "0",     ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "BaudRate",  "2",     ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "DataBits",  "3",     ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "CheckBits", "0",     ".\\Settings.ini");
+		::WritePrivateProfileString("PortConfig", "StopBits",  "1",     ".\\Settings.ini");
 
 		::WritePrivateProfileString("RecvConfig", "HexDispl", "0",     ".\\Settings.ini");
 		::WritePrivateProfileString("RecvConfig", "AutoClar", "0",     ".\\Settings.ini");
 		::WritePrivateProfileString("RecvConfig", "AutoSave", "0",     ".\\Settings.ini");
+
+		::WritePrivateProfileString("RecvConfig", "ShowTime", "1",     ".\\Settings.ini");
 
 		::WritePrivateProfileString("SendConfig", "HexaSend", "0",     ".\\Settings.ini");
 		::WritePrivateProfileString("SendConfig", "AutoTime", "1000",  ".\\Settings.ini");
@@ -776,16 +802,19 @@ void CMySScomDlg::InitiateAllParas(void)
 	char TempStr[MAX_LOOP_BYTE];
 	CString TempPara;
 
-	TempData = (::GetPrivateProfileInt("PortConfig", "CommPort", 0, ".\\Settings.ini"));
+	TempData = (::GetPrivateProfileInt("PortConfig", "CommPort",  0, ".\\Settings.ini"));
 	m_Combo_ComNo.SetCurSel(TempData);
-	TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate", 2, ".\\Settings.ini"));
+	TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate",  2, ".\\Settings.ini"));
 	m_Combo_Baud.SetCurSel(TempData);
-	TempData = (::GetPrivateProfileInt("PortConfig", "DataBits", 3, ".\\Settings.ini"));
+	TempData = (::GetPrivateProfileInt("PortConfig", "DataBits",  3, ".\\Settings.ini"));
 	m_Combo_Data.SetCurSel(TempData);
-	TempData = (::GetPrivateProfileInt("PortConfig", "StopBits", 1, ".\\Settings.ini"));
+	TempData = (::GetPrivateProfileInt("PortConfig", "CheckBits", 0, ".\\Settings.ini"));
+	m_Combo_Check.SetCurSel(TempData);
+	TempData = (::GetPrivateProfileInt("PortConfig", "StopBits",  1, ".\\Settings.ini"));
 	m_Combo_Stop.SetCurSel(TempData);
 
 	m_Check_HexDspl   = (::GetPrivateProfileInt("RecvConfig", "HexDispl", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_ShowTime  = (::GetPrivateProfileInt("RecvConfig", "ShowTime", 1, ".\\Settings.ini")) ? TRUE : FALSE;
 
 	::GetPrivateProfileString("SendConfig", "AutoLines", "1000", TempStr, 5, ".\\Settings.ini");
 	m_Edit_Lines.Format("%s", TempStr);
@@ -903,18 +932,22 @@ void CMySScomDlg::RecordAllParas(void)
 	
 	TempData = m_Combo_ComNo.GetCurSel();
 	ParaStr.Format("%d", TempData);
-	::WritePrivateProfileString("PortConfig", "CommPort", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString("PortConfig", "CommPort",  ParaStr, ".\\Settings.ini");
 	TempData = m_Combo_Baud.GetCurSel();
 	ParaStr.Format("%d", TempData);
-	::WritePrivateProfileString("PortConfig", "BaudRate", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString("PortConfig", "BaudRate",  ParaStr, ".\\Settings.ini");
 	TempData = m_Combo_Data.GetCurSel();
 	ParaStr.Format("%d", TempData);
-	::WritePrivateProfileString("PortConfig", "DataBits", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString("PortConfig", "DataBits",  ParaStr, ".\\Settings.ini");
+	TempData = m_Combo_Check.GetCurSel();
+	ParaStr.Format("%d", TempData);
+	::WritePrivateProfileString("PortConfig", "CheckBits", ParaStr, ".\\Settings.ini");
 	TempData = m_Combo_Stop.GetCurSel();
 	ParaStr.Format("%d", TempData);
-	::WritePrivateProfileString("PortConfig", "StopBits", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString("PortConfig", "StopBits",  ParaStr, ".\\Settings.ini");
 
 	::WritePrivateProfileString("RecvConfig", "HexDispl",  m_Check_HexDspl   ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString("RecvConfig", "ShowTime",  m_Check_ShowTime  ? "1" : "0", ".\\Settings.ini");
 
 	GetDlgItemText(IDC_EDIT_LINES, ParaStr);
 	::WritePrivateProfileString("SendConfig", "AutoLines", ParaStr, ".\\Settings.ini");
@@ -1090,6 +1123,21 @@ void CMySScomDlg::InitiateComboData(void)
 		
 		m_Combo_Data.AddString(TempStr);
 	}
+}
+
+/**************************************************************************************************
+**  函数名称:  InitiateComboCheck
+**  功能描述:  初始化校验位组合框
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CMySScomDlg::InitiateComboCheck(void)
+{
+	m_Combo_Check.AddString("None 校验");
+	m_Combo_Check.AddString("Odd  校验");
+	m_Combo_Check.AddString("Even 校验");
+	m_Combo_Check.AddString("Mark 校验");
+	m_Combo_Check.AddString("Space校验");
 }
 
 /**************************************************************************************************
@@ -1491,12 +1539,20 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 		m_ctrlComm.SetOutput(COleVariant(SendData));                 // 发送十六进制数据
 		
 		SendedData += len;                                           // 发送字节数累加
+
+		m_Check_HexSend = TRUE;                                      // 将数据同步复制到发送栏
+		m_Edit_Send = InputStr;
+		SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
 		
 	} else {
 		
 		m_ctrlComm.SetOutput(COleVariant(InputStr));                 // 发送ASCII字符数据
 		
 		SendedData += InputStr.GetLength();                          // 发送字节数累加
+
+		m_Check_HexSend = FALSE;                                     // 将数据同步复制到发送栏
+		m_Edit_Send = InputStr;
+		SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
 	}
 
 	if (m_Check_Return) {                                            // 补发回车换行符
@@ -1506,6 +1562,8 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 	}
 	
 	UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
+
+	UpdateData(FALSE);
 }
 
 /**************************************************************************************************
@@ -1678,6 +1736,8 @@ void CMySScomDlg::OnCheckSrAuto()
 			
 			return;
 		}
+
+		SwitchSendStatus(FALSE);
 		
 		NeedLoopSendData();
 		
@@ -1688,6 +1748,8 @@ void CMySScomDlg::OnCheckSrAuto()
 		
 		GetDlgItem(IDC_EDIT_SRAUTO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_STATIC_SRAUTO)->EnableWindow(TRUE);
+
+		SwitchSendStatus(TRUE);
 	}
 }
 
@@ -2031,24 +2093,19 @@ void CMySScomDlg::OnButtonONOFF()
     
 	if (m_PortOpened == TRUE) {                                      // 如果串口已经打开，那么执行关闭操作
 
-		if (m_Check_AutoSend) {
+		if (m_Check_AutoSend || m_Check_LoopSend) {
 			MessageBox("请首先停用自动发送功能再尝试关闭串口    ", "提示", MB_OK + MB_ICONEXCLAMATION);
 			return;
 		}
 
-		if (m_SrSendEnable) {                                        // 如果处于扩展发送状态下，切换回普通发送状态
-			OnButtonSrSend();
-		}
-		
 		m_ctrlComm.SetPortOpen(FALSE);
-
-		MessageBox("◆◆◆   成功关闭串口!   ◆◆◆    ", "提示", MB_OK + MB_ICONINFORMATION);
 
 		SetDlgItemText(IDC_BUTTON_ONOFF, "打开串口");
 
 		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(TRUE);
 		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(TRUE);
 		GetDlgItem(IDC_COMBO_DATA)->EnableWindow(TRUE);
+		GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(TRUE);
 		GetDlgItem(IDC_COMBO_STOP)->EnableWindow(TRUE);
 
 		SetControlStatus(FALSE);
@@ -2075,7 +2132,7 @@ void CMySScomDlg::OnButtonONOFF()
 	m_Combo_ComNo.GetLBText(Number, TempStr);
 	TempStr.TrimLeft("COM");                                         // 删除"COM"字段
 	
-	m_ctrlComm.SetCommPort(atoi(TempStr.Mid(0)));
+	m_ctrlComm.SetCommPort(atoi(TempStr.Mid(0)));                    // 指定串口号
 	
     if (!m_ctrlComm.GetPortOpen()) {
 
@@ -2086,8 +2143,14 @@ void CMySScomDlg::OnButtonONOFF()
 		int ComBaudSel = m_Combo_Baud.GetCurSel();                   // 获取波特率的选择项
 		TempStr.Format("%d", Combo_Baud[ComBaudSel]);
 		SettingStr += TempStr;
+
+		SettingStr += ",";
+
+		int ComCheckSel = m_Combo_Check.GetCurSel();                 // 获取校验位的选择项
+		TempStr.Format("%c", Combo_Check[ComCheckSel]);
+		SettingStr += TempStr;
 		
-		SettingStr += ",n,";
+		SettingStr += ",";
 		
 		int ComDataSel = m_Combo_Data.GetCurSel();                   // 获取数据位的选择项
 		TempStr.Format("%d", Combo_Data[ComDataSel]);
@@ -2106,8 +2169,6 @@ void CMySScomDlg::OnButtonONOFF()
 		m_ctrlComm.SetInputLen(0);                                   // 设置当前接收区数据长度为0
 		m_ctrlComm.GetInput();                                       // 先预读缓冲区以清除残留数据
 		
-		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
-
 		m_PortOpened = TRUE;
 		
 		SetControlStatus(TRUE);                                      // 启用各个按钮控件
@@ -2117,6 +2178,7 @@ void CMySScomDlg::OnButtonONOFF()
 		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
 		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
 		GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
+		GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(FALSE);
 		GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);		
 
 	} else {
@@ -2216,8 +2278,6 @@ void CMySScomDlg::OnButtonSrSend()
 
 		SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
 
-		SwitchSendStatus(TRUE);
-
 	} else {                                                         // 如果没有启用高级发送功能，则启用之
 
 		if (m_Check_AutoSend) {
@@ -2231,8 +2291,6 @@ void CMySScomDlg::OnButtonSrSend()
 		m_SrSendEnable = TRUE;
 
 		SetDlgItemText(IDC_BUTTON_SRSEND, "普通发送");
-
-		SwitchSendStatus(FALSE);
 	}
 	
 	INIT_EASYSIZE;                                                   // 重新初始化各个控件的位置
@@ -2243,7 +2301,7 @@ void CMySScomDlg::OnCheckHexDisplay()
 	if (m_Check_ShowTime == TRUE) {
 		MessageBox("请先取消显示时间功能，然后再尝试切换到16进制的显示模式......       ", "提示", MB_OK + MB_ICONINFORMATION);
 		m_Check_HexDspl = FALSE;        
-        UpdateData(FALSE);	
+        UpdateData(FALSE);
 	} else {
 		m_Check_HexDspl = !m_Check_HexDspl;
 		UpdateEditDisplay();                                             // 更新显示
@@ -2320,6 +2378,8 @@ void CMySScomDlg::OnCheckAutoSend()
 			return;
 		}
 
+		SetSrSendCtrlStatus(FALSE);
+
 		NeedAutoSendData();                                          // 开始尝试自动发送数据
 
 	} else {
@@ -2327,6 +2387,8 @@ void CMySScomDlg::OnCheckAutoSend()
 		KillTimer(Timer_No_AutoSend);                                // 否则，用户取消了自动发送的功能
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
 		GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
+
+		SetSrSendCtrlStatus(TRUE);
 
 		SetSendButtonStatus(TRUE);                                   // 重新启用发送区各个按钮
 	}
@@ -2346,6 +2408,13 @@ void CMySScomDlg::OnCheckShowTime()
 	} else {
 		m_Check_ShowTime = !m_Check_ShowTime;
 	}
+}
+
+void CMySScomDlg::OnMenuTrayAbout() 
+{
+	CDialogAbout Dlgabout;
+	
+	Dlgabout.DoModal();
 }
 
 void CMySScomDlg::OnMenuTrayShow() 
@@ -2422,6 +2491,7 @@ BOOL CMySScomDlg::OnInitDialog()
 	InitiateComboComs();                                             // 初始化选择串口号的列表框
 	InitiateComboBaud();                                             // 初始化选择波特率的列表框
 	InitiateComboData();                                             // 初始化选择数据位的列表框
+	InitiateComboCheck();                                            // 初始化选择校验位的列表框
 	InitiateComboStop();                                             // 初始化选择停止位的列表框
 	InitiateSrSendArea();                                            // 初始化不显示高级发送区内容
 
@@ -2451,6 +2521,7 @@ BOOL CMySScomDlg::OnInitDialog()
 		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_COMNO),     IDS_STRING_001);
 		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_BAUD),      IDS_STRING_002);
 		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_DATA),      IDS_STRING_003);
+		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_CHECK),     IDS_STRING_021);
 		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_STOP),      IDS_STRING_004);
 		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_ONOFF),    IDS_STRING_005);
 		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE),    IDS_STRING_006);
@@ -2561,7 +2632,11 @@ void CMySScomDlg::OnOnCommMscomm()
 
             BYTE bt = *(char *)(RecvData + i);                       // 读取单个字符
 
-			TempStr.Format("%c", bt);                                // 转换为字符型
+			if (bt == 0) {                                           // 转换为字符型
+				TempStr = CString(bt);
+			} else {
+				TempStr.Format("%c", bt);
+			}
 			
 			if (m_Check_ShowTime == TRUE) {                          // 只有在启用该功能的情况下执行判断
 

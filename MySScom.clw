@@ -7,14 +7,17 @@ LastTemplate=CDialog
 NewFileInclude1=#include "stdafx.h"
 NewFileInclude2=#include "MySScom.h"
 
-ClassCount=2
+ClassCount=3
 Class1=CMySScomApp
 Class2=CMySScomDlg
 
-ResourceCount=4
-Resource2=IDR_MAINFRAME
-Resource3=IDD_MYSSCOM_DIALOG
+ResourceCount=5
+Resource2=IDD_MYSSCOM_DIALOG
+Resource3=IDD_DIALOG_ABOUT
+Resource1=IDR_MAINFRAME
 Resource4=IDR_MENU_TRAY
+Class3=CDialogAbout
+Resource5=IDR_MENU_EDIT
 
 [CLS:CMySScomApp]
 Type=0
@@ -27,7 +30,7 @@ Type=0
 HeaderFile=MySScomDlg.h
 ImplementationFile=MySScomDlg.cpp
 Filter=D
-LastObject=CMySScomDlg
+LastObject=IDC_BUTTON_CLEAR
 BaseClass=CDialog
 VirtualFilter=dWC
 
@@ -36,7 +39,7 @@ VirtualFilter=dWC
 [DLG:IDD_MYSSCOM_DIALOG]
 Type=1
 Class=CMySScomDlg
-ControlCount=101
+ControlCount=103
 Control1=IDC_COMBO_COMNO,combobox,1344339971
 Control2=IDC_COMBO_BAUD,combobox,1344339971
 Control3=IDC_COMBO_DATA,combobox,1344339971
@@ -138,12 +141,44 @@ Control98=IDC_STATIC_EX02,static,1342312961
 Control99=IDC_STATIC_OVER,static,1342308352
 Control100=IDC_STATIC_LINES,static,1342308352
 Control101=IDC_CHECK_SHOWTIME,button,1342242819
+Control102=IDC_STATIC,static,1342308352
+Control103=IDC_COMBO_CHECK,combobox,1344339971
 
 [MNU:IDR_MENU_TRAY]
 Type=1
 Class=CMySScomDlg
-Command1=IDC_MENU_TRAY_SHOW
-Command2=IDC_MENU_TRAY_HIDE
-Command3=IDC_MENU_TRAY_EXIT
-CommandCount=3
+Command1=IDC_MENU_TRAY_ABOUT
+Command2=IDC_MENU_TRAY_SHOW
+Command3=IDC_MENU_TRAY_HIDE
+Command4=IDC_MENU_TRAY_EXIT
+CommandCount=4
+
+[MNU:IDR_MENU_EDIT]
+Type=1
+Class=?
+Command1=IDC_MENU_EDIT_CUT
+Command2=IDC_MENU_EDIT_COPY
+Command3=IDC_MENU_EDIT_PASTE
+Command4=IDC_MENU_EDIT_SELALL
+Command5=IDC_MENU_EDIT_CLEAR
+CommandCount=5
+
+[DLG:IDD_DIALOG_ABOUT]
+Type=1
+Class=CDialogAbout
+ControlCount=5
+Control1=IDC_STATIC_MAINFRAME,static,1342177294
+Control2=IDC_BUTTON_SWITCH,button,1342242816
+Control3=IDC_BUTTON_READOK,button,1342242816
+Control4=IDC_STATIC_ABOUT,button,1342177287
+Control5=IDC_EDIT_ABOUT,edit,1344342084
+
+[CLS:CDialogAbout]
+Type=0
+HeaderFile=DialogAbout.h
+ImplementationFile=DialogAbout.cpp
+BaseClass=CDialog
+Filter=D
+LastObject=IDC_BUTTON_SWITCH
+VirtualFilter=dWC
 

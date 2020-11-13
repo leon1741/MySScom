@@ -27,6 +27,9 @@
 #define IDS_STRING_021                  124
 #define IDR_MAINFRAME                   128
 #define IDR_MENU_TRAY                   130
+#define IDR_MENU_EDIT                   131
+#define IDD_DIALOG_ABOUT                132
+#define IDB_BITMAP_YAXON                133
 #define IDC_STATIC_CONTROL              1000
 #define IDC_STATIC_RECEIVE              1001
 #define IDC_STATIC_SEND                 1002
@@ -59,6 +62,7 @@
 #define IDC_BUTTON_SRSEND               1028
 #define IDC_BUTTON2                     1029
 #define IDC_BUTTON_COUNT                1029
+#define IDC_BUTTON_READOK               1029
 #define IDC_CHECK_AUTOCLEAR             1030
 #define IDC_STATIC_MAIN                 1031
 #define IDC_STATIC_SRSEND               1032
@@ -133,17 +137,28 @@
 #define IDC_STATIC_LINES                1136
 #define IDC_CHECK_RETURN                1139
 #define IDC_CHECK_SHOWTIME              1140
+#define IDC_STATIC_MAINFRAME            1141
+#define IDC_STATIC_ABOUT                1142
+#define IDC_EDIT_ABOUT                  1143
+#define IDC_BUTTON_SWITCH               1144
+#define IDC_COMBO_CHECK                 1145
 #define IDC_MENU_TRAY_SHOW              32771
 #define IDC_MENU_TRAY_HIDE              32772
 #define IDC_MENU_TRAY_EXIT              32773
+#define IDC_MENU_EDIT_CUT               32774
+#define IDC_MENU_EDIT_COPY              32775
+#define IDC_MENU_EDIT_PASTE             32776
+#define IDC_MENU_EDIT_SELALL            32777
+#define IDC_MENU_EDIT_CLEAR             32778
+#define IDC_MENU_TRAY_ABOUT             32779
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1141
+#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_COMMAND_VALUE         32780
+#define _APS_NEXT_CONTROL_VALUE         1146
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

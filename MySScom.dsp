@@ -92,6 +92,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\DialogAbout.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\mscomm.cpp
 # End Source File
 # Begin Source File
@@ -118,6 +122,10 @@ SOURCE=.\StdAfx.cpp
 # Begin Source File
 
 SOURCE=.\Basetsd.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\DialogAbout.h
 # End Source File
 # Begin Source File
 
@@ -154,6 +162,10 @@ SOURCE=.\res\MySScom.ico
 # Begin Source File
 
 SOURCE=.\res\MySScom.rc2
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\YAXON.bmp
 # End Source File
 # End Group
 # Begin Source File

@@ -35,6 +35,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CMySScomDlg)
 	enum { IDD = IDD_MYSSCOM_DIALOG };
+	CComboBox	m_Combo_Check;
 	CComboBox	m_Combo_Stop;
 	CComboBox	m_Combo_Data;
 	CComboBox	m_Combo_Baud;
@@ -100,6 +101,7 @@ public:
 
 	void SetControlStatus(bool Enable);
 	void SetSendButtonStatus(bool Enable);
+	void SetSrSendCtrlStatus(bool Enable);
 	void SetSendingStatus(bool Enable);
 	void SwitchSendStatus(bool IsNormal);
 	
@@ -118,6 +120,7 @@ public:
 	void InitiateComboComs(void);
 	void InitiateComboBaud(void);
 	void InitiateComboData(void);
+	void InitiateComboCheck(void);
 	void InitiateComboStop(void);
 
 	void InitiateMainFrame(void);
@@ -224,6 +227,7 @@ protected:
 	afx_msg void OnMyIconNotify(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnCheckReturn();
 	afx_msg void OnCheckShowTime();
+	afx_msg void OnMenuTrayAbout();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

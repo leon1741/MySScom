@@ -184,6 +184,24 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
 }
 
+void CMySScomDlg::SetSendButtonStatus(bool Enable)
+{
+	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
+}
+
+void CMySScomDlg::SetSendingStatus(bool Enable)
+{
+	GetDlgItem(IDC_BUTTON_READ)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_RESPITE)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_REIPUT)->EnableWindow(Enable);
+
+	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
+	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
+}
+
 // 这是一个将字符转换为相应的十六进制值的函数，好多C语言书上都可以找到
 // 功能：若是在0-F之间的字符，则转换为相应的十六进制字符，否则返回-1
 char CMySScomDlg::ConvertHexChar(char ch) 
@@ -328,16 +346,26 @@ void CMySScomDlg::NeedAutoSendData(void)
 	Timer = atoi((LPSTR)(LPCTSTR)TempStr);
 	
 	if ((Timer > 0) && (Timer <= 10000)) {
+
 		SetTimer(Timer_No_AutoSend, Timer, NULL);                    // 启动定时器
+
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(false);
 		GetDlgItem(IDC_STATIC_MS)->EnableWindow(false);
+
 		m_Edit_Timer = TempStr;                                      // 更新编辑框内容
 		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_Timer);
+
+		SetSendButtonStatus(FALSE);                                  // 禁用发送区各个按钮
+
 	} else {
+
 		MessageBox("定时时间必须在0至10秒钟之间，请确认！     ", "提示", MB_OK + MB_ICONEXCLAMATION);
+
 		SetDlgItemText(IDC_EDIT_TIMER, m_Edit_Timer);                // 还原编辑框内容
+
 		m_Check_AutoSend = false;
 		UpdateData(false);                                           // 取消复选框被选中的状态
+
 		return;
 	}
 }
@@ -389,7 +417,7 @@ void CMySScomDlg::InitiateStatusBar(void)
 	m_StatusBar.SetPaneText(0, " 欢迎使用MySScom - 雅迅网络研发一部测试组");
 	
 	m_StatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 100);
-	m_StatusBar.SetPaneText(1, "串口未打开");
+	m_StatusBar.SetPaneText(1, " 串口未打开");
 
 	m_StatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 100);
 	m_StatusBar.SetPaneText(2, " Recv: 0000");
@@ -458,6 +486,10 @@ void CMySScomDlg::SendEditDatatoComm(void)
 
 			MessageBox("文件内容较大，发送将持续一段时间，请耐心等待......      ", "提示", MB_OK + MB_ICONINFORMATION);
 						
+			SetDlgItemText(IDC_BUTTON_SEND, "取消发送");
+
+			SetSendingStatus(FALSE);
+			
 			Send_Status  = SEND_LONG_FILE;
 			Send_Counter = 0;
 
@@ -767,6 +799,8 @@ void CMySScomDlg::OnButtonReiput()
 
 void CMySScomDlg::OnButtonSend() 
 {
+	CString TempStr;
+	
 	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
 	
 	if (m_Edit_Send.GetLength() <= 0) {
@@ -774,7 +808,21 @@ void CMySScomDlg::OnButtonSend()
 		return;
 	}
 	
-	SendEditDatatoComm();
+	GetDlgItemText(IDC_BUTTON_SEND, TempStr);
+
+	if (TempStr == "发送数据") {
+		SendEditDatatoComm();
+	}
+	
+	if (TempStr == "取消发送") {
+		Send_Status  = SEND_SHORT_DATA;
+		KillTimer(Timer_No_SendFile);
+		Send_Counter = 0;
+
+		SetSendingStatus(TRUE);
+
+		SetDlgItemText(IDC_BUTTON_SEND, "发送数据");
+	}
 }
 
 void CMySScomDlg::OnButtonCount() 
@@ -836,13 +884,15 @@ void CMySScomDlg::OnCheckAutoSend()
 			return;
 		}
 
-		NeedAutoSendData();                                          // 开始自动发送数据
+		NeedAutoSendData();                                          // 开始尝试自动发送数据
 
 	} else {
 
 		KillTimer(Timer_No_AutoSend);                                // 否则，用户取消了自动发送的功能
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(true);
 		GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
+
+		SetSendButtonStatus(TRUE);                                   // 重新启用发送区各个按钮
 	}
 }
 

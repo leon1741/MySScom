@@ -76,7 +76,10 @@ public:
 	CString TransformtoHex(CString InputStr);
 	char ConvertHexChar(char ch);
 	int  String2Hex(CString str, CByteArray &senddata);
+
 	void SetControlStatus(bool Enable);
+	void SetSendButtonStatus(bool Enable);
+	void SetSendingStatus(bool Enable);
 	
 	void SaveEditContent(void);
 	void UpdateEditDisplay(void);

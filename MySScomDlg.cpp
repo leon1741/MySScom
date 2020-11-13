@@ -17,9 +17,6 @@ static const int Combo_Baud[9] = {2400, 4800, 9600, 19200, 38400, 57600, 76800, 
 static const int Combo_Data[4] = {5,    6,    7,    8};
 static const int Combo_Stop[4] = {0,    1,    2,    3};
 
-#define  MAX_RECV_LINE       500                                     // 最多允许接收的数据行数，大于此数则清屏
-#define  MAX_RECV_CHAR       (MAX_RECV_LINE * 3 * 100)               // 最多允许接收的字符个数，大于此数则清屏
-
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -284,11 +281,11 @@ void CMySScomDlg::NeedClearWindow(void)
 		
 	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
 
-		int nLength = ReceiveStr.GetLength();                        // 文件长度
-		MyFile.Write(ReceiveStr, nLength);                           // 写入文本文件
+		int nLength = StrRecved.GetLength();                        // 文件长度
+		MyFile.Write(StrRecved, nLength);                           // 写入文本文件
 		MyFile.Close();	                                             // 关闭文件
 
-		ReceiveStr  = "";
+		StrRecved  = "";
 		m_Edit_Recv = "";
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);                  // 清空编辑框内容
 	}
@@ -298,7 +295,7 @@ void CMySScomDlg::UpdateEditDisplay(void)
 {
 	if (m_Check_HexDspl) {                                           // 如果需要16进制显示，进行转换
 
-		m_Edit_Recv = TransformtoHex(ReceiveStr);
+		m_Edit_Recv = TransformtoHex(StrRecved);
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 
 		if (m_Edit_Recv.GetLength() >= MAX_RECV_CHAR) {              // 在16进制模式下，对数据内容长度进行判断
@@ -306,7 +303,7 @@ void CMySScomDlg::UpdateEditDisplay(void)
 		}
 	} else {                                                         // 否则，直接显示数据内容
 
-		m_Edit_Recv = ReceiveStr;
+		m_Edit_Recv = StrRecved;
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 		
 		if (s_Edit_Recv->GetLineCount() >= MAX_RECV_LINE) {          // 在字符模式下，对数据行数进行判断
@@ -325,7 +322,7 @@ void CMySScomDlg::NeedAutoSendData(void)
 	Timer = atoi((LPSTR)(LPCTSTR)TempStr);
 	
 	if ((Timer > 0) && (Timer <= 10000)) {
-		SetTimer(Timer_No_Main, Timer, NULL);                        // 启动定时器
+		SetTimer(Timer_No_AutoSend, Timer, NULL);                    // 启动定时器
 		GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(false);
 		GetDlgItem(IDC_STATIC_MS)->EnableWindow(false);
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(false);
@@ -430,28 +427,81 @@ void CMySScomDlg::SendEditDatatoComm(void)
 	if (m_bSendPause == FALSE) {                                     // 确认是否允许发送数据
 
 		GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);                  // 获取编辑框的内容
-		
-		if (m_Check_HexSend) {                                       // 如果需要以16进制发送
+
+		if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {
+
+			MessageBox("文件内容较大，发送将持续一段时间，请耐心等待......      ", "提示", MB_OK + MB_ICONINFORMATION);
 			
-			CByteArray hexdata;
-			int len;                                                 // 此处返回的len可以用于计算发送了多少个十六进制数
-			
-			len = String2Hex(m_Edit_Send, hexdata);
-			
-			m_ctrlComm.SetOutput(COleVariant(hexdata));              // 发送十六进制数据
-			
-			SendedData += len;                                       // 发送字节数累加
-			
+			Send_Status  = SEND_LONG_FILE;                           // 如果数据长度过大，则切换到大数据发送模式
+			Send_Counter = 0;
+
+			SetTimer(Timer_No_SendFile, MAX_SEND_BYTE, NULL);        // 启动定时器，获取前N个字符发送
+
+			StrToSend = m_Edit_Send.Left(MAX_SEND_BYTE);
+			Send_Counter++;
+
+			m_ctrlComm.SetOutput(COleVariant(StrToSend));            // 发送ASCII字符数据
+			SendedData += StrToSend.GetLength();                     // 发送字节数累加
+
 		} else {
+
+			Send_Status  = SEND_SHORT_DATA;                          // 否则，切换到小数据模式，并停止定时器
+			KillTimer(Timer_No_SendFile);
+
+			if (m_Check_HexSend) {                                   // 如果需要以16进制发送
+				
+				CByteArray hexdata;
+				int len;                                             // 此处返回的len可以用于计算发送了多少个十六进制数
+				
+				len = String2Hex(m_Edit_Send, hexdata);
+				
+				m_ctrlComm.SetOutput(COleVariant(hexdata));          // 发送十六进制数据
+				
+				SendedData += len;                                   // 发送字节数累加
+				
+			} else {
+				
+				m_ctrlComm.SetOutput(COleVariant(m_Edit_Send));      // 发送ASCII字符数据
+				
+				SendedData += m_Edit_Send.GetLength();               // 发送字节数累加
+			}
+		}
+
+		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
+	}
+}
+
+void CMySScomDlg::ContinueToSendFile(void)
+{
+	if (m_bSendPause == FALSE) {                                     // 确认是否允许发送数据
+
+		if (Send_Status == SEND_LONG_FILE) {
 			
-			m_ctrlComm.SetOutput(COleVariant(m_Edit_Send));          // 发送ASCII字符数据
+			Send_Counter++;
 			
-			SendedData += m_Edit_Send.GetLength();                   // 发送字节数累加
+			if (m_Edit_Send.GetLength() >= (Send_Counter * MAX_SEND_BYTE)) {
+				
+				StrToSend = m_Edit_Send.Left(Send_Counter * MAX_SEND_BYTE);
+				StrToSend = StrToSend.Right(MAX_SEND_BYTE);
+				
+			} else {                                                 // 截取最后一部分字符发送
+				
+				StrToSend = m_Edit_Send.Left(Send_Counter * MAX_SEND_BYTE);
+				StrToSend = StrToSend.Right(MAX_SEND_BYTE - (Send_Counter * MAX_SEND_BYTE - m_Edit_Send.GetLength()));
+				
+				Send_Status = SEND_SHORT_DATA;                       // 发送完毕，重新切换到小数据模式
+				KillTimer(Timer_No_SendFile);                        // 停止定时器
+			}
 		}
 		
+		m_ctrlComm.SetOutput(COleVariant(StrToSend));                // 发送ASCII字符数据
+		
+		SendedData += StrToSend.GetLength();                         // 发送字节数累加
+		
 		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
-	}	
+	}
 }
+
 
 /* ==================================== 自定义函数区--结束 ===================================== */
 
@@ -499,7 +549,7 @@ void CMySScomDlg::OnButtonONOFF()
 	int Number = m_Combo_ComNo.GetCurSel();                          // 得到串口号
 	
 	if (Number == 0) {
-		MessageBox("串口号都没有选择，你叫我打开什么东东？      ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("串口号都没有选择，你叫我打开什么东东...？      ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 	
@@ -573,14 +623,12 @@ void CMySScomDlg::OnButtonPause()
 
 void CMySScomDlg::OnButtonClear() 
 {
-	ReceiveStr = "";
+	StrRecved = "";
 	
 	m_Edit_Recv = "";
 	SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
 
 	RecvedData = 0;
-	SendedData = 0;
-
 	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }
 
@@ -591,6 +639,12 @@ void CMySScomDlg::OnButtonSave()
 	
     CString Temp_String;                                             // 临时变量
 	CFile   MyFile;	                                                 // 定义文件类
+	int     nLength = Temp_String.GetLength();                       // 文件长度
+
+	if (nLength <= 0) {
+		MessageBox("尚未接收到任何内容，无须保存！          ", "提示", MB_OK + MB_ICONINFORMATION);
+		return;
+	}
 	
 	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite) == 0) {
 		Temp_String = "文件 " + FileName + " 创建失败!         ";
@@ -603,14 +657,53 @@ void CMySScomDlg::OnButtonSave()
 	
 	GetDlgItem(IDC_EDIT_RECV)->GetWindowText(Temp_String);           // 取得输入框的数据
 	
-	int nLength = Temp_String.GetLength();                           // 文件长度
 	MyFile.Write(Temp_String, nLength);	                             // 写入文本文件
 	MyFile.Close();	                                                 // 关闭文件
 }
 
 void CMySScomDlg::OnButtonRead() 
 {
-	MessageBox("暂不提供发送数据文件的功能！     ", "抱歉", MB_OK + MB_ICONINFORMATION);
+	if (m_Check_AutoSend) {
+		MessageBox("自动发送功能已开启，请先停用之！    ", "抱歉", MB_OK + MB_ICONINFORMATION);
+		return;
+	}
+	
+	CFile myFile;
+
+	CFileDialog dlg(TRUE, "*.txt", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		            "文本文件(*.txt)|*.txt|所有文件(*.*)|*.*|");
+	
+	if (dlg.DoModal() != IDOK) {
+		return;
+	}
+	
+	CString FilePath = dlg.GetPathName();						     // 保存文件的路径
+		
+	if (myFile.Open(FilePath, CFile::modeRead) == 0) {
+		MessageBox("读取文件失败，请确认路径正确且文件未处于打开状态！    ", "抱歉", MB_OK + MB_ICONINFORMATION);
+		return;
+	}
+	
+	myFile.SeekToBegin();
+	
+	int nLength = myFile.GetLength();
+	char * TempStr = new char[nLength];							     // 分配空间
+	CString ResultStr;
+	
+	myFile.Read(TempStr, nLength);								     // 读取文件内容
+	myFile.Close();												     // 关闭文件
+	
+	ResultStr.Format(_T("%s"), TempStr);
+	ResultStr = ResultStr.Left(nLength);
+	
+	nLength = s_Edit_Send->GetWindowTextLength();                    // 数据显示
+	s_Edit_Send->SetSel(nLength, nLength);
+	s_Edit_Send->ReplaceSel(ResultStr);
+	nLength += ResultStr.GetLength();
+    m_Edit_Send = ResultStr;                                         // 显示内容
+	SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+	
+	delete []TempStr;											     // 释放空间
 }
 
 void CMySScomDlg::OnButtonRespite() 
@@ -628,6 +721,9 @@ void CMySScomDlg::OnButtonReiput()
 {
 	m_Edit_Send = "";
 	SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+
+	SendedData = 0;
+	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }
 
 void CMySScomDlg::OnButtonSend() 
@@ -667,7 +763,7 @@ void CMySScomDlg::OnCheckAutoSend()
 	if (m_Check_AutoSend) {
 		NeedAutoSendData();
 	} else {
-		KillTimer(Timer_No_Main);
+		KillTimer(Timer_No_AutoSend);
 		GetDlgItem(IDC_STATIC_INTERVAL)->EnableWindow(true);
 		GetDlgItem(IDC_STATIC_MS)->EnableWindow(true);
 		GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(true);
@@ -749,14 +845,18 @@ BOOL CMySScomDlg::OnInitDialog()
 	m_bSendPause  = FALSE;
 	m_PortOpened  = FALSE;
 
-	ReceiveStr = "";
+	StrRecved = "";
+	StrToSend = "";
+
+	Send_Status  = SEND_SHORT_DATA;
+	Send_Counter = 0;
 
 	RecvedData = 0;
 	SendedData = 0;
 
 	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
 
-	SetTimer(Timer_No_Update, 1000, NULL);
+	SetTimer(Timer_No_StatusBar, 1000, NULL);
 	
 	// CG: The following block was added by the ToolTips component.
 	{
@@ -780,10 +880,12 @@ BOOL CMySScomDlg::OnInitDialog()
 
 void CMySScomDlg::OnTimer(UINT nIDEvent) 
 {
-	if (nIDEvent == Timer_No_Update) {                               // 状态栏定时更新
+	if (nIDEvent == Timer_No_StatusBar) {                            // 状态栏定时更新
 		UpdateStatusBarNow();
-	} else if (nIDEvent == Timer_No_Main) {                          // 自动发送数据
+	} else if (nIDEvent == Timer_No_AutoSend) {                      // 自动发送短数据
 		SendEditDatatoComm();
+	} else if (nIDEvent == Timer_No_SendFile) {                      // 处于发送文件状态
+		ContinueToSendFile();
 	} else {
 		return;
 	}
@@ -836,12 +938,12 @@ void CMySScomDlg::OnOnCommMscomm()
             BYTE bt = *(char *)(RecvData + i);                       // 转换为字符型
 
 			TempStr.Format("%c", bt);
-			ReceiveStr += TempStr;                                   // 保存数据内容
+			StrRecved += TempStr;                                   // 保存数据内容
 			
 			RecvedData++;                                            // 接收字节数累加
         }
 
-		ReceiveStr.Left(RecvLen);
+		StrRecved.Left(RecvLen);
 		
 		UpdateEditDisplay();                                         // 更新编辑框内容显示
 

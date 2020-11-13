@@ -6,21 +6,21 @@
 --------------------Configuration: MySScom - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating command line "rc.exe /l 0x804 /fo"Debug/MySScom.res" /d "_DEBUG" /d "_AFXDLL" "E:\About Test\MyDesigns\MySScom\MySScom_12\MySScom.rc"" 
-Creating temporary file "C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP385.tmp" with contents
+Creating command line "rc.exe /l 0x804 /fo"Debug/MySScom.res" /d "_DEBUG" /d "_AFXDLL" "E:\About Test\MyDesigns\MySScom\MySScom_13\MySScom.rc"" 
+Creating temporary file "C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP47A.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/MySScom.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"E:\About Test\MyDesigns\MySScom\MySScom_12\mscomm.cpp"
-"E:\About Test\MyDesigns\MySScom\MySScom_12\MySScom.cpp"
-"E:\About Test\MyDesigns\MySScom\MySScom_12\MySScomDlg.cpp"
+"E:\About Test\MyDesigns\MySScom\MySScom_13\mscomm.cpp"
+"E:\About Test\MyDesigns\MySScom\MySScom_13\MySScom.cpp"
+"E:\About Test\MyDesigns\MySScom\MySScom_13\MySScomDlg.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP385.tmp" 
-Creating temporary file "C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP386.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP47A.tmp" 
+Creating temporary file "C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP47B.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /FR"Debug/" /Fp"Debug/MySScom.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"E:\About Test\MyDesigns\MySScom\MySScom_12\StdAfx.cpp"
+"E:\About Test\MyDesigns\MySScom\MySScom_13\StdAfx.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP386.tmp" 
+Creating command line "cl.exe @C:\DOCUME~1\LEON\LOCALS~1\Temp\RSP47B.tmp" 
 Creating command line "link.exe /nologo /subsystem:windows /incremental:yes /pdb:"Debug/MySScom.pdb" /debug /machine:I386 /out:"Debug/MySScom.exe" /pdbtype:sept  ".\Debug\mscomm.obj" ".\Debug\MySScom.obj" ".\Debug\MySScomDlg.obj" ".\Debug\StdAfx.obj" ".\Debug\MySScom.res" "
 <h3>Output Window</h3>
 Compiling resources...

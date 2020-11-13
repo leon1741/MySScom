@@ -11,8 +11,18 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#define  Timer_No_Update     0x01                                    // 状态栏定时更新定时器
-#define  Timer_No_Main       0x02                                    // 自动发送数据定时器
+#define  Timer_No_StatusBar       0x01                               // 状态栏定时更新定时器
+#define  Timer_No_AutoSend        0x02                               // 自动发送数据定时器
+#define  Timer_No_SendFile        0x03                               // 发送长文件时的间隔定时器
+
+#define  SEND_SHORT_DATA          0x01                               // 处于发送短数据的状态
+#define  SEND_LONG_FILE           0x02                               // 处于发送长文件的状态
+
+#define  MAX_RECV_LINE            500                                // 最多允许接收的数据行数，大于此数则清屏
+#define  MAX_RECV_CHAR            (MAX_RECV_LINE * 3 * 100)          // 最多允许接收的字符个数，大于此数则清屏
+
+#define  MAX_SEND_BYTE            500                                // 一次最多允许发送的字节数
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -50,7 +60,11 @@ public:
 
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
 
-	CString        ReceiveStr;                                       // 用来保存所接收的数据内容
+	int            Send_Status;                                      // 判断处于发送长文件还是短数据的状态
+	int            Send_Counter;                                     // 发送大数据时，本次发送的数据段计数单元
+
+	CString        StrRecved;                                        // 用来保存已经接收的数据内容
+	CString        StrToSend;                                        // 用来存放需要发送的数据内容
 
 	int            RecvedData;                                       // 已经接收的字节数
 	int            SendedData;                                       // 已经发送的字节数
@@ -76,6 +90,7 @@ public:
 	void InitiateComboStop(void);
 
 	void SendEditDatatoComm(void);
+	void ContinueToSendFile(void);
 	
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CMySScomDlg)

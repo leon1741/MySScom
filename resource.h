@@ -25,6 +25,7 @@
 #define IDS_STRING_019                  122
 #define IDS_STRING_020                  123
 #define IDS_STRING_021                  124
+#define IDS_STRING_022                  125
 #define IDR_MAINFRAME                   128
 #define IDR_MENU_TRAY                   130
 #define IDR_MENU_EDIT                   131
@@ -205,6 +206,53 @@
 #define IDC_EDIT_AUTOTIME               1269
 #define IDC_STATIC_AUTOTIME             1270
 #define IDC_BUTTON_EXPAND               1272
+#define IDC_CHECK_FRAMEDSPL             1273
+#define IDC_EDIT_T01                    1274
+#define IDC_EDIT_T02                    1275
+#define IDC_EDIT_T03                    1276
+#define IDC_EDIT_T21                    1277
+#define IDC_EDIT_T22                    1278
+#define IDC_EDIT_T23                    1279
+#define IDC_STATIC_TIME                 1280
+#define IDC_CHECK_SHOWDIREC             1281
+#define IDC_CHECK_SHOWSDATA             1282
+#define IDC_RADIO_SENDALL               1283
+#define IDC_RADIO_SENDEACH              1284
+#define IDC_EDIT_T04                    1285
+#define IDC_EDIT_T05                    1286
+#define IDC_EDIT_T06                    1287
+#define IDC_EDIT_T07                    1288
+#define IDC_EDIT_T08                    1289
+#define IDC_EDIT_T09                    1290
+#define IDC_EDIT_T10                    1291
+#define IDC_EDIT_T11                    1292
+#define IDC_EDIT_T24                    1293
+#define IDC_EDIT_T12                    1294
+#define IDC_EDIT_T13                    1295
+#define IDC_EDIT_T14                    1296
+#define IDC_EDIT_T15                    1297
+#define IDC_EDIT_T16                    1298
+#define IDC_EDIT_T17                    1299
+#define IDC_EDIT_T25                    1300
+#define IDC_EDIT_T26                    1301
+#define IDC_EDIT_T27                    1302
+#define IDC_EDIT_T28                    1303
+#define IDC_EDIT_T18                    1304
+#define IDC_EDIT_T19                    1305
+#define IDC_EDIT_T20                    1306
+#define IDC_EDIT_T29                    1307
+#define IDC_EDIT_T30                    1308
+#define IDC_EDIT_T31                    1309
+#define IDC_EDIT_T32                    1310
+#define IDC_EDIT_T33                    1311
+#define IDC_EDIT_T34                    1312
+#define IDC_EDIT_T35                    1313
+#define IDC_EDIT_T36                    1314
+#define IDC_EDIT_T37                    1315
+#define IDC_EDIT_T38                    1316
+#define IDC_EDIT_T39                    1317
+#define IDC_EDIT_T40                    1318
+#define IDC_BUTTON_STARTSEND            1319
 #define IDC_MENU_TRAY_SHOW              32771
 #define IDC_MENU_TRAY_HIDE              32772
 #define IDC_MENU_TRAY_EXIT              32773
@@ -219,9 +267,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        137
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32780
-#define _APS_NEXT_CONTROL_VALUE         1273
+#define _APS_NEXT_CONTROL_VALUE         1320
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

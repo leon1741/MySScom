@@ -7,7 +7,8 @@
 // DialogSrSend.h : header file
 //
 
-#define  Timer_No_SrAutoSend           0x01                          // 自动连发功能的循环定时器
+#define  Timer_No_SrAllSend            0x81                          // 全部数据自动连发的定时器
+#define  Timer_No_SrEachSend           0x82                          // 各条数据自动连发的定时器
 
 /////////////////////////////////////////////////////////////////////////////
 // CDialogSrSend dialog
@@ -61,18 +62,67 @@ public:
 	BOOL	m_Check_38;
 	BOOL	m_Check_39;
 	BOOL	m_Check_40;
-	BOOL	m_Check_AutoSend;
 	CString	m_Edit_AutoTime;
+	CString	m_Edit_T01;
+	CString	m_Edit_T02;
+	CString	m_Edit_T03;
+	CString	m_Edit_T04;
+	CString	m_Edit_T05;
+	CString	m_Edit_T06;
+	CString	m_Edit_T07;
+	CString	m_Edit_T08;
+	CString	m_Edit_T09;
+	CString	m_Edit_T10;
+	CString	m_Edit_T11;
+	CString	m_Edit_T12;
+	CString	m_Edit_T13;
+	CString	m_Edit_T14;
+	CString	m_Edit_T15;
+	CString	m_Edit_T16;
+	CString	m_Edit_T17;
+	CString	m_Edit_T18;
+	CString	m_Edit_T19;
+	CString	m_Edit_T20;
+	CString	m_Edit_T21;
+	CString	m_Edit_T22;
+	CString	m_Edit_T23;
+	CString	m_Edit_T24;
+	CString	m_Edit_T25;
+	CString	m_Edit_T26;
+	CString	m_Edit_T27;
+	CString	m_Edit_T28;
+	CString	m_Edit_T29;
+	CString	m_Edit_T30;
+	CString	m_Edit_T31;
+	CString	m_Edit_T32;
+	CString	m_Edit_T33;
+	CString	m_Edit_T34;
+	CString	m_Edit_T35;
+	CString	m_Edit_T36;
+	CString	m_Edit_T37;
+	CString	m_Edit_T38;
+	CString	m_Edit_T39;
+	CString	m_Edit_T40;
+	int		m_Radio_SendAll;
 	//}}AFX_DATA
 
 	bool           s_expandmode;                                               // 是否处于扩展发送模式
 	unsigned int   s_curdatacnt;                                               // 当前发送到第几个数据
+	bool           s_cirsendall;                                               // 是否需要轮回发送全部数据
+	bool           s_issenddata;                                               // 是否正处于发送数据中
+
+	int            s_sendcnt[40];                                              // 记录每一条数据的发送计数
 
 	bool EditDataValid(int EditID);
+	bool EditDataTimeValid(int EditID, int TimeID);
+	bool CanSendEditData(int editno, int TimeID);
 	int  GetSrValidDataNo(void);
 	void TrytoSendData(CString InputStr, BOOL NeedHex);
 	void TrytoContinueSend(void);
-	bool DataisSending(void);
+	void TrytoSendEachData(void);
+	void ShowHideTimeEdit(bool enanble);
+	void InitateSrDlgPos(void);
+	void ShowHideSrDlgWindow(bool show);
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -87,7 +137,6 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CDialogSrSend)
 	virtual BOOL OnInitDialog();
-	afx_msg void OnCheckAutoSend();
 	afx_msg void OnButtonExpand();
 	afx_msg void OnButtonSend01();
 	afx_msg void OnButtonSend02();
@@ -171,6 +220,9 @@ protected:
 	afx_msg void OnCheck40();
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnClose();
+	afx_msg void OnRadioSendAll();
+	afx_msg void OnRadioSendEach();
+	afx_msg void OnButtonStartSend();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

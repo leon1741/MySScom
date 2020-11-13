@@ -60,7 +60,47 @@ CDialogSrSend::CDialogSrSend(CWnd* pParent /*=NULL*/)
 	m_Check_38 = FALSE;
 	m_Check_39 = FALSE;
 	m_Check_40 = FALSE;
-	m_Check_AutoSend = FALSE;
+	m_Edit_T01 = _T("");
+	m_Edit_T02 = _T("");
+	m_Edit_T03 = _T("");
+	m_Edit_T04 = _T("");
+	m_Edit_T05 = _T("");
+	m_Edit_T06 = _T("");
+	m_Edit_T07 = _T("");
+	m_Edit_T08 = _T("");
+	m_Edit_T09 = _T("");
+	m_Edit_T10 = _T("");
+	m_Edit_T11 = _T("");
+	m_Edit_T12 = _T("");
+	m_Edit_T13 = _T("");
+	m_Edit_T14 = _T("");
+	m_Edit_T15 = _T("");
+	m_Edit_T16 = _T("");
+	m_Edit_T17 = _T("");
+	m_Edit_T18 = _T("");
+	m_Edit_T19 = _T("");
+	m_Edit_T20 = _T("");
+	m_Edit_T21 = _T("");
+	m_Edit_T22 = _T("");
+	m_Edit_T23 = _T("");
+	m_Edit_T24 = _T("");
+	m_Edit_T25 = _T("");
+	m_Edit_T26 = _T("");
+	m_Edit_T27 = _T("");
+	m_Edit_T28 = _T("");
+	m_Edit_T29 = _T("");
+	m_Edit_T30 = _T("");
+	m_Edit_T31 = _T("");
+	m_Edit_T32 = _T("");
+	m_Edit_T33 = _T("");
+	m_Edit_T34 = _T("");
+	m_Edit_T35 = _T("");
+	m_Edit_T36 = _T("");
+	m_Edit_T37 = _T("");
+	m_Edit_T38 = _T("");
+	m_Edit_T39 = _T("");
+	m_Edit_T40 = _T("");
+	m_Radio_SendAll = -1;
 	//}}AFX_DATA_INIT
 }
 
@@ -109,16 +149,95 @@ void CDialogSrSend::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_CHECK_38, m_Check_38);
 	DDX_Check(pDX, IDC_CHECK_39, m_Check_39);
 	DDX_Check(pDX, IDC_CHECK_40, m_Check_40);
-	DDX_Check(pDX, IDC_CHECK_AUTOSEND, m_Check_AutoSend);
 	DDX_Text(pDX, IDC_EDIT_AUTOTIME, m_Edit_AutoTime);
-	DDV_MaxChars(pDX, m_Edit_AutoTime, 4);
+	DDV_MaxChars(pDX, m_Edit_AutoTime, 5);
+	DDX_Text(pDX, IDC_EDIT_T01, m_Edit_T01);
+	DDV_MaxChars(pDX, m_Edit_T01, 5);
+	DDX_Text(pDX, IDC_EDIT_T02, m_Edit_T02);
+	DDV_MaxChars(pDX, m_Edit_T02, 5);
+	DDX_Text(pDX, IDC_EDIT_T03, m_Edit_T03);
+	DDV_MaxChars(pDX, m_Edit_T03, 5);
+	DDX_Text(pDX, IDC_EDIT_T04, m_Edit_T04);
+	DDV_MaxChars(pDX, m_Edit_T04, 5);
+	DDX_Text(pDX, IDC_EDIT_T05, m_Edit_T05);
+	DDV_MaxChars(pDX, m_Edit_T05, 5);
+	DDX_Text(pDX, IDC_EDIT_T06, m_Edit_T06);
+	DDV_MaxChars(pDX, m_Edit_T06, 5);
+	DDX_Text(pDX, IDC_EDIT_T07, m_Edit_T07);
+	DDV_MaxChars(pDX, m_Edit_T07, 5);
+	DDX_Text(pDX, IDC_EDIT_T08, m_Edit_T08);
+	DDV_MaxChars(pDX, m_Edit_T08, 5);
+	DDX_Text(pDX, IDC_EDIT_T09, m_Edit_T09);
+	DDV_MaxChars(pDX, m_Edit_T09, 5);
+	DDX_Text(pDX, IDC_EDIT_T10, m_Edit_T10);
+	DDV_MaxChars(pDX, m_Edit_T10, 5);
+	DDX_Text(pDX, IDC_EDIT_T11, m_Edit_T11);
+	DDV_MaxChars(pDX, m_Edit_T11, 5);
+	DDX_Text(pDX, IDC_EDIT_T12, m_Edit_T12);
+	DDV_MaxChars(pDX, m_Edit_T12, 5);
+	DDX_Text(pDX, IDC_EDIT_T13, m_Edit_T13);
+	DDV_MaxChars(pDX, m_Edit_T13, 5);
+	DDX_Text(pDX, IDC_EDIT_T14, m_Edit_T14);
+	DDV_MaxChars(pDX, m_Edit_T14, 5);
+	DDX_Text(pDX, IDC_EDIT_T15, m_Edit_T15);
+	DDV_MaxChars(pDX, m_Edit_T15, 5);
+	DDX_Text(pDX, IDC_EDIT_T16, m_Edit_T16);
+	DDV_MaxChars(pDX, m_Edit_T16, 5);
+	DDX_Text(pDX, IDC_EDIT_T17, m_Edit_T17);
+	DDV_MaxChars(pDX, m_Edit_T17, 5);
+	DDX_Text(pDX, IDC_EDIT_T18, m_Edit_T18);
+	DDV_MaxChars(pDX, m_Edit_T18, 5);
+	DDX_Text(pDX, IDC_EDIT_T19, m_Edit_T19);
+	DDV_MaxChars(pDX, m_Edit_T19, 5);
+	DDX_Text(pDX, IDC_EDIT_T20, m_Edit_T20);
+	DDV_MaxChars(pDX, m_Edit_T20, 5);
+	DDX_Text(pDX, IDC_EDIT_T21, m_Edit_T21);
+	DDV_MaxChars(pDX, m_Edit_T21, 5);
+	DDX_Text(pDX, IDC_EDIT_T22, m_Edit_T22);
+	DDV_MaxChars(pDX, m_Edit_T22, 5);
+	DDX_Text(pDX, IDC_EDIT_T23, m_Edit_T23);
+	DDV_MaxChars(pDX, m_Edit_T23, 5);
+	DDX_Text(pDX, IDC_EDIT_T24, m_Edit_T24);
+	DDV_MaxChars(pDX, m_Edit_T24, 5);
+	DDX_Text(pDX, IDC_EDIT_T25, m_Edit_T25);
+	DDV_MaxChars(pDX, m_Edit_T25, 5);
+	DDX_Text(pDX, IDC_EDIT_T26, m_Edit_T26);
+	DDV_MaxChars(pDX, m_Edit_T26, 5);
+	DDX_Text(pDX, IDC_EDIT_T27, m_Edit_T27);
+	DDV_MaxChars(pDX, m_Edit_T27, 5);
+	DDX_Text(pDX, IDC_EDIT_T28, m_Edit_T28);
+	DDV_MaxChars(pDX, m_Edit_T28, 5);
+	DDX_Text(pDX, IDC_EDIT_T29, m_Edit_T29);
+	DDV_MaxChars(pDX, m_Edit_T29, 5);
+	DDX_Text(pDX, IDC_EDIT_T30, m_Edit_T30);
+	DDV_MaxChars(pDX, m_Edit_T30, 5);
+	DDX_Text(pDX, IDC_EDIT_T31, m_Edit_T31);
+	DDV_MaxChars(pDX, m_Edit_T31, 5);
+	DDX_Text(pDX, IDC_EDIT_T32, m_Edit_T32);
+	DDV_MaxChars(pDX, m_Edit_T32, 5);
+	DDX_Text(pDX, IDC_EDIT_T33, m_Edit_T33);
+	DDV_MaxChars(pDX, m_Edit_T33, 5);
+	DDX_Text(pDX, IDC_EDIT_T34, m_Edit_T34);
+	DDV_MaxChars(pDX, m_Edit_T34, 5);
+	DDX_Text(pDX, IDC_EDIT_T35, m_Edit_T35);
+	DDV_MaxChars(pDX, m_Edit_T35, 5);
+	DDX_Text(pDX, IDC_EDIT_T36, m_Edit_T36);
+	DDV_MaxChars(pDX, m_Edit_T36, 5);
+	DDX_Text(pDX, IDC_EDIT_T37, m_Edit_T37);
+	DDV_MaxChars(pDX, m_Edit_T37, 5);
+	DDX_Text(pDX, IDC_EDIT_T38, m_Edit_T38);
+	DDV_MaxChars(pDX, m_Edit_T38, 5);
+	DDX_Text(pDX, IDC_EDIT_T39, m_Edit_T39);
+	DDV_MaxChars(pDX, m_Edit_T39, 5);
+	DDX_Text(pDX, IDC_EDIT_T40, m_Edit_T40);
+	DDV_MaxChars(pDX, m_Edit_T40, 5);
+	DDX_Radio(pDX, IDC_RADIO_SENDALL, m_Radio_SendAll);
 	//}}AFX_DATA_MAP
 }
 
 
 BEGIN_MESSAGE_MAP(CDialogSrSend, CDialog)
 	//{{AFX_MSG_MAP(CDialogSrSend)
-	ON_BN_CLICKED(IDC_CHECK_AUTOSEND, OnCheckAutoSend)
 	ON_BN_CLICKED(IDC_BUTTON_EXPAND, OnButtonExpand)
 	ON_BN_CLICKED(IDC_BUTTON_SEND01, OnButtonSend01)
 	ON_BN_CLICKED(IDC_BUTTON_SEND02, OnButtonSend02)
@@ -202,6 +321,9 @@ BEGIN_MESSAGE_MAP(CDialogSrSend, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_40, OnCheck40)
 	ON_WM_TIMER()
 	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDC_RADIO_SENDALL, OnRadioSendAll)
+	ON_BN_CLICKED(IDC_RADIO_SENDEACH, OnRadioSendEach)
+	ON_BN_CLICKED(IDC_BUTTON_STARTSEND, OnButtonStartSend)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -224,11 +346,62 @@ END_MESSAGE_MAP()
 **************************************************************************************************/
 bool CDialogSrSend::EditDataValid(int EditID)
 {
-	CString EditStr;
+	CString TempStr;
 	
-	GetDlgItemText(EditID, EditStr);
+	GetDlgItemText(EditID, TempStr);
 	
-	if (EditStr.GetLength() > 0) {                                   // 判断编辑框内容的长度是否有效
+	if (TempStr.GetLength() > 0) {                                             // 判断编辑框内容的长度是否有效
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  EditDataTimeValid
+**  功能描述:  判断edit控件内的数据以及发送时间间隔是否有效
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+bool CDialogSrSend::EditDataTimeValid(int EditID, int TimeID)
+{
+	int     timeint;
+	CString TempStr;
+	
+	GetDlgItemText(EditID, TempStr);
+	if (TempStr.GetLength() == 0) {                                            // 判断编辑框内容的长度是否有效
+		return FALSE;
+	}
+
+	GetDlgItemText(TimeID, TempStr);
+	if (TempStr.GetLength() == 0) {                                            // 判断编辑框内容的长度是否有效
+		return FALSE;
+	}
+	
+	timeint = atoi((LPSTR)(LPCTSTR)TempStr);
+	if (timeint == 0) {                                                        // 时间间隔不能为0
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+/**************************************************************************************************
+**  函数名称:  CanSendEditData
+**  功能描述:  判断是否可以发送数据
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+bool CDialogSrSend::CanSendEditData(int editno, int TimeID)
+{
+	int     timeint;
+	CString TempStr;
+	
+	GetDlgItemText(TimeID, TempStr);	
+	timeint = atoi((LPSTR)(LPCTSTR)TempStr);
+
+	if (++s_sendcnt[editno] >= (timeint / 10)) {                               // 时间到点
+		s_sendcnt[editno] = 0;
 		return TRUE;
 	} else {
 		return FALSE;
@@ -391,17 +564,13 @@ void CDialogSrSend::TrytoSendData(CString InputStr, BOOL NeedHex)
 		return;
 	}
 	
-	if (InputStr.GetLength() > MAX_SEND_BYTE) {
-		MessageBox("发送窗口内容太多，请删除部分之后再尝试！  ", "提示", MB_OK + MB_ICONINFORMATION);
-		return;
-	}
-	
-	if ((pDlg->SendDatatoComm(InputStr, NeedHex)) == FALSE) {                  // 如果发送失败，且处于连发模式，则停止连发
-		if (m_Check_AutoSend == TRUE) {
-			OnCheckAutoSend();
-			UpdateData(FALSE);
+	if ((pDlg->SendDatatoComm(InputStr, NeedHex)) == FALSE) {                  // 如果发送失败，提示
+
+		MessageBox("您输入的数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
+
+		if (s_issenddata == TRUE) {                                            // 如果处于连发模式，则停止连发
+			OnButtonStartSend();
 		}
-		MessageBox("您输入的CAN数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
 	}
 }
 
@@ -607,18 +776,432 @@ void CDialogSrSend::TrytoContinueSend(void)
 }
 
 /**************************************************************************************************
-**  函数名称:  DataisSending
-**  功能描述:  是否有数据正在发送中
+**  函数名称:  TrytoSendEachData
+**  功能描述:  尝试连发单条数据
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-bool CDialogSrSend::DataisSending(void)
+void CDialogSrSend::TrytoSendEachData(void)
 {
-	if (m_Check_AutoSend) {                                                    // 如果自动发送功能已经开启则认为有数据正在发送
-		return TRUE;
-	} else {
-		return FALSE;
+    if (s_expandmode == FALSE) {                                               // 非扩展发送模式下，只判断左边20条
+
+		if (EditDataTimeValid(IDC_EDIT_01, IDC_EDIT_T01) == TRUE) {
+			if (CanSendEditData(0, IDC_EDIT_T01) == TRUE) {
+				OnButtonSend01();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_02, IDC_EDIT_T02) == TRUE) {
+			if (CanSendEditData(1, IDC_EDIT_T02) == TRUE) {
+				OnButtonSend02();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_03, IDC_EDIT_T03) == TRUE) {
+			if (CanSendEditData(2, IDC_EDIT_T03) == TRUE) {
+				OnButtonSend03();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_04, IDC_EDIT_T04) == TRUE) {
+			if (CanSendEditData(3, IDC_EDIT_T04) == TRUE) {
+				OnButtonSend04();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_05, IDC_EDIT_T05) == TRUE) {
+			if (CanSendEditData(4, IDC_EDIT_T05) == TRUE) {
+				OnButtonSend05();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_06, IDC_EDIT_T06) == TRUE) {
+			if (CanSendEditData(5, IDC_EDIT_T06) == TRUE) {
+				OnButtonSend06();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_07, IDC_EDIT_T07) == TRUE) {
+			if (CanSendEditData(6, IDC_EDIT_T07) == TRUE) {
+				OnButtonSend07();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_08, IDC_EDIT_T08) == TRUE) {
+			if (CanSendEditData(7, IDC_EDIT_T08) == TRUE) {
+				OnButtonSend08();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_09, IDC_EDIT_T09) == TRUE) {
+			if (CanSendEditData(8, IDC_EDIT_T09) == TRUE) {
+				OnButtonSend09();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_10, IDC_EDIT_T10) == TRUE) {
+			if (CanSendEditData(9, IDC_EDIT_T10) == TRUE) {
+				OnButtonSend10();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_11, IDC_EDIT_T11) == TRUE) {
+			if (CanSendEditData(10, IDC_EDIT_T11) == TRUE) {
+				OnButtonSend11();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_12, IDC_EDIT_T12) == TRUE) {
+			if (CanSendEditData(11, IDC_EDIT_T12) == TRUE) {
+				OnButtonSend12();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_13, IDC_EDIT_T13) == TRUE) {
+			if (CanSendEditData(12, IDC_EDIT_T13) == TRUE) {
+				OnButtonSend13();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_14, IDC_EDIT_T14) == TRUE) {
+			if (CanSendEditData(13, IDC_EDIT_T14) == TRUE) {
+				OnButtonSend14();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_15, IDC_EDIT_T15) == TRUE) {
+			if (CanSendEditData(14, IDC_EDIT_T15) == TRUE) {
+				OnButtonSend15();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_16, IDC_EDIT_T16) == TRUE) {
+			if (CanSendEditData(15, IDC_EDIT_T16) == TRUE) {
+				OnButtonSend16();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_17, IDC_EDIT_T17) == TRUE) {
+			if (CanSendEditData(16, IDC_EDIT_T17) == TRUE) {
+				OnButtonSend17();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_18, IDC_EDIT_T18) == TRUE) {
+			if (CanSendEditData(17, IDC_EDIT_T18) == TRUE) {
+				OnButtonSend18();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_19, IDC_EDIT_T19) == TRUE) {
+			if (CanSendEditData(18, IDC_EDIT_T19) == TRUE) {
+				OnButtonSend19();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_20, IDC_EDIT_T20) == TRUE) {
+			if (CanSendEditData(19, IDC_EDIT_T20) == TRUE) {
+				OnButtonSend20();
+			}
+		}
+
+	} else {                                                                   // 扩展发送模式下，判断全部40条
+
+		if (EditDataTimeValid(IDC_EDIT_01, IDC_EDIT_T01) == TRUE) {
+			if (CanSendEditData(0, IDC_EDIT_T01) == TRUE) {
+				OnButtonSend01();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_02, IDC_EDIT_T02) == TRUE) {
+			if (CanSendEditData(1, IDC_EDIT_T02) == TRUE) {
+				OnButtonSend02();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_03, IDC_EDIT_T03) == TRUE) {
+			if (CanSendEditData(2, IDC_EDIT_T03) == TRUE) {
+				OnButtonSend03();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_04, IDC_EDIT_T04) == TRUE) {
+			if (CanSendEditData(3, IDC_EDIT_T04) == TRUE) {
+				OnButtonSend04();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_05, IDC_EDIT_T05) == TRUE) {
+			if (CanSendEditData(4, IDC_EDIT_T05) == TRUE) {
+				OnButtonSend05();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_06, IDC_EDIT_T06) == TRUE) {
+			if (CanSendEditData(5, IDC_EDIT_T06) == TRUE) {
+				OnButtonSend06();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_07, IDC_EDIT_T07) == TRUE) {
+			if (CanSendEditData(6, IDC_EDIT_T07) == TRUE) {
+				OnButtonSend07();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_08, IDC_EDIT_T08) == TRUE) {
+			if (CanSendEditData(7, IDC_EDIT_T08) == TRUE) {
+				OnButtonSend08();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_09, IDC_EDIT_T09) == TRUE) {
+			if (CanSendEditData(8, IDC_EDIT_T09) == TRUE) {
+				OnButtonSend09();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_10, IDC_EDIT_T10) == TRUE) {
+			if (CanSendEditData(9, IDC_EDIT_T10) == TRUE) {
+				OnButtonSend10();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_11, IDC_EDIT_T11) == TRUE) {
+			if (CanSendEditData(10, IDC_EDIT_T11) == TRUE) {
+				OnButtonSend11();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_12, IDC_EDIT_T12) == TRUE) {
+			if (CanSendEditData(11, IDC_EDIT_T12) == TRUE) {
+				OnButtonSend12();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_13, IDC_EDIT_T13) == TRUE) {
+			if (CanSendEditData(12, IDC_EDIT_T13) == TRUE) {
+				OnButtonSend13();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_14, IDC_EDIT_T14) == TRUE) {
+			if (CanSendEditData(13, IDC_EDIT_T14) == TRUE) {
+				OnButtonSend14();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_15, IDC_EDIT_T15) == TRUE) {
+			if (CanSendEditData(14, IDC_EDIT_T15) == TRUE) {
+				OnButtonSend15();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_16, IDC_EDIT_T16) == TRUE) {
+			if (CanSendEditData(15, IDC_EDIT_T16) == TRUE) {
+				OnButtonSend16();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_17, IDC_EDIT_T17) == TRUE) {
+			if (CanSendEditData(16, IDC_EDIT_T17) == TRUE) {
+				OnButtonSend17();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_18, IDC_EDIT_T18) == TRUE) {
+			if (CanSendEditData(17, IDC_EDIT_T18) == TRUE) {
+				OnButtonSend18();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_19, IDC_EDIT_T19) == TRUE) {
+			if (CanSendEditData(18, IDC_EDIT_T19) == TRUE) {
+				OnButtonSend19();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_20, IDC_EDIT_T20) == TRUE) {
+			if (CanSendEditData(19, IDC_EDIT_T20) == TRUE) {
+				OnButtonSend20();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_21, IDC_EDIT_T21) == TRUE) {		
+			if (CanSendEditData(20, IDC_EDIT_T21) == TRUE) {
+				OnButtonSend21();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_22, IDC_EDIT_T22) == TRUE) {
+			if (CanSendEditData(21, IDC_EDIT_T22) == TRUE) {
+				OnButtonSend22();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_23, IDC_EDIT_T23) == TRUE) {
+			if (CanSendEditData(22, IDC_EDIT_T23) == TRUE) {
+				OnButtonSend23();
+			}
+		}
+		
+		if (EditDataTimeValid(IDC_EDIT_24, IDC_EDIT_T24) == TRUE) {
+			if (CanSendEditData(23, IDC_EDIT_T24) == TRUE) {
+				OnButtonSend24();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_25, IDC_EDIT_T25) == TRUE) {
+			if (CanSendEditData(24, IDC_EDIT_T25) == TRUE) {
+				OnButtonSend25();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_26, IDC_EDIT_T26) == TRUE) {
+			if (CanSendEditData(25, IDC_EDIT_T26) == TRUE) {
+				OnButtonSend26();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_27, IDC_EDIT_T27) == TRUE) {
+			if (CanSendEditData(26, IDC_EDIT_T27) == TRUE) {
+				OnButtonSend27();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_28, IDC_EDIT_T28) == TRUE) {
+			if (CanSendEditData(27, IDC_EDIT_T28) == TRUE) {
+				OnButtonSend28();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_29, IDC_EDIT_T29) == TRUE) {
+			if (CanSendEditData(28, IDC_EDIT_T29) == TRUE) {
+				OnButtonSend29();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_30, IDC_EDIT_T30) == TRUE) {
+			if (CanSendEditData(29, IDC_EDIT_T30) == TRUE) {
+				OnButtonSend30();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_31, IDC_EDIT_T31) == TRUE) {
+			if (CanSendEditData(30, IDC_EDIT_T31) == TRUE) {
+				OnButtonSend31();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_32, IDC_EDIT_T32) == TRUE) {
+			if (CanSendEditData(31, IDC_EDIT_T32) == TRUE) {
+				OnButtonSend32();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_33, IDC_EDIT_T33) == TRUE) {
+			if (CanSendEditData(32, IDC_EDIT_T33) == TRUE) {
+				OnButtonSend33();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_34, IDC_EDIT_T34) == TRUE) {
+			if (CanSendEditData(33, IDC_EDIT_T34) == TRUE) {
+				OnButtonSend34();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_35, IDC_EDIT_T35) == TRUE) {
+			if (CanSendEditData(34, IDC_EDIT_T35) == TRUE) {
+				OnButtonSend35();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_36, IDC_EDIT_T36) == TRUE) {
+			if (CanSendEditData(35, IDC_EDIT_T36) == TRUE) {
+				OnButtonSend36();
+			}
+		}
+
+		if (EditDataTimeValid(IDC_EDIT_37, IDC_EDIT_T37) == TRUE) {
+			if (CanSendEditData(36, IDC_EDIT_T37) == TRUE) {
+				OnButtonSend37();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_38, IDC_EDIT_T38) == TRUE) {
+			if (CanSendEditData(37, IDC_EDIT_T38) == TRUE) {
+				OnButtonSend38();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_39, IDC_EDIT_T39) == TRUE) {
+			if (CanSendEditData(38, IDC_EDIT_T39) == TRUE) {
+				OnButtonSend39();
+			}
+		} 
+		
+		if (EditDataTimeValid(IDC_EDIT_40, IDC_EDIT_T40) == TRUE) {
+			if (CanSendEditData(39, IDC_EDIT_T40) == TRUE) {
+				OnButtonSend40();
+			}
+		}
 	}
+}
+
+/**************************************************************************************************
+**  函数名称:  ShowHideTimeEdit
+**  功能描述:  显示或隐藏时间编辑框
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CDialogSrSend::ShowHideTimeEdit(bool enanble)
+{
+	GetDlgItem(IDC_EDIT_T01)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T02)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T03)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T04)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T05)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T06)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T07)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T08)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T09)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T10)->EnableWindow(enanble);
+
+	GetDlgItem(IDC_EDIT_T11)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T12)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T13)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T14)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T15)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T16)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T17)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T18)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T19)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T20)->EnableWindow(enanble);
+
+	GetDlgItem(IDC_EDIT_T21)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T22)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T23)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T24)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T25)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T26)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T27)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T28)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T29)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T30)->EnableWindow(enanble);
+
+	GetDlgItem(IDC_EDIT_T31)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T32)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T33)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T34)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T35)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T36)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T37)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T38)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T39)->EnableWindow(enanble);
+	GetDlgItem(IDC_EDIT_T40)->EnableWindow(enanble);
+
+	GetDlgItem(IDC_EDIT_AUTOTIME)->EnableWindow(!enanble);
 }
 
 /* ============================================================================================= */
@@ -631,54 +1214,65 @@ bool CDialogSrSend::DataisSending(void)
 /* ==================================== 以下为控件消息处理 ===================================== */
 
 
-void CDialogSrSend::OnCheckAutoSend() 
+void CDialogSrSend::OnButtonStartSend() 
 {
-	int Timer;
+	int     Timer;
 	CString TempStr;
 	
-	m_Check_AutoSend = !m_Check_AutoSend;
-	
-	if (m_Check_AutoSend) {                                                    // 如果是想启用自动连发功能
-		
+	if (s_issenddata == FALSE) {                                               // 如果当前没有在发送数据
+		s_issenddata = TRUE;
+		SetDlgItemText(IDC_BUTTON_STARTSEND, "停止发送");
+
 		if (GetSrValidDataNo() == 0) {                                         // 判断数据区是否有效
-			
 			MessageBox("貌似您尚未输入任何需要的发送的内容，叫我发送什么呢？~~~  ", "提示", MB_OK + MB_ICONINFORMATION);
-			
-			m_Check_AutoSend = FALSE;
 			UpdateData(FALSE);                                                 // 取消复选框被选中的状态
 			return;
 		}
-		
-		GetDlgItemText(IDC_EDIT_AUTOTIME, TempStr);
-		
-		Timer = atoi((LPSTR)(LPCTSTR)TempStr);
-		
-		if ((Timer > 0) && (Timer <= 10000)) {                                 // 时间合法
+
+		if (s_cirsendall == TRUE) {                                            // 全部数据统一连发
+
+			GetDlgItemText(IDC_EDIT_AUTOTIME, TempStr);
+			Timer = atoi((LPSTR)(LPCTSTR)TempStr);
 			
-			SetTimer(Timer_No_SrAutoSend, Timer, NULL);                        // 启动定时器
-			s_curdatacnt = 0;
+			if ((Timer > 0) && (Timer <= 10000)) {                             // 时间合法
+				
+				SetTimer(Timer_No_SrAllSend, Timer, NULL);                     // 启动定时器
+				s_curdatacnt = 0;
+				
+				GetDlgItem(IDC_RADIO_SENDALL)->EnableWindow(FALSE);
+				GetDlgItem(IDC_EDIT_AUTOTIME)->EnableWindow(FALSE);
+				GetDlgItem(IDC_RADIO_SENDEACH)->EnableWindow(FALSE);
+				
+			} else {
+				
+				MessageBox("定时时间必须在0至10秒钟之间，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
+				SetDlgItemText(IDC_EDIT_AUTOTIME, m_Edit_AutoTime);            // 还原编辑框内容
+				UpdateData(FALSE);                                             // 取消复选框被选中的状态
+				return;
+			}
+		} else {                                                               // 单条数据各自连发
+
+			SetTimer(Timer_No_SrEachSend, 10, NULL);                           // 启动定时器
+			memset(s_sendcnt, 0, sizeof(s_sendcnt));
 			
+			GetDlgItem(IDC_RADIO_SENDALL)->EnableWindow(FALSE);
 			GetDlgItem(IDC_EDIT_AUTOTIME)->EnableWindow(FALSE);
-			GetDlgItem(IDC_STATIC_AUTOTIME)->EnableWindow(FALSE);
-			
-		} else {
-			
-			MessageBox("定时时间必须在0至10秒钟之间，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
-			
-			SetDlgItemText(IDC_EDIT_AUTOTIME, m_Edit_AutoTime);               // 还原编辑框内容
-			
-			m_Check_AutoSend = FALSE;
-			UpdateData(FALSE);                                                 // 取消复选框被选中的状态
-			return;
+			GetDlgItem(IDC_RADIO_SENDEACH)->EnableWindow(FALSE);
 		}
 		
-	} else {                                                                   // 如果是想退出自动连发功能
+	} else {                                                                   // 如果当前正在发送数据
+		s_issenddata = FALSE;
+		SetDlgItemText(IDC_BUTTON_STARTSEND, "开始发送");
+
+		if (s_cirsendall == TRUE) {                                            // 关闭定时器，取消自动发送功能
+			KillTimer(Timer_No_SrAllSend);
+		} else {
+			KillTimer(Timer_No_SrEachSend);
+		}
 		
-		s_curdatacnt = 0;
-		KillTimer(Timer_No_SrAutoSend);                                        // 取消自动发送功能
-		
+		GetDlgItem(IDC_RADIO_SENDALL)->EnableWindow(TRUE);
 		GetDlgItem(IDC_EDIT_AUTOTIME)->EnableWindow(TRUE);
-		GetDlgItem(IDC_STATIC_AUTOTIME)->EnableWindow(TRUE);
+		GetDlgItem(IDC_RADIO_SENDEACH)->EnableWindow(TRUE);
 	}
 }
 
@@ -690,15 +1284,26 @@ void CDialogSrSend::OnButtonExpand()
 
 	if (s_expandmode == TRUE) {
 		SetWindowPos(NULL, 0, 0, rect.Width() / 2, rect.Height(), SWP_NOMOVE);
-		SetDlgItemText(IDC_BUTTON_EXPAND, "20条数据不够用？向右展开，更多内容 >>");
+		SetDlgItemText(IDC_BUTTON_EXPAND, ">> 扩展至40条数据 >>");
 		s_expandmode = FALSE;
 	} else {
 		SetWindowPos(NULL, 0, 0, rect.Width() * 2, rect.Height(), SWP_NOMOVE);
-		SetDlgItemText(IDC_BUTTON_EXPAND, "40条数据用不完？向左隐藏，精简界面 <<");
+		SetDlgItemText(IDC_BUTTON_EXPAND, "<< 精简至20条数据 <<");
 		s_expandmode = TRUE;
 	}
 }
 
+void CDialogSrSend::OnRadioSendAll() 
+{
+	s_cirsendall = TRUE;
+	ShowHideTimeEdit(!s_cirsendall);
+}
+
+void CDialogSrSend::OnRadioSendEach() 
+{
+	s_cirsendall = FALSE;
+	ShowHideTimeEdit(!s_cirsendall);
+}
 
 /* ============================================================================================= */
 /* ====================================                    ===================================== */
@@ -1289,18 +1894,74 @@ void CDialogSrSend::OnCheck40()
 /* ============================================================================================= */
 
 
+/* ==================================== 以下为对外接口函数 ===================================== */
+
+
+/**************************************************************************************************
+**  函数名称:  InitateSrDlgPos
+**  功能描述:  初始化本窗口的位置和显示尺寸
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CDialogSrSend::InitateSrDlgPos(void)
+{
+	CRect rect;
+	CMySScomDlg *pDlg;
+	
+	pDlg = (CMySScomDlg *)AfxGetApp()->m_pMainWnd;
+	
+	GetWindowRect(&rect);
+	
+	SetWindowPos(NULL, pDlg->s_SrsDlgXPos, pDlg->s_SrsDlgYPos, rect.Width() / 2, rect.Height(), SWP_NOZORDER);	
+	ShowWindow(SW_HIDE);
+}
+
+/**************************************************************************************************
+**  函数名称:  ShowHideSrDlgWindow
+**  功能描述:  显示和隐藏本窗口，包括读取和存储窗口位置参数
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+void CDialogSrSend::ShowHideSrDlgWindow(bool show)
+{
+	CRect rect;
+	CMySScomDlg *pDlg;
+
+	pDlg = (CMySScomDlg *)AfxGetApp()->m_pMainWnd;
+	
+	GetWindowRect(&rect);
+
+	if (show == TRUE) {
+		SetWindowPos(NULL, pDlg->s_SrsDlgXPos, pDlg->s_SrsDlgYPos, rect.Width(), rect.Height(), SWP_NOSIZE);	
+		ShowWindow(SW_SHOW);
+	} else {
+		pDlg->s_SrsDlgXPos = rect.left;
+		pDlg->s_SrsDlgYPos = rect.top;
+		ShowWindow(SW_HIDE);
+	}
+}
+
+
+/* ============================================================================================= */
+/* ====================================                    ===================================== */
+/* ==================================== 传说中华丽的分割线 ===================================== */
+/* ====================================                    ===================================== */
+/* ============================================================================================= */
+
+
 /* ==================================== 以下为系统消息处理 ===================================== */
 
 
 BOOL CDialogSrSend::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-	
-	CRect rect;
-	
-	GetWindowRect(&rect);	
-	
-	SetWindowPos(NULL, 0, 0, rect.Width() / 2, rect.Height(), SWP_NOMOVE);
+
+	s_expandmode = FALSE;
+	s_issenddata = FALSE;
+
+	s_cirsendall = TRUE;
+	m_Radio_SendAll = 0;
+	ShowHideTimeEdit(!s_cirsendall);
 	
 	return TRUE;
 }
@@ -1309,10 +1970,14 @@ void CDialogSrSend::OnTimer(UINT nIDEvent)
 {
 	switch (nIDEvent)
 	{
-		case Timer_No_SrAutoSend:
+		case Timer_No_SrAllSend:                                               // 开始统一轮发全部数据
 			TrytoContinueSend();
 			break;
 			
+		case Timer_No_SrEachSend:                                              // 开始分别逐条轮发数据
+			TrytoSendEachData();
+			break;
+		
 		default:
 			return;
 	}
@@ -1327,12 +1992,16 @@ void CDialogSrSend::OnClose()
 	
 	pDlg = (CMySScomDlg *)AfxGetApp()->m_pMainWnd;
 
-	if (DataisSending()) {
+	if (s_issenddata == TRUE) {
 		MessageBox("请先停止自动循环发送功能，再尝试关闭高级发送窗口......   ", "提示", MB_OK + MB_ICONINFORMATION);
 		return;
 	}
 
 	pDlg->InformDlgClose();                                                    // 通知主界面窗口已被关闭
+
+	ShowHideSrDlgWindow(FALSE);
 	
 	CDialog::OnClose();
 }
+
+

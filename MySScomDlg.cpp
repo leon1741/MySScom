@@ -278,6 +278,7 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 		m_Edit_Recv = TransformtoHex(StrRecved);
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+		s_Edit_Recv->PostMessage(WM_VSCROLL, SB_BOTTOM, 0);          // 让编辑框内容滚动到最后一行
 
 		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
 
@@ -298,6 +299,7 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 		m_Edit_Recv = StrRecved;
 		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+		s_Edit_Recv->PostMessage(WM_VSCROLL, SB_BOTTOM, 0);          // 让编辑框内容滚动到最后一行
 
 		if (m_Check_AutoClear) {                                     // 如果需要自动清空内容
 			
@@ -595,6 +597,8 @@ void CMySScomDlg::OnButtonONOFF()
 
         m_ctrlComm.SetPortOpen(TRUE);                                // 尝试打开串口
 
+		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
+
 		SettingStr = "";
 		
 		int ComBaudSel = m_Combo_Baud.GetCurSel();                   // 获取波特率的选择项
@@ -619,8 +623,6 @@ void CMySScomDlg::OnButtonONOFF()
 		m_ctrlComm.SetRThreshold(1);                                 // 参数1表示每当串口接收缓冲区中有多于或等于1个字符时将引发一个接收数据的OnComm事件
 		m_ctrlComm.SetInputLen(0);                                   // 设置当前接收区数据长度为0
 		m_ctrlComm.GetInput();                                       // 先预读缓冲区以清除残留数据
-				
-		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
 		
 		m_PortOpened = TRUE;
 		

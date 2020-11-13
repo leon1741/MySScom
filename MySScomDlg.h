@@ -10,10 +10,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Serial.h"
-
-#define  MSG_READ	0
-#define  MSG_WRITE	1
+#define  MAXBLOCK                      2048
+#define  XON                           0x11
+#define  XOFF                          0x13
 
 #define  Timer_No_RecvData             0x01                          // 接收串口数据定时器
 #define  Timer_No_StatusBar            0x02                          // 状态栏定时更新定时器
@@ -26,7 +25,6 @@
 #define  MIN_FRAME_OFFSET              0x00000225                    // 不同主题下边框偏移的最小值(仅限于XP)
 
 #define  MYWM_NOTIFYICON               (WM_USER + 1001)
-#define	 WM_COMM_MESSAGE               (WM_USER + 1002)
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -86,7 +84,6 @@ public:
 
 	CStringArray   sPorts;                                           // 用来枚举电脑上存在的串口
 	CString        StrRecved;                                        // 用来保存已经接收的数据内容
-	CSerial        serial;
 
 	bool           m_PortOpened;                                     // 判断串口是否已经打开
 	bool           m_bRecvPause;                                     // 判断是否需要暂停接收
@@ -103,9 +100,20 @@ public:
 	int            s_top_offset;                                     // 切换显示模式时的上部偏移量
 	int            s_left_offset;                                    // 切换显示模式时的左部偏移量
 
+	int            s_displaycnt;
+
 	CStatusBar     m_StatusBar;                                      // 定义状态栏控制
 
-	BOOL EnumComm(void);
+	CWinThread    *m_pThread;
+	volatile BOOL  m_bConnected;
+	volatile HANDLE m_hSPCom;
+	OVERLAPPED     m_osRead, m_osWrite;
+
+	BOOL  EnumComm(void);
+	//UINT  SPCommProc(LPVOID pParam);
+	DWORD WriteComm(char *buf,DWORD dwLength);
+	DWORD ReadComm(char *buf,DWORD dwLength);
+
 	CString TransformtoHex(CString InputStr);
 	char ConvertHexChar(char ch);
 	int  String2Hex(CString str, CByteArray &senddata);
@@ -118,7 +126,7 @@ public:
 	
 	void SaveEditContent(void);
 	void UpdateEditDisplay(void);
-	void HandleUSARTData(void);
+	void HandleUSARTData(char *ptr, DWORD len);
 	void NeedAutoSendData(void);
 	void NeedLoopSendData(void);
 	void UpdateStatusBarNow(void);
@@ -243,7 +251,6 @@ protected:
 	afx_msg void OnButtonHelp();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
-	afx_msg LRESULT OnCommMessage(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 };
 

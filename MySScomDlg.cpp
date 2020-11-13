@@ -14,11 +14,10 @@ static char THIS_FILE[] = __FILE__;
 
 static const CString RecordPath = "Record\\";                        // 定义存放数据文件的文件夹的路径
 
-static const int Combo_Baud[12] = {600,  1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
-static const int Combo_Data[4]  = {5,    6,    7,    8};
-static const int Combo_Stop[4]  = {0,    1,    2,    3};
-static const int Combo_Check[5] = {0,    1,    2,    3,   4};
-//static const int Combo_Check[5] = {'n',  'o',  'e',  'm',   's'};
+static const int    Combo_Baud[12] = {600,  1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
+static const int    Combo_Data[4]  = {5,    6,    7,    8};
+static const double Combo_Stop[4]  = {1,    1.5,  2};
+static const int    Combo_Check[5] = {0,    1,    2,    3,   4};
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -184,7 +183,6 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_COMMAND(IDC_MENU_TRAY_ABOUT, OnMenuTrayAbout)
 	ON_BN_CLICKED(IDC_BUTTON_HELP, OnButtonHelp)
 	//}}AFX_MSG_MAP
-	ON_MESSAGE(WM_COMM_MESSAGE, OnCommMessage)
 END_MESSAGE_MAP()
 
 BEGIN_EVENTSINK_MAP(CMySScomDlg, CDialog)
@@ -276,6 +274,62 @@ END_EASYSIZE_MAP
 /* ==================================== 自定义函数区--开始 ===================================== */
 
 /**************************************************************************************************
+**  函数名称:  SPCommProc
+**  功能描述:  串口线程处理函数
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+UINT SPCommProc(LPVOID pParam)
+{
+	OVERLAPPED os;
+	DWORD dwMask, dwTrans;
+	COMSTAT ComStat;
+	DWORD dwErrorFlags;
+	char buf[MAXBLOCK / 4];
+	DWORD length;
+	CString str;
+	
+	CMySScomDlg *pDlg = (CMySScomDlg *)pParam;
+	
+	memset(&os, 0, sizeof(OVERLAPPED));
+	
+	os.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);                // 创建事件内核对象
+	
+	if (os.hEvent == NULL) {                                         // 创建失败
+		AfxMessageBox("Can't create event object!");
+		return -1;
+	}
+	
+	while (pDlg->m_PortOpened) {
+		
+		ClearCommError(pDlg->m_hSPCom, &dwErrorFlags, &ComStat);     // 探询串口缓冲区
+		
+		if (ComStat.cbInQue) {                                       // 如果接收队列不为空
+			
+			length = pDlg->ReadComm(buf, MAX_SEND_BYTE);             // 读取1024个字节的数据
+			
+			pDlg->HandleUSARTData(buf, length);                      // 通知主进程处理串口数据
+		}
+		
+		dwMask = 0;
+		
+		if (!WaitCommEvent(pDlg->m_hSPCom, &dwMask, &os)) {          // 判断串口通信事件是否已经发生
+			
+			if (GetLastError() == ERROR_IO_PENDING) {                // 判断是否存在数据等待操作
+				GetOverlappedResult(pDlg->m_hSPCom, &os, &dwTrans, TRUE);
+			} else {                                                 // 关闭事件内核对象
+				CloseHandle(os.hEvent);
+				return -1;
+			}
+		}
+	}
+	
+	CloseHandle(os.hEvent);                                          // 关闭事件内核对象
+	
+	return 0;
+}
+
+/**************************************************************************************************
 **  函数名称:  EnumComm
 **  功能描述:  本函数用来枚举电脑上存在可用的串口
 **  输入参数:  
@@ -347,6 +401,52 @@ BOOL CMySScomDlg::EnumComm()
 	}
 	
 	return bSuccess;
+}
+
+/**************************************************************************************************
+**  函数名称:  ReadComm
+**  功能描述:  从串口获取数据
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+DWORD CMySScomDlg::ReadComm(char *buf, DWORD dwLength)
+{
+	DWORD length = 0;
+	COMSTAT ComStat;
+	DWORD dwErrorFlags;
+
+	ClearCommError(m_hSPCom, &dwErrorFlags, &ComStat);                         /* 首先清除错误标志 */
+
+	length = min(dwLength, ComStat.cbInQue);
+
+	ReadFile(m_hSPCom, buf, length, &length, &m_osRead);                       /* 读取串口数据 */
+
+	return length;
+}
+
+/**************************************************************************************************
+**  函数名称:  WriteComm
+**  功能描述:  向串口发送数据
+**  输入参数:  
+**  返回参数:  
+**************************************************************************************************/
+DWORD CMySScomDlg::WriteComm(char *buf, DWORD dwLength)
+{
+	DWORD length = dwLength;
+	COMSTAT ComStat;
+	DWORD dwErrorFlags;
+
+	ClearCommError(m_hSPCom, &dwErrorFlags, &ComStat);                         /* 首先清除错误标志 */
+
+	WriteFile(m_hSPCom, buf, length, &length, &m_osWrite);                     /* 写入串口数据 */
+
+	if (GetLastError() == ERROR_IO_PENDING) {                                  /* 正在处理重叠的部分，获取其长度 */
+		GetOverlappedResult(m_hSPCom, &m_osWrite, &length, TRUE);
+	} else {                                                                   /* 否则，发送失败，返回0 */
+		length = 0;
+	}
+
+	return length;
 }
 
 /**************************************************************************************************
@@ -589,7 +689,7 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 				RecvedLine = 0;                                      // 首先清空变量值
 				RecvedData = 0;
-				
+
 				if (m_Check_AutoSave) {
 					SaveEditContent();                               // 保存编辑框的数据
 				}
@@ -614,78 +714,67 @@ void CMySScomDlg::UpdateEditDisplay(void)
 
 /**************************************************************************************************
 **  函数名称:  HandleUSARTData
-**  功能描述:  定时接收串口数据并显示
+**  功能描述:  接收串口数据
 **  输入参数:  
 **  返回参数:  
 **************************************************************************************************/
-void CMySScomDlg::HandleUSARTData(void)
+void CMySScomDlg::HandleUSARTData(char *ptr, DWORD len)
 {
-    int       i, RecvLen;
-	char      RecvData[MAX_SEND_BYTE * 2];
-    CString   TimeStr, TempStr;
-	CTime     NowTime;
+    DWORD i;
+	CString TempStr, TimeStr;
+	CTime NowTime;
 
-	RecvLen = MAX_SEND_BYTE;
-	
-	if (m_PortOpened == FALSE) {
-		return;
-	}
-	
-	if (serial.ReadData(RecvData, RecvLen)) {
+	if (m_bRecvPause == TRUE) return;
 
-		RecvLen -= 1;
+	for (i = 0; i < len; i++) {                                      // 将数组转换为Cstring型变量
+		
+		#if 0                                                        // 以下方式为普通显示模式(会造成16进制显示模式下0x00的丢失)
 
-		for (i = 0; i < RecvLen; i++) {                              // 将数组转换为Cstring型变量
+		TempStr.Format("%c", ptr[i]);
+
+		#else                                                        // 以下方式可以处理0字符的显示bug，但是会造成字符模式下丢失0x00字符后的全部数据
+
+		if (ptr[i] == 0) {
+			TempStr = CString(ptr[i]);
+		} else {
+			TempStr.Format("%c", ptr[i]);
+		}
+
+		#endif
+		
+		if (m_Check_ShowTime == TRUE) {                              // 只有在启用时间显示功能时才判断
 			
-			#if 0                                                    //
+			if (TempStr == "\n") {                                   // 本次接收到了回车符，切换到下一行显示
+				m_NeedTime = TRUE;
+				RecvedLine++;
 
-			TempStr.Format("%c", RecvData[i]);
-
-			#else                                                    // 以下方式可以处理0字符的显示bug
-
-			if (RecvData[i] == 0) {
-				TempStr = CString(RecvData[i]);
 			} else {
-				TempStr.Format("%c", RecvData[i]);
+				if (m_NeedTime == TRUE) {
+					NowTime = CTime::GetCurrentTime();	             // 获取现在时间
+					TimeStr = NowTime.Format("[%H:%M:%S] ");
+					
+					StrRecved += TimeStr;                            // 在行头显示时间
+					m_NeedTime = FALSE;
+				}
 			}
-
-			#endif
+		} else {                                                     // 不需要在行头位置显示时间
 			
-			if (m_Check_ShowTime == TRUE) {                          // 只有在启用时间显示功能时才判断
+			if (m_Check_HexDspl == FALSE) {                          // 当前不处于16进制显示模式
 				
-				if (TempStr == "\n") {                               // 本次接收到了回车符，切换到下一行显示
-					m_NeedTime = TRUE;
+				if (TempStr == "\n") {                               // 本次接收到回车符
 					RecvedLine++;
-				} else {
-					if (m_NeedTime == TRUE) {
-						NowTime = CTime::GetCurrentTime();	         // 获取现在时间
-						TimeStr = NowTime.Format("[%H:%M:%S] ");
-						
-						StrRecved += TimeStr;                        // 在行头显示时间
-						m_NeedTime = FALSE;
-					}
 				}
-			} else {                                                 // 不需要在行头位置显示时间
+			} else {
 				
-				if (m_Check_HexDspl == FALSE) {                      // 16进制模式下不进行判断
-					
-					if (TempStr == "\n") {                           // 本次接收到回车符
-						RecvedLine++;
-					}
-				} else {
-					
-					RecvedLine = 0;                                  // 
-				}
+				RecvedLine = 0;                                      // 16进制模式下不进行判断
 			}
-			
-			StrRecved += TempStr;                                    // 保存数据内容
-			RecvedData++;                                            // 接收字节数累加
-
-			UpdateEditDisplay();                                             // 更新编辑框内容显示
-			
-			UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
-        }
+		}
+		
+		StrRecved += TempStr;                                        // 保存数据内容
+		RecvedData++;                                                // 接收字节数累加
 	}
+
+	m_DataRecvd = TRUE;
 }
 
 /**************************************************************************************************
@@ -788,13 +877,13 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 		DisplayStr = " 欢迎使用MySScom - Designed By LEON";	
 		m_StatusBar.SetPaneText(0, DisplayStr);
 	} else if ((DialogMain.Width() >= 1050) && (DialogMain.Width() < 1200)) {
-		DisplayStr = " 欢迎使用MySScom - Designed By LEON (QQ: 39110103)";	
+		DisplayStr = " 欢迎使用MySScom - Designed By LEON (雅迅网络研发一部)";	
 		m_StatusBar.SetPaneText(0, DisplayStr);
 	} else if ((DialogMain.Width() >= 1200) && (DialogMain.Width() < 1350)) {
-		DisplayStr = " 欢迎使用MySScom - Designed By LEON (QQ: 39110103, LEON1741@126.com)";	
+		DisplayStr = " 欢迎使用MySScom - Designed By LEON (厦门雅迅网络股份有限公司，研发一部)";	
 		m_StatusBar.SetPaneText(0, DisplayStr);
 	} else {
-		DisplayStr = " 欢迎使用MySScom - Designed By LEON (QQ: 39110103, LEON1741@126.com. \"Never Stop Trying\"!)";	
+		DisplayStr = " 欢迎使用MySScom - Designed By LEON (厦门雅迅网络股份有限公司，研发一部，外设组)";	
 		m_StatusBar.SetPaneText(0, DisplayStr);
 	}
 	
@@ -1263,14 +1352,9 @@ void CMySScomDlg::InitiateComboCheck(void)
 **************************************************************************************************/
 void CMySScomDlg::InitiateComboStop(void)
 {
-	CString TempStr;
-	
-	for (int i = 0; i < (sizeof(Combo_Stop) / sizeof(Combo_Stop[0])); i++) {
-		
-		TempStr.Format("%d 位", Combo_Stop[i]);
-		
-		m_Combo_Stop.AddString(TempStr);
-	}
+	m_Combo_Stop.AddString("1  位");
+	m_Combo_Stop.AddString("1.5位");
+	m_Combo_Stop.AddString("2  位");
 }
 
 /**************************************************************************************************
@@ -1335,7 +1419,7 @@ void CMySScomDlg::SendEditDatatoComm(void)
 			temp[i] = hexdata.GetAt(i);
 		}
 		
-		serial.SendData(temp, len);
+		WriteComm(temp, len);
 
 		SendedData += len;                                           // 发送字节数累加
 		
@@ -1343,7 +1427,7 @@ void CMySScomDlg::SendEditDatatoComm(void)
 		
 		strncpy(temp, (LPCTSTR)m_Edit_Send, sizeof(temp));
 		
-		serial.SendData(temp, m_Edit_Send.GetLength());
+		WriteComm(temp, m_Edit_Send.GetLength());
 
 		SendedData += m_Edit_Send.GetLength();                       // 发送字节数累加
 	}
@@ -1353,7 +1437,7 @@ void CMySScomDlg::SendEditDatatoComm(void)
 		temp[0] = '\r';
 		temp[1] = '\n';
 		
-		serial.SendData(temp, 2);
+		WriteComm(temp, 2);
 
 		SendedData += 2;
 	}
@@ -1700,7 +1784,7 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 			temp[i] = SendData.GetAt(i);
 		}
 
-		serial.SendData(temp, len);
+		WriteComm(temp, len);
 				
 		SendedData += len;                                           // 发送字节数累加
 
@@ -1712,7 +1796,7 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 		
         strncpy(temp, (LPCTSTR)InputStr, sizeof(temp));
 
-		serial.SendData(temp, InputStr.GetLength());
+		WriteComm(temp, InputStr.GetLength());
 		
 		SendedData += InputStr.GetLength();                          // 发送字节数累加
 
@@ -1726,7 +1810,7 @@ void CMySScomDlg::TrytoSrSendData(CString InputStr, BOOL NeedHex)
 		temp[0] = '\r';
 		temp[1] = '\n';
 
-		serial.SendData(temp, 2);
+		WriteComm(temp, 2);
 
 		SendedData += 2;
 	}
@@ -1876,6 +1960,7 @@ BOOL CMySScomDlg::TaskBarDeleteIcon(HWND hwnd, UINT uID)
 	
 	return Shell_NotifyIcon(NIM_DELETE, &d);
 }
+
 
 /* ==================================== 自定义函数区--结束 ===================================== */
 
@@ -2511,8 +2596,9 @@ void CMySScomDlg::OnButtonSrSend20()
 **************************************************************************************************/
 void CMySScomDlg::OnButtonONOFF() 
 {
-	BOOL result;
+	DCB  dcb;
 	CString TempStr;
+	COMMTIMEOUTS TimeOuts;
     
 	if (m_PortOpened == TRUE) {                                      // 如果串口已经打开，那么执行关闭操作
 
@@ -2520,8 +2606,14 @@ void CMySScomDlg::OnButtonONOFF()
 			MessageBox("请首先停用自动发送功能再尝试关闭串口...  ", "提示", MB_OK + MB_ICONEXCLAMATION);
 			return;
 		}
-
-		serial.Close();
+		
+		SetCommMask(m_hSPCom, 0);                                    // 设置过滤掩码 ?????
+		
+		WaitForSingleObject(m_pThread->m_hThread, INFINITE);         // 关闭线程 ?????
+		
+		m_pThread = NULL;
+		
+		CloseHandle(m_hSPCom);                                       // 关闭串口句柄
 
 		SetDlgItemText(IDC_BUTTON_ONOFF, "打开串口");
 
@@ -2541,13 +2633,12 @@ void CMySScomDlg::OnButtonONOFF()
 	int ComNumber = m_Combo_ComNo.GetCurSel();						 // 得到串口号
 
 	if (ComNumber == 0) {
-		MessageBox("串口号都没有选择，你叫我打开什么东东...？   ", "提示", MB_OK + MB_ICONINFORMATION);
+		MessageBox("连串口号都没有选择，你叫我打开什么东东...？   ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 	
 	m_Combo_ComNo.GetLBText(ComNumber, TempStr);
-	TempStr.TrimLeft("COM");                                         // 删除"COM"字段
-	ComNumber = atoi(TempStr);
+	CString ComComNo = TempStr;
 
 	int ComBaudSel = m_Combo_Baud.GetCurSel();						 // 获取波特率的选择项
 	TempStr.Format("%d", Combo_Baud[ComBaudSel]);
@@ -2565,25 +2656,82 @@ void CMySScomDlg::OnButtonONOFF()
 	TempStr.Format("%d", Combo_Stop[ComStopSel]);
 	ComStopSel = atoi(TempStr);
 
-	result = serial.Open(GetSafeHwnd(), WM_COMM_MESSAGE, ComNumber, ComBaudSel, ComDataSel, ComCheckSel, ComStopSel);
+	m_hSPCom = CreateFile(ComComNo, GENERIC_READ | GENERIC_WRITE, 0, // 打开串口，获取句柄
+		                  NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
+	
+	if (m_hSPCom == INVALID_HANDLE_VALUE) {                          // 串口打开失败
+		MessageBox("打开串口失败，该串口可能正在使用中...   ", "提示", MB_OK + MB_ICONERROR);
+		return;
+	}
+	
+	SetupComm(m_hSPCom, MAXBLOCK, MAXBLOCK);                         // 设置缓存大小
+	SetCommMask(m_hSPCom, EV_RXCHAR);                                // 设置过滤掩码??? - 所有字符全接收
+	
+	TimeOuts.ReadIntervalTimeout         = MAXDWORD;                 // 读间隔超时
+	TimeOuts.ReadTotalTimeoutConstant    = 0;                        // 读时间常量
+	TimeOuts.ReadTotalTimeoutMultiplier  = 0;                        // 读时间系数
+	TimeOuts.WriteTotalTimeoutConstant   = 2000;                     // 写时间常量
+	TimeOuts.WriteTotalTimeoutMultiplier = 50;                       // 写时间系数
 
-	if (result) {
+	SetCommTimeouts(m_hSPCom, &TimeOuts);                            // 设置超时参数
 
-		m_PortOpened = TRUE;
-		
-		SetControlStatus(TRUE);                                      // 启用各个按钮控件
-		
-		SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
-
-		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
-		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
-		GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
-		GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(FALSE);
-		GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);		
-
+	if (!GetCommState(m_hSPCom, &dcb)) {                             // 首先获取当前的工作参数
+		MessageBox("串口工作参数获取失败，请确认该串口是否有效...   ", "提示", MB_OK + MB_ICONERROR);
+		return;
+	}
+	
+	dcb.fBinary      = TRUE;                                         // 二进制模式
+	dcb.BaudRate     = ComBaudSel;                                   // 设置波特率
+	dcb.ByteSize     = ComDataSel;                                   // 设置数据位
+	dcb.StopBits     = ComStopSel;
+	dcb.fParity      = TRUE;                                         // 开启校验功能
+	dcb.Parity       = ComCheckSel;
+	dcb.XonChar      = XON;
+	dcb.XoffChar     = XOFF;
+	dcb.fOutxCtsFlow = 0;
+	dcb.fRtsControl  = 0;
+	dcb.fInX         = 0;
+	dcb.fOutX        = 0;
+	
+	if (dcb.XoffLim = 50) {
+		dcb.XonLim = 1;
 	} else {
+		dcb.XonLim = 0;
+	}
+		
+	if (SetCommState(m_hSPCom, &dcb)) {                              // 首先配置串口参数
+		
+		m_pThread = AfxBeginThread(SPCommProc, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL);     // 新开一个线程用于监听串口数据
+		
+		if (m_pThread == NULL) {                                     // 如果线程创建失败
 
-        MessageBox("打开串口失败，该串口可能正在使用中...   ", "提示", MB_OK + MB_ICONERROR);
+			CloseHandle(m_hSPCom);                                   // 关闭串口句柄
+
+			MessageBox("出现异常！串口监听线程创建失败...   ", "提示", MB_OK + MB_ICONERROR);
+			return;
+
+		} else {                                                     // 开始正常工作
+
+			m_pThread->ResumeThread();
+
+			m_PortOpened = TRUE;
+			
+			SetControlStatus(TRUE);                                  // 启用各个按钮控件
+			
+			SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
+			
+			GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
+			GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
+			GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
+			GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(FALSE);
+			GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);
+		}
+
+	} else {                                                         // 串口配置失败，关闭串口句柄
+
+		CloseHandle(m_hSPCom);
+		MessageBox("串口参数配置失败，请确认各个参数是否合法...   ", "提示", MB_OK + MB_ICONERROR);
+		return;
 	}
 }
 
@@ -2597,12 +2745,12 @@ void CMySScomDlg::OnButtonPause()
 {
 	if (m_bRecvPause == FALSE) {
 		m_bRecvPause = TRUE;
-		SetDlgItemText(IDC_BUTTON_PAUSE, "暂停接收");
-		GetDlgItem(IDC_BUTTON_ONOFF)->EnableWindow(TRUE);
-	} else {
-		m_bRecvPause = FALSE;
 		SetDlgItemText(IDC_BUTTON_PAUSE, "恢复接收");
 		GetDlgItem(IDC_BUTTON_ONOFF)->EnableWindow(FALSE);
+	} else {
+		m_bRecvPause = FALSE;
+		SetDlgItemText(IDC_BUTTON_PAUSE, "暂停接收");
+		GetDlgItem(IDC_BUTTON_ONOFF)->EnableWindow(TRUE);
 	}
 }
 
@@ -2772,7 +2920,7 @@ void CMySScomDlg::OnCheckHexDisplay()
 			SetDlgItemText(IDC_STATIC_LINES, "行");
 		}
 
-		UpdateEditDisplay();                                             // 更新显示
+		UpdateEditDisplay();                                         // 更新显示
 	}
 }
 
@@ -2985,23 +3133,26 @@ void CMySScomDlg::OnMenuTrayExit()
 **************************************************************************************************/
 void CMySScomDlg::OnPaint() 
 {
-	if (IsIconic())
-	{
+	if (IsIconic())	{
+
 		CPaintDC dc(this);
 		
 		SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
 		
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
+
 		CRect rect;
+
 		GetClientRect(&rect);
+
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 		
 		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
+
+	} else {
+
 		CDialog::OnPaint();
 	}
 }
@@ -3029,22 +3180,33 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	s_top_offset  = 0;                                               // 该语句不能移动位置
 	s_left_offset = 0;
-	
-	m_bRecvPause = TRUE;
-	m_PortOpened  = FALSE;
+
+	m_pThread    = NULL;
+	m_bRecvPause = FALSE;
+	m_PortOpened = FALSE;
 	
 	StrRecved = "";
 	
 	Loop_Counter = 0;
+	MaxRecvLines = 0;
 	
 	RecvedLine = 0;
 	RecvedData = 0;
 	SendedData = 0;
-	
-    MaxRecvLines = 0;
 
 	SetIcon(m_hIcon, TRUE);
 	SetIcon(m_hIcon, FALSE);
+
+	memset(&m_osRead,  0, sizeof(OVERLAPPED));
+	memset(&m_osWrite, 0, sizeof(OVERLAPPED));
+	
+	if (!(m_osRead.hEvent = CreateEvent(NULL, TRUE, TRUE, NULL))) {
+		return FALSE;
+	}
+	
+	if (!(m_osWrite.hEvent = CreateEvent(NULL, TRUE, TRUE, NULL))) {
+		return FALSE;
+	}
 
 	s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
 	s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
@@ -3111,13 +3273,15 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 {
 	switch (nIDEvent)
 	{
-	    case Timer_No_RecvData:                                      // 接收串口数据
+		case Timer_No_RecvData:                                      // 接收到串口数据
 			if (m_DataRecvd == TRUE) {
-				HandleUSARTData();
+				SetTimer(Timer_No_RecvData, 10, NULL);
+				UpdateEditDisplay();                                 // 更新编辑框内容显示
+				UpdateStatusBarNow();                                // 更新状态栏统计数据的显示
 				m_DataRecvd = FALSE;
 			}
-		    break;
-
+			break;
+		
 		case Timer_No_StatusBar:                                     // 状态栏定时更新
 			UpdateStatusBarNow();
 			break;
@@ -3195,30 +3359,6 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 	CDialog::OnSizing(fwSide, pRect);
 
 	EASYSIZE_MINSIZE(800, 546, fwSide, pRect);                       // 限制窗体的最小尺寸
-}
-
-/**************************************************************************************************
-**  函数名称:  OnCommMessage
-**  功能描述:  处理串口通信控件消息
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-LRESULT CMySScomDlg::OnCommMessage(WPARAM wParam, LPARAM lParam)
-{
-	switch (wParam)
-	{
-		case MSG_READ:
-			m_DataRecvd = TRUE;
-			break;
-
-		case MSG_WRITE:
-			break;
-
-		default:
-			break;
-	}
-
-	return 0L;
 }
 
 /**************************************************************************************************

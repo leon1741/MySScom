@@ -4,6 +4,27 @@
 //
 #define IDD_MYSSCOM_DIALOG              102
 #define IDP_SOCKETS_INIT_FAILED         103
+#define IDS_STRING_001                  104
+#define IDS_STRING_002                  105
+#define IDS_STRING_003                  106
+#define IDS_STRING_004                  107
+#define IDS_STRING_005                  108
+#define IDS_STRING_006                  109
+#define IDS_STRING_007                  110
+#define IDS_STRING_008                  111
+#define IDS_STRING_009                  112
+#define IDS_STRING_010                  113
+#define IDS_STRING_011                  114
+#define IDS_STRING_012                  115
+#define IDS_STRING_013                  116
+#define IDS_STRING_014                  117
+#define IDS_STRING_015                  118
+#define IDS_STRING_016                  119
+#define IDS_STRING_017                  120
+#define IDS_STRING_018                  121
+#define IDS_STRING_019                  122
+#define IDS_STRING_020                  123
+#define IDS_STRING_021                  124
 #define IDR_MAINFRAME                   128
 #define IDC_STATIC_CONTROL              1000
 #define IDC_STATIC_RECEIVE              1001

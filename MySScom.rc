@@ -78,7 +78,7 @@ STYLE DS_MODALFRAME | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "MySScom"
-FONT 9, "宋体"
+FONT 9, "宋体", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT_RECV,126,18,411,234,ES_MULTILINE | 
                     ES_AUTOVSCROLL | ES_READONLY | ES_WANTRETURN | 
@@ -226,6 +226,31 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败。"
+    IDS_STRING_001          "选择需要打开的串口号"
+    IDS_STRING_002          "请选择串口通信使用的波特率"
+    IDS_STRING_003          "暂不提供数据位的选择，默认为8位"
+    IDS_STRING_004          "暂不提供停止位的选择，默认为1位"
+    IDS_STRING_005          "打开/关闭指定串口"
+    IDS_STRING_006          "暂停/恢复接收串口数据"
+    IDS_STRING_007          "清空接收区的数据显示"
+    IDS_STRING_008          "保存接收区的数据内容至文本文件"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_STRING_009          "以16进制的形式显示数据内容"
+    IDS_STRING_010          "当接收到一定数量的字节之后，自动清空接收区的数据"
+    IDS_STRING_011          "清空接收区的数据之前，自动将其保存到文本文件中"
+    IDS_STRING_012          "读取指定文本文件的内容，并显示在发送区"
+    IDS_STRING_013          "暂停/恢复发送串口数据"
+    IDS_STRING_014          "清空发送区的内容，重新输入"
+    IDS_STRING_015          "将发送区内显示的数据发送出去"
+    IDS_STRING_016          "以16进制的形式发送数据内容"
+    IDS_STRING_017          "间隔一定时间自动循环发送数据"
+    IDS_STRING_018          "输入需要间隔的时间值（0到60秒之间）"
+    IDS_STRING_019          "将状态栏上显示的计数值全部清零"
+    IDS_STRING_020          "此处显示已经接收的数据内容"
+    IDS_STRING_021          "此处显示需要发送的数据内容"
 END
 
 #endif    // Chinese (中国) resources

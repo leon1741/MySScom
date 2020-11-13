@@ -609,18 +609,16 @@ void CMySScomDlg::OnButtonONOFF()
 		m_ctrlComm.SetRThreshold(1);                                 // 参数1表示每当串口接收缓冲区中有多于或等于1个字符时将引发一个接收数据的OnComm事件
 		m_ctrlComm.SetInputLen(0);                                   // 设置当前接收区数据长度为0
 		m_ctrlComm.GetInput();                                       // 先预读缓冲区以清除残留数据
+				
+		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
 		
 		m_PortOpened = TRUE;
 		
-		MessageBox("※※※   成功打开串口!   ※※※    ", "恭喜", MB_OK + MB_ICONINFORMATION);
-		
-		SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
-		
 		SetControlStatus(TRUE);                                      // 启用各个按钮控件
 		
+		SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
 		GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
 		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
-
 		GetDlgItem(IDC_BUTTON_SAVE)->EnableWindow(TRUE);
 
 	} else {
@@ -913,13 +911,30 @@ BOOL CMySScomDlg::OnInitDialog()
 	
 	// CG: The following block was added by the ToolTips component.
 	{
-		// Create the ToolTip control.
 		m_tooltip.Create(this);
 		m_tooltip.Activate(TRUE);
 
-		// TODO: Use one of the following forms to add controls:
-		// m_tooltip.AddTool(GetDlgItem(IDC_<name>), <string-table-id>);
-		// m_tooltip.AddTool(GetDlgItem(IDC_<name>), "<text>");
+		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_COMNO),     IDS_STRING_001);
+		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_BAUD),      IDS_STRING_002);
+		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_DATA),      IDS_STRING_003);
+		m_tooltip.AddTool(GetDlgItem(IDC_COMBO_STOP),      IDS_STRING_004);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_ONOFF),    IDS_STRING_005);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE),    IDS_STRING_006);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_CLEAR),    IDS_STRING_007);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SAVE),     IDS_STRING_008);
+		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXDSPL),   IDS_STRING_009);
+		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOCLEAR), IDS_STRING_010);
+		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSAVE),  IDS_STRING_011);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_READ),     IDS_STRING_012);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_RESPITE),  IDS_STRING_013);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_REIPUT),   IDS_STRING_014);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SEND),     IDS_STRING_015);
+		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXSEND),   IDS_STRING_016);
+		m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSEND),  IDS_STRING_017);
+		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_TIMER),      IDS_STRING_018);
+		m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_COUNT),    IDS_STRING_019);
+		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_RECV),       IDS_STRING_020);
+		m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_021);
 	}
 
 	RePaintWindows();                                                // 重绘窗口

@@ -77,6 +77,7 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSEND, OnCheckAutoSend)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
+	ON_BN_CLICKED(IDC_BUTTON_COUNT, OnButtonCount)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -174,13 +175,13 @@ void CMySScomDlg::RePaintWindows(void)
 	//	return;
 	//}
 
-	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow(10, 10, 158, Main.Height() - 20);
+	GetDlgItem(IDC_STATIC_CONTROL)->MoveWindow(10, 10, 158, Main.Height() - 40);
 	
-	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow(180, 10, Main.Width() - 190, Main.Height() - 110);
-	GetDlgItem(IDC_EDIT_RECV)->MoveWindow(190, 28, Main.Width() - 210, Main.Height() - 136);
+	GetDlgItem(IDC_STATIC_RECEIVE)->MoveWindow(180, 10, Main.Width() - 190, Main.Height() - 130);
+	GetDlgItem(IDC_EDIT_RECV)->MoveWindow(190, 28, Main.Width() - 210, Main.Height() - 156);
 	
-	GetDlgItem(IDC_STATIC_SEND)->MoveWindow(180, Main.Height() - 92, Main.Width() - 190, 82);
-	GetDlgItem(IDC_EDIT_SEND)->MoveWindow(190, Main.Height() - 74, Main.Width() - 210, 56);
+	GetDlgItem(IDC_STATIC_SEND)->MoveWindow(180, Main.Height() - 112, Main.Width() - 190, 82);
+	GetDlgItem(IDC_EDIT_SEND)->MoveWindow(190, Main.Height() - 94, Main.Width() - 210, 56);
 }
 
 void CMySScomDlg::SetControlStatus(bool Enable)
@@ -339,6 +340,46 @@ void CMySScomDlg::NeedAutoSendData(void)
 	}
 }
 
+void CMySScomDlg::UpdateStatusBarNow(void)
+{
+	CTime   Nowtime;
+	CString TempStr, DisplayStr;	
+	
+	Nowtime = CTime::GetCurrentTime();
+	
+	DisplayStr = m_PortOpened ? " 串口已打开" : " 串口未打开";	
+	m_StatusBar.SetText(DisplayStr, 1, 0 );
+
+	DisplayStr.Format(" Recv: %.4d", RecvedData);
+	m_StatusBar.SetText(DisplayStr, 2, 0 );
+
+	DisplayStr.Format(" Send: %.4d", SendedData);
+	m_StatusBar.SetText(DisplayStr, 3, 0 );
+
+	DisplayStr = " 当前时间: " + Nowtime.Format("%Y-%m-%d") + " " + Nowtime.Format("%H:%M:%S");
+	m_StatusBar.SetText(DisplayStr, 4, 0);
+}
+
+void CMySScomDlg::InitiateStatusBar(void)
+{
+	m_StatusBar.Create(WS_CHILD | WS_VISIBLE | CCS_BOTTOM, CRect(0, 0, 0, 0), this, 102);
+	
+	int strPartDim[5] = {300, 400, 500, 600,  -1};                   // 将状态栏划分为若干个区域
+	m_StatusBar.SetParts(5, strPartDim);
+	
+	CTime time;
+	CString m_strTime;
+	
+	time = CTime::GetCurrentTime();
+	m_strTime = " 当前时间: " + time.Format("%Y-%m-%d") + " " + time.Format("%H:%M:%S");
+	
+	m_StatusBar.SetText(" 欢迎使用MySScom - 雅迅网络研发一部测试组", 0, 0 );
+	m_StatusBar.SetText(" 串口未打开", 1, 0 );
+	m_StatusBar.SetText(" Recv: 0000", 2, 0 );
+	m_StatusBar.SetText(" Send: 0000", 3, 0 );
+	m_StatusBar.SetText(m_strTime, 4, 0);
+}
+
 void CMySScomDlg::InitiateComboComs(void)
 {
 	EnumComm();                                                      // 枚举可用的串口
@@ -396,11 +437,17 @@ void CMySScomDlg::SendEditDatatoComm(void)
 		len = String2Hex(m_Edit_Send, hexdata);
 		
         m_ctrlComm.SetOutput(COleVariant(hexdata));                  // 发送十六进制数据
+
+		SendedData += len;                                           // 发送字节数累加
 		
     } else {
 		
         m_ctrlComm.SetOutput(COleVariant(m_Edit_Send));              // 发送ASCII字符数据
+
+		SendedData += m_Edit_Send.GetLength();                       // 发送字节数累加
 	}
+
+	UpdateStatusBarNow();                                            // 更新状态栏统计数据的显示
 }
 
 /* ==================================== 自定义函数区--结束 ===================================== */
@@ -437,6 +484,9 @@ void CMySScomDlg::OnButtonONOFF()
 		GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(TRUE);
 
 		SetControlStatus(FALSE);
+
+		RecvedData = 0;                                              // 累计单元清零
+		SendedData = 0;
 
 		m_PortOpened = FALSE;
 
@@ -524,6 +574,11 @@ void CMySScomDlg::OnButtonClear()
 	
 	m_Edit_Recv = "";
 	SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+
+	RecvedData = 0;
+	SendedData = 0;
+
+	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }
 
 void CMySScomDlg::OnButtonSave() 
@@ -569,6 +624,14 @@ void CMySScomDlg::OnButtonReiput()
 void CMySScomDlg::OnButtonSend() 
 {
 	SendEditDatatoComm();
+}
+
+void CMySScomDlg::OnButtonCount() 
+{
+	RecvedData = 0;
+	SendedData = 0;
+
+	UpdateStatusBarNow();                                            // 更新状态栏的统计数据显示
 }
 
 void CMySScomDlg::OnCheckHexDisplay() 
@@ -654,6 +717,8 @@ BOOL CMySScomDlg::OnInitDialog()
 	s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
 	s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
 
+	InitiateStatusBar();
+
 	InitiateComboComs();                                             // 初始化选择串口号的列表框
 	InitiateComboBaud();                                             // 初始化选择波特率的列表框
 	InitiateComboData();                                             // 初始化选择数据位的列表框
@@ -677,7 +742,12 @@ BOOL CMySScomDlg::OnInitDialog()
 
 	ReceiveStr = "";
 
+	RecvedData = 0;
+	SendedData = 0;
+
 	CreateDirectory(RecordPath, NULL);                               // 创建Record文件夹，用于保存数据
+
+	SetTimer(Timer_No_Update, 1000, NULL);
 	
 	// CG: The following block was added by the ToolTips component.
 	{
@@ -701,12 +771,14 @@ BOOL CMySScomDlg::OnInitDialog()
 
 void CMySScomDlg::OnTimer(UINT nIDEvent) 
 {
-	if (nIDEvent != Timer_No_Main) {
+	if (nIDEvent == Timer_No_Update) {                               // 状态栏定时更新
+		UpdateStatusBarNow();
+	} else if (nIDEvent == Timer_No_Main) {                          // 自动发送数据
+		SendEditDatatoComm();
+	} else {
 		return;
 	}
 	
-	SendEditDatatoComm();
-
 	CDialog::OnTimer(nIDEvent);
 }
 
@@ -755,11 +827,15 @@ void CMySScomDlg::OnOnCommMscomm()
             BYTE bt = *(char *)(RecvData + i);                       // 转换为字符型
 
 			TempStr.Format("%c", bt);
-			ReceiveStr += TempStr;                                   // 保存数据内容			
+			ReceiveStr += TempStr;                                   // 保存数据内容
+			
+			RecvedData++;                                            // 接收字节数累加
         }
 
 		ReceiveStr.Left(RecvLen);
 		
-		UpdateEditDisplay();                                         // 更新显示
+		UpdateEditDisplay();                                         // 更新编辑框内容显示
+
+		UpdateStatusBarNow();                                        // 更新状态栏统计数据的显示
     }
 }

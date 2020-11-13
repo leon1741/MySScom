@@ -11,7 +11,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#define  Timer_No_Main       0x01                                    // 定义定时器序号
+#define  Timer_No_Update     0x01                                    // 状态栏定时更新定时器
+#define  Timer_No_Main       0x02                                    // 自动发送数据定时器
 
 /////////////////////////////////////////////////////////////////////////////
 // CMySScomDlg dialog
@@ -48,6 +49,11 @@ public:
 
 	CString        ReceiveStr;                                       // 用来保存所接收的数据内容
 
+	int            RecvedData;                                       // 已经接收的字节数
+	int            SendedData;                                       // 已经发送的字节数
+
+	CStatusBarCtrl m_StatusBar;                                      // 定义状态栏控制
+
 	BOOL EnumComm(void);
 	CString TransformtoHex(CString InputStr);
 	char ConvertHexChar(char ch);
@@ -57,6 +63,9 @@ public:
 	void NeedClearWindow(void);
 	void UpdateEditDisplay(void);
 	void NeedAutoSendData(void);
+	void UpdateStatusBarNow(void);
+
+	void InitiateStatusBar(void);
 
 	void InitiateComboComs(void);
 	void InitiateComboBaud(void);
@@ -98,6 +107,7 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnOnCommMscomm();
+	afx_msg void OnButtonCount();
 	DECLARE_EVENTSINK_MAP()
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

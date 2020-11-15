@@ -14,8 +14,6 @@ static OVERLAPPED            s_EventWrite;                                     /
 /**************************************************************************************************
 **  函数名称:  ListenProc
 **  功能描述:  串口设备监听函数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 static UINT SerailDevHdlProc(LPVOID pParam)
 {
@@ -48,17 +46,8 @@ static UINT SerailDevHdlProc(LPVOID pParam)
 			if (SerialDevisOpened() == FALSE) {
 				::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_COMDEVLIST, 0, 0);
 			} else {
-				MessageBox(NULL, "检测到串口设备发生变化！\r\n请点击主窗体的“关闭串口”，然后点击本提示框的“确认键”！\r\n系统将自动扫描串口设备变化并重新进行枚举显示...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-				if (SerialDevisOpened() == TRUE) {
-					MessageBox(NULL, "串口尚未关闭，无法刷新设备！！！\r\n请先通过主窗体关闭串口，然后再点击本提示框的“确认键”！！", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-					if (SerialDevisOpened() == TRUE) {
-						MessageBox(NULL, "您依然没有关闭串口！！！\r\n系统不再提示，也不会自动扫描和枚举串口设备\r\n请您重启本软件以刷新串口设备...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
-					} else {
-						::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_COMDEVLIST, 0, 0);
-					}
-				} else {
-					::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_COMDEVLIST, 0, 0);
-				}
+				::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_COMDEVWAIT, 0, 0);
+				MessageBox(NULL, "检测到串口设备发生变化！\r\n程序将在当前串口关闭之后自动更新设备列表...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
 			}
 		}
 	}
@@ -72,8 +61,6 @@ static UINT SerailDevHdlProc(LPVOID pParam)
 /**************************************************************************************************
 **  函数名称:  ReadComm
 **  功能描述:  从串口获取数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 static DWORD ReadComm(unsigned char *buf, DWORD dwLength)
 {
@@ -91,8 +78,6 @@ static DWORD ReadComm(unsigned char *buf, DWORD dwLength)
 /**************************************************************************************************
 **  函数名称:  WriteComm
 **  功能描述:  向串口发送数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 static DWORD WriteComm(unsigned char *buf, DWORD dwLength)
 {
@@ -116,8 +101,6 @@ static DWORD WriteComm(unsigned char *buf, DWORD dwLength)
 /**************************************************************************************************
 **  函数名称:  ReadHandleUartData
 **  功能描述:  处理所接收到的数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 static void ReadHandleUartData(void)
 {
@@ -134,8 +117,6 @@ static void ReadHandleUartData(void)
 /**************************************************************************************************
 **  函数名称:  SerailDataHdlProc
 **  功能描述:  串口线程处理函数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 static UINT SerailDataHdlProc(LPVOID pParam)
 {
@@ -175,8 +156,6 @@ static UINT SerailDataHdlProc(LPVOID pParam)
 /**************************************************************************************************
 **  函数名称:  OpenSerialDevice
 **  功能描述:  打开串口设备
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool OpenSerialDevice(LPCSTR dname, SRL_DEV_PARA_T *spara)
 {
@@ -267,8 +246,6 @@ bool OpenSerialDevice(LPCSTR dname, SRL_DEV_PARA_T *spara)
 /**************************************************************************************************
 **  函数名称:  CloseSerialDevice
 **  功能描述:  关闭串口设备
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool CloseSerialDevice(void)
 {
@@ -302,8 +279,6 @@ bool CloseSerialDevice(void)
 /**************************************************************************************************
 **  函数名称:  SerialDevisOpened
 **  功能描述:  串口设备是否已经打开
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool SerialDevisOpened(void)
 {
@@ -313,8 +288,6 @@ bool SerialDevisOpened(void)
 /**************************************************************************************************
 **  函数名称:  SendSerialData
 **  功能描述:  尝试发送串口数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 int SendSerialData(unsigned char *sbuf, int slen)
 {
@@ -332,8 +305,6 @@ int SendSerialData(unsigned char *sbuf, int slen)
 /**************************************************************************************************
 **  函数名称:  CreateDeviceThread
 **  功能描述:  创建串口设备监听线程
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool CreateDeviceThread(void)
 {

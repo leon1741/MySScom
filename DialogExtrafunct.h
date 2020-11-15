@@ -1,17 +1,26 @@
 #pragma once
 
-#define  _DISPLAY_HEX                  0x00                          // 以16进制格式显示
-#define  _DISPLAY_CHAR                 0x01                          // 以字符格式显示
+/*************************************************************************************************/
+/*                                     各字段参数名称定义                                        */
+/*************************************************************************************************/
+#define EXTRAFUNT_POSTIONX             "PostionX"
+#define EXTRAFUNT_POSTIONY             "PostionY"
 
-#define  _MODE_ASEMBLE                 0x00                          // 封装数据模式
-#define  _MODE_DSAMBLE                 0x01                          // 解封数据模式
+/*************************************************************************************************/
+/*                                     模块宏定义                                                */
+/*************************************************************************************************/
+#define  _DISPLAY_HEX                  0x00                                    // 以16进制格式显示
+#define  _DISPLAY_CHAR                 0x01                                    // 以字符格式显示
 
-#define  _CHKSUM_ADO                   0x00                          // 原码累加和
-#define  _CHKSUM_ADN                   0x01                          // 反码累加和
-#define  _CHKSUM_XOR                   0x02                          // 异或校验和
+#define  _MODE_ASEMBLE                 0x00                                    // 封装数据模式
+#define  _MODE_DSAMBLE                 0x01                                    // 解封数据模式
 
-#define  MAX_CHKSUM_BYTE               1024                          // 计算校验和的最大长度
-#define  MAX_FRAME_LENTH               1024                          // 数据封装的最大长度
+#define  _CHKSUM_ADO                   0x00                                    // 原码累加和
+#define  _CHKSUM_ADN                   0x01                                    // 反码累加和
+#define  _CHKSUM_XOR                   0x02                                    // 异或校验和
+
+#define  MAX_CHKSUM_BYTE               1024                                    // 计算校验和的最大长度
+#define  MAX_FRAME_LENTH               1024                                    // 数据封装的最大长度
 
 class CDialogExtrafunct : public CDialog
 {

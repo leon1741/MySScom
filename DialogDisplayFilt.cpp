@@ -55,7 +55,6 @@ END_MESSAGE_MAP()
 /**************************************************************************************************
 **  函数名称:  FilterEditValid
 **  功能描述:  判断过滤字符串编辑框内容是否有效
-**  输入参数:  
 **  返回参数:  只要有一个内容有效，则返回TRUE。全部都为空，则返回FALSE
 **************************************************************************************************/
 bool CDialogDsplFilt::FilterEditValid(void)
@@ -86,8 +85,6 @@ bool CDialogDsplFilt::FilterEditValid(void)
 /**************************************************************************************************
 **  函数名称:  SetEditControlEnble
 **  功能描述:  设置各个编辑框控件的可见性
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::SetEditControlEnble(bool enable)
 {
@@ -112,8 +109,6 @@ void CDialogDsplFilt::SetEditControlEnble(bool enable)
 /**************************************************************************************************
 **  函数名称:  OnBnClickedRadioOpenmode
 **  功能描述:  切换为全开模式
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::OnBnClickedRadioOpenmode()
 {
@@ -125,8 +120,6 @@ void CDialogDsplFilt::OnBnClickedRadioOpenmode()
 /**************************************************************************************************
 **  函数名称:  OnBnClickedRadioFiltmode
 **  功能描述:  切换为过滤模式
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::OnBnClickedRadioFiltmode()
 {
@@ -138,8 +131,6 @@ void CDialogDsplFilt::OnBnClickedRadioFiltmode()
 /**************************************************************************************************
 **  函数名称:  OnBnClickedRadioDsplmode
 **  功能描述:  切换为匹配模式
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::OnBnClickedRadioDsplmode()
 {
@@ -162,8 +153,6 @@ void CDialogDsplFilt::OnBnClickedRadioDsplmode()
 /**************************************************************************************************
 **  函数名称:  ShowHideDlgWindow
 **  功能描述:  显示和隐藏本窗口，包括读取和存储窗口位置参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::ShowHideDlgWindow(bool show)
 {
@@ -190,35 +179,33 @@ void CDialogDsplFilt::ShowHideDlgWindow(bool show)
 /**************************************************************************************************
 **  函数名称:  InitiateAllParas
 **  功能描述:  初始化各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::InitiateAllParas(void)
 {
 	char TempChar[MAX_SEND_BYTE];
 	
-	s_DialogPos_X = (::GetPrivateProfileInt("DsplFilt", "DialogPos_X",  0, ".\\Settings.ini"));
-	s_DialogPos_Y = (::GetPrivateProfileInt("DsplFilt", "DialogPos_Y",  0, ".\\Settings.ini"));
+	s_DialogPos_X = (::GetPrivateProfileInt(FLAG_DISPLYFLT, DISPLYFLT_POSTIONX,  0, CONFIGFILENAME));
+	s_DialogPos_Y = (::GetPrivateProfileInt(FLAG_DISPLYFLT, DISPLYFLT_POSTIONY,  0, CONFIGFILENAME));
 
-	m_Radio_FilterMode = (::GetPrivateProfileInt("DsplFilt", "FilterMode",  0, ".\\Settings.ini"));
+	m_Radio_FilterMode = (::GetPrivateProfileInt(FLAG_DISPLYFLT, DISPLYFLT_FILTMODE,  0, CONFIGFILENAME));
 
-	::GetPrivateProfileString("DsplFilt", "FilterStr1", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR1, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
 	m_Edit_Str1.Format("%s", TempChar);
 	SetDlgItemText(IDC_EDIT_STR1, m_Edit_Str1);
 
-	::GetPrivateProfileString("DsplFilt", "FilterStr2", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR2, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
 	m_Edit_Str2.Format("%s", TempChar);
 	SetDlgItemText(IDC_EDIT_STR2, m_Edit_Str2);
 
-	::GetPrivateProfileString("DsplFilt", "FilterStr3", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR3, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
 	m_Edit_Str3.Format("%s", TempChar);
 	SetDlgItemText(IDC_EDIT_STR3, m_Edit_Str3);
 
-	::GetPrivateProfileString("DsplFilt", "FilterStr4", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR4, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
 	m_Edit_Str4.Format("%s", TempChar);
 	SetDlgItemText(IDC_EDIT_STR4, m_Edit_Str4);
 
-	::GetPrivateProfileString("DsplFilt", "FilterStr5", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR5, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
 	m_Edit_Str5.Format("%s", TempChar);
 	SetDlgItemText(IDC_EDIT_STR5, m_Edit_Str5);
 
@@ -228,41 +215,46 @@ void CDialogDsplFilt::InitiateAllParas(void)
 /**************************************************************************************************
 **  函数名称:  RecordAllParas
 **  功能描述:  保存各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::RecordAllParas(void)
 {
 	CString ParaStr;
+
+	if ((s_DialogPos_X < 0) || (s_DialogPos_X > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_X = 0;
+	}
+
+	if ((s_DialogPos_Y < 0) || (s_DialogPos_Y > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_Y = 0;
+	}
 	
 	ParaStr.Format("%d", s_DialogPos_X);
-	::WritePrivateProfileString("DsplFilt", "DialogPos_X", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_POSTIONX, ParaStr, CONFIGFILENAME);
 	ParaStr.Format("%d", s_DialogPos_Y);
-	::WritePrivateProfileString("DsplFilt", "DialogPos_Y", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_POSTIONY, ParaStr, CONFIGFILENAME);
 
 	ParaStr.Format("%d", m_Radio_FilterMode);
-	::WritePrivateProfileString("DsplFilt", "FilterMode", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTMODE, ParaStr, CONFIGFILENAME);
 
 	GetDlgItemText(IDC_EDIT_STR1, m_Edit_Str1);
-	::WritePrivateProfileString("DsplFilt", "FilterStr1", m_Edit_Str1, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR1, m_Edit_Str1, CONFIGFILENAME);
 
 	GetDlgItemText(IDC_EDIT_STR2, m_Edit_Str2);
-	::WritePrivateProfileString("DsplFilt", "FilterStr2", m_Edit_Str2, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR2, m_Edit_Str2, CONFIGFILENAME);
 
 	GetDlgItemText(IDC_EDIT_STR3, m_Edit_Str3);
-	::WritePrivateProfileString("DsplFilt", "FilterStr3", m_Edit_Str3, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR3, m_Edit_Str3, CONFIGFILENAME);
 
 	GetDlgItemText(IDC_EDIT_STR4, m_Edit_Str4);
-	::WritePrivateProfileString("DsplFilt", "FilterStr4", m_Edit_Str4, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR4, m_Edit_Str4, CONFIGFILENAME);
 
 	GetDlgItemText(IDC_EDIT_STR5, m_Edit_Str5);
-	::WritePrivateProfileString("DsplFilt", "FilterStr5", m_Edit_Str5, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_DISPLYFLT, DISPLYFLT_FILTSTR5, m_Edit_Str5, CONFIGFILENAME);
 }
 
 /**************************************************************************************************
 **  函数名称:  StringCanDisplay
 **  功能描述:  对过滤字符串进行匹配，并返回匹配结果
-**  输入参数:  
 **  返回参数:  需要显示，返回TRUE；不需要显示，返回FALSE
 **************************************************************************************************/
 bool CDialogDsplFilt::StringCanDisplay(CString inputstr)
@@ -335,8 +327,6 @@ bool CDialogDsplFilt::StringCanDisplay(CString inputstr)
 /**************************************************************************************************
 **  函数名称:  OnInitDialog
 **  功能描述:  初始化
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogDsplFilt::OnInitDialog()
 {	
@@ -348,11 +338,10 @@ BOOL CDialogDsplFilt::OnInitDialog()
 /**************************************************************************************************
 **  函数名称:  OnClose
 **  功能描述:  窗体关闭消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogDsplFilt::OnClose()
 {
+	RecordAllParas();
 	ShowHideDlgWindow(FALSE);
 
 	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_DFDLGCLOSE, 0, 0);
@@ -363,8 +352,6 @@ void CDialogDsplFilt::OnClose()
 /**************************************************************************************************
 **  函数名称:  PreTranslateMessage
 **  功能描述:  预处理消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogDsplFilt::PreTranslateMessage(MSG* pMsg)
 {

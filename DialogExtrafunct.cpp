@@ -77,6 +77,10 @@ END_MESSAGE_MAP()
 
 /* ==================================== 以下为内部工具函数 ===================================== */
 
+/**************************************************************************************************
+**  函数名称:  InputStrValid
+**  功能描述:  判断输入的字符串内容是否合法
+**************************************************************************************************/
 bool CDialogExtrafunct::InputStrValid(CString incstr, int maxlen)
 {
 	if (incstr.GetLength() > maxlen) {
@@ -85,7 +89,7 @@ bool CDialogExtrafunct::InputStrValid(CString incstr, int maxlen)
 	}
 
 	if (ParseCStrisLegal(incstr) == FALSE) {
-		MessageBox("请注意：16进制！16进制的格式，您老不懂吗？别逼小的鄙视您！^-^\r\n\r\n举个例子：\"12 34\"或者\"12 34 \"都行！", "抱歉", MB_OK + MB_ICONEXCLAMATION);
+		MessageBox("请注意：16进制！16进制的格式，您老不懂吗？别逼小的鄙视您！^_^\r\n\r\n举个例子：\"12 34\"或者\"12 34 \"都行！数字中间必须有空格！", "抱歉", MB_OK + MB_ICONEXCLAMATION);
 		return FALSE;
 	}
 
@@ -104,9 +108,7 @@ bool CDialogExtrafunct::InputStrValid(CString incstr, int maxlen)
 
 /**************************************************************************************************
 **  函数名称:  OnChangeEditHead2
-**  功能描述:  
-**  输入参数:  
-**  返回参数:  
+**  功能描述:  更新HEAD字符串内容
 **************************************************************************************************/
 void CDialogExtrafunct::OnChangeEditHead2() 
 {
@@ -120,8 +122,6 @@ void CDialogExtrafunct::OnChangeEditHead2()
 /**************************************************************************************************
 **  函数名称:  OnButtonGetChksum
 **  功能描述:  计算校验和
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnButtonGetChksum() 
 {
@@ -171,8 +171,6 @@ void CDialogExtrafunct::OnButtonGetChksum()
 /**************************************************************************************************
 **  函数名称:  OnRadioDispHex
 **  功能描述:  HEX模式显示
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnRadioDispHex() 
 {
@@ -193,8 +191,6 @@ void CDialogExtrafunct::OnRadioDispHex()
 /**************************************************************************************************
 **  函数名称:  OnRADIODispChar
 **  功能描述:  字符模式显示
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnRADIODispChar() 
 {
@@ -221,8 +217,6 @@ void CDialogExtrafunct::OnRADIODispChar()
 /**************************************************************************************************
 **  函数名称:  OnButtonFrame
 **  功能描述:  封装数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnButtonFrame() 
 {
@@ -271,8 +265,6 @@ void CDialogExtrafunct::OnButtonFrame()
 /**************************************************************************************************
 **  函数名称:  OnButtonUnframe
 **  功能描述:  解封数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnButtonUnframe() 
 {
@@ -321,8 +313,6 @@ void CDialogExtrafunct::OnButtonUnframe()
 /**************************************************************************************************
 **  函数名称:  OnRadioAssemble
 **  功能描述:  切换到封装数据模式
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnRadioAssemble() 
 {
@@ -340,8 +330,6 @@ void CDialogExtrafunct::OnRadioAssemble()
 /**************************************************************************************************
 **  函数名称:  OnRadioDisasmble
 **  功能描述:  切换到解封数据模式
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnRadioDisasmble() 
 {
@@ -370,8 +358,6 @@ void CDialogExtrafunct::OnRadioDisasmble()
 /**************************************************************************************************
 **  函数名称:  ShowHideDlgWindow
 **  功能描述:  显示和隐藏本窗口，包括读取和存储窗口位置参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::ShowHideDlgWindow(bool show)
 {
@@ -392,29 +378,33 @@ void CDialogExtrafunct::ShowHideDlgWindow(bool show)
 /**************************************************************************************************
 **  函数名称:  InitiateAllParas
 **  功能描述:  初始化各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::InitiateAllParas(void)
 {
-	s_DialogPos_X = (::GetPrivateProfileInt("ExtrFunc", "DialogPos_X",  0, ".\\Settings.ini"));
-	s_DialogPos_Y = (::GetPrivateProfileInt("ExtrFunc", "DialogPos_Y",  0, ".\\Settings.ini"));
+	s_DialogPos_X = (::GetPrivateProfileInt(FLAG_EXTRAFUNT, EXTRAFUNT_POSTIONX,  0, CONFIGFILENAME));
+	s_DialogPos_Y = (::GetPrivateProfileInt(FLAG_EXTRAFUNT, EXTRAFUNT_POSTIONY,  0, CONFIGFILENAME));
 }
 
 /**************************************************************************************************
 **  函数名称:  RecordAllParas
 **  功能描述:  保存各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::RecordAllParas(void)
 {
 	CString ParaStr;
 	
+	if ((s_DialogPos_X < 0) || (s_DialogPos_X > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_X = 0;
+	}
+
+	if ((s_DialogPos_Y < 0) || (s_DialogPos_Y > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_Y = 0;
+	}
+	
 	ParaStr.Format("%d", s_DialogPos_X);
-	::WritePrivateProfileString("ExtrFunc", "DialogPos_X", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_EXTRAFUNT, EXTRAFUNT_POSTIONX, ParaStr, CONFIGFILENAME);
 	ParaStr.Format("%d", s_DialogPos_Y);
-	::WritePrivateProfileString("ExtrFunc", "DialogPos_Y", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_EXTRAFUNT, EXTRAFUNT_POSTIONY, ParaStr, CONFIGFILENAME);
 }
 
 /* ============================================================================================= */
@@ -429,8 +419,6 @@ void CDialogExtrafunct::RecordAllParas(void)
 /**************************************************************************************************
 **  函数名称:  OnInitDialog
 **  功能描述:  初始化
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogExtrafunct::OnInitDialog() 
 {
@@ -439,8 +427,7 @@ BOOL CDialogExtrafunct::OnInitDialog()
 	s_curdispmode = -1;
 
 	GetDlgItem(IDC_BUTTON_UNFRAME)->EnableWindow(FALSE);
-	
-	// CG: The following block was added by the ToolTips component.
+
 	{
 		m_tooltip.Create(this);
 		m_tooltip.Activate(TRUE);
@@ -457,8 +444,6 @@ BOOL CDialogExtrafunct::OnInitDialog()
 /**************************************************************************************************
 **  函数名称:  PreTranslateMessage
 **  功能描述:  预处理消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogExtrafunct::PreTranslateMessage(MSG* pMsg) 
 {
@@ -478,8 +463,6 @@ BOOL CDialogExtrafunct::PreTranslateMessage(MSG* pMsg)
 /**************************************************************************************************
 **  函数名称:  OnClose
 **  功能描述:  窗体关闭消息处理
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogExtrafunct::OnClose() 
 {

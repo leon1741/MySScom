@@ -2,10 +2,21 @@
 
 #include "mysscomtool.h"
 
-#define SDTMODE_NUM          20                                                /* 普通模式下的条目个数 */
-#define EXTMODE_NUM          40                                                /* 扩展模式下的条目个数 */
+/*************************************************************************************************/
+/*                                     各字段参数名称定义                                        */
+/*************************************************************************************************/
+#define SUPERSEND_POSTIONX             "PostionX"
+#define SUPERSEND_POSTIONY             "PostionY"
 
-#define SCANR_TIMER          100                                               /* 多条轮发的扫描间隔 */
+#define SUPERSEND_LOOPTIME             "LoopTime"
+
+/*************************************************************************************************/
+/*                                     模块宏定义                                                */
+/*************************************************************************************************/
+#define SDTMODE_NUM                    20                                      /* 普通模式下的条目个数 */
+#define EXTMODE_NUM                    40                                      /* 扩展模式下的条目个数 */
+
+#define SCANR_TIMER                    100                                     /* 多条轮发的扫描间隔 */
 
 class CDialogSuperSend : public CDialog
 {
@@ -22,7 +33,7 @@ public:
 	bool           s_cirsendall;                                               /* 是否需要轮回发送全部数据 */
 	bool           s_issenddata;                                               /* 是否正处于发送数据中 */
 
-	int            s_sendcnt[40];                                              /* 记录每一条数据的发送计数 */
+	int            s_sendcnt[EXTMODE_NUM];                                     /* 记录每一条数据的发送计数 */
 
 	bool EditDataValid(CString cstr, BOOL ishex);
 	int  GetSrValidDataNo(void);

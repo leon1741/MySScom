@@ -1,8 +1,24 @@
 #pragma once
 
-#define  _OPEN_MODE                   0x00                                     // 全开模式
-#define  _FILT_MODE                   0x01                                     // 过滤模式
-#define  _MATH_MODE                   0x02                                     // 匹配模式
+/*************************************************************************************************/
+/*                                     各字段参数名称定义                                        */
+/*************************************************************************************************/
+#define DISPLYFLT_POSTIONX             "PostionX"
+#define DISPLYFLT_POSTIONY             "PostionY"
+
+#define DISPLYFLT_FILTMODE             "FiltMode"
+#define DISPLYFLT_FILTSTR1             "FiltStr1"
+#define DISPLYFLT_FILTSTR2             "FiltStr2"
+#define DISPLYFLT_FILTSTR3             "FiltStr3"
+#define DISPLYFLT_FILTSTR4             "FiltStr4"
+#define DISPLYFLT_FILTSTR5             "FiltStr5"
+
+/*************************************************************************************************/
+/*                                     模块宏定义                                                */
+/*************************************************************************************************/
+#define  _OPEN_MODE                    0x00                                    // 全开模式
+#define  _FILT_MODE                    0x01                                    // 过滤模式
+#define  _MATH_MODE                    0x02                                    // 匹配模式
 
 class CDialogDsplFilt : public CDialog
 {

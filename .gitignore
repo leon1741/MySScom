@@ -50,3 +50,10 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+
+Record/*
+Debug/*
+.vs/*
+Settings.ini
+Thumbs.db

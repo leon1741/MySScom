@@ -40,8 +40,6 @@ END_MESSAGE_MAP()
 /**************************************************************************************************
 **  函数名称:  SetEditControlEnble
 **  功能描述:  设置各个编辑框控件的可见性
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAutoReply::SetEditControlEnble(bool enable)
 {
@@ -61,8 +59,6 @@ void CDialogAutoReply::SetEditControlEnble(bool enable)
 /**************************************************************************************************
 **  函数名称:  OnBnClickedButtonClearall
 **  功能描述:  清除全部内容重填
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAutoReply::OnBnClickedButtonClearall()
 {
@@ -84,8 +80,6 @@ void CDialogAutoReply::OnBnClickedButtonClearall()
 /**************************************************************************************************
 **  函数名称:  OnBnClickedButtonSavestr
 **  功能描述:  保存所填内容
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAutoReply::OnBnClickedButtonSavestr()
 {
@@ -129,8 +123,6 @@ void CDialogAutoReply::OnBnClickedButtonSavestr()
 /**************************************************************************************************
 **  函数名称:  ShowHideDlgWindow
 **  功能描述:  显示和隐藏本窗口，包括读取和存储窗口位置参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAutoReply::ShowHideDlgWindow(bool show)
 {
@@ -152,27 +144,25 @@ void CDialogAutoReply::ShowHideDlgWindow(bool show)
 /**************************************************************************************************
 **  函数名称:  InitiateAllParas
 **  功能描述:  初始化各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAutoReply::InitiateAllParas(void)
 {
 	char TempChar[MAX_STR_LEN];
 	CString tempstr;
 
-	s_DialogPos_X = (::GetPrivateProfileInt("AutoRply", "DialogPos_X",  0, ".\\Settings.ini"));
-	s_DialogPos_Y = (::GetPrivateProfileInt("AutoRply", "DialogPos_Y",  0, ".\\Settings.ini"));
+	s_DialogPos_X = (::GetPrivateProfileInt(FLAG_AUTOREPLY, AUTOREPLY_POSTIONX,  0, CONFIGFILENAME));
+	s_DialogPos_Y = (::GetPrivateProfileInt(FLAG_AUTOREPLY, AUTOREPLY_POSTIONY,  0, CONFIGFILENAME));
 
-	for (int i = IDC_EDIT_RECVSTR1; i <= IDC_EDIT_RECVSTR8; i++) {             /* 初始化8个接收字符串的内容 */
-		tempstr.Format("RecvStr%.2d", i + 1 - IDC_EDIT_RECVSTR1);
-		::GetPrivateProfileString("AutoRply", tempstr, "", TempChar, MAX_STR_LEN, ".\\Settings.ini");
+	for (int i = IDC_EDIT_RECVSTR1; i <= IDC_EDIT_RECVSTR8; i++) {             /* 初始化各个接收字符串的内容 */
+		tempstr.Format("RX_Str%.2d", i + 1 - IDC_EDIT_RECVSTR1);
+		::GetPrivateProfileString(FLAG_AUTOREPLY, tempstr, "", TempChar, MAX_STR_LEN, CONFIGFILENAME);
 		tempstr.Format("%s", TempChar);
 		SetDlgItemText(i, tempstr);
 	}
 
-	for (int i = IDC_EDIT_SENDSTR1; i <= IDC_EDIT_SENDSTR8; i++) {             /* 初始化8个接收字符串的内容 */
-		tempstr.Format("SendStr%.2d", i + 1 - IDC_EDIT_SENDSTR1);
-		::GetPrivateProfileString("AutoRply", tempstr, "", TempChar, MAX_STR_LEN, ".\\Settings.ini");
+	for (int i = IDC_EDIT_SENDSTR1; i <= IDC_EDIT_SENDSTR8; i++) {             /* 初始化各个接收字符串的内容 */
+		tempstr.Format("TX_Str%.2d", i + 1 - IDC_EDIT_SENDSTR1);
+		::GetPrivateProfileString(FLAG_AUTOREPLY, tempstr, "", TempChar, MAX_STR_LEN, CONFIGFILENAME);
 		tempstr.Format("%s", TempChar);
 		SetDlgItemText(i, tempstr);
 	}
@@ -183,37 +173,41 @@ void CDialogAutoReply::InitiateAllParas(void)
 /**************************************************************************************************
 **  函数名称:  RecordAllParas
 **  功能描述:  保存各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAutoReply::RecordAllParas(void)
 {
 	CString ParaStr, EditStr;
 
-	ParaStr.Format("%d", s_DialogPos_X);
-	::WritePrivateProfileString("AutoRply", "DialogPos_X", ParaStr, ".\\Settings.ini");
-
-	ParaStr.Format("%d", s_DialogPos_Y);
-	::WritePrivateProfileString("AutoRply", "DialogPos_Y", ParaStr, ".\\Settings.ini");
-
-	for (int i = IDC_EDIT_RECVSTR1; i <= IDC_EDIT_RECVSTR8; i++) {             /* 保存8个接收字符串的内容 */
-		GetDlgItemText(i, ParaStr);
-		EditStr.Format("RecvStr%.2d", i + 1 - IDC_EDIT_RECVSTR1);
-		::WritePrivateProfileString("AutoRply", EditStr, ParaStr, ".\\Settings.ini");
+	if ((s_DialogPos_X < 0) || (s_DialogPos_X > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_X = 0;
 	}
 
-	for (int i = IDC_EDIT_SENDSTR1; i <= IDC_EDIT_SENDSTR8; i++) {             /* 保存8个接收字符串的内容 */
+	if ((s_DialogPos_Y < 0) || (s_DialogPos_Y > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_Y = 0;
+	}
+
+	ParaStr.Format("%d", s_DialogPos_X);
+	::WritePrivateProfileString(FLAG_AUTOREPLY, AUTOREPLY_POSTIONX, ParaStr, CONFIGFILENAME);
+
+	ParaStr.Format("%d", s_DialogPos_Y);
+	::WritePrivateProfileString(FLAG_AUTOREPLY, AUTOREPLY_POSTIONY, ParaStr, CONFIGFILENAME);
+
+	for (int i = IDC_EDIT_RECVSTR1; i <= IDC_EDIT_RECVSTR8; i++) {             /* 保存各个接收字符串的内容 */
 		GetDlgItemText(i, ParaStr);
-		EditStr.Format("SendStr%.2d", i + 1 - IDC_EDIT_SENDSTR1);
-		::WritePrivateProfileString("AutoRply", EditStr, ParaStr, ".\\Settings.ini");
+		EditStr.Format("RX_Str%.2d", i + 1 - IDC_EDIT_RECVSTR1);
+		::WritePrivateProfileString(FLAG_AUTOREPLY, EditStr, ParaStr, CONFIGFILENAME);
+	}
+
+	for (int i = IDC_EDIT_SENDSTR1; i <= IDC_EDIT_SENDSTR8; i++) {             /* 保存各个接收字符串的内容 */
+		GetDlgItemText(i, ParaStr);
+		EditStr.Format("TX_Str%.2d", i + 1 - IDC_EDIT_SENDSTR1);
+		::WritePrivateProfileString(FLAG_AUTOREPLY, EditStr, ParaStr, CONFIGFILENAME);
 	}
 }
 
 /**************************************************************************************************
 **  函数名称:  GetTotalStringNo
 **  功能描述:  获取字符串总共个数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 int CDialogAutoReply::GetTotalStringNo(void)
 {
@@ -223,7 +217,6 @@ int CDialogAutoReply::GetTotalStringNo(void)
 /**************************************************************************************************
 **  函数名称:  GetRecvString
 **  功能描述:  获取第X个接收字符串
-**  输入参数:  
 **  返回参数:  没填的话返回空字符串
 **************************************************************************************************/
 CString CDialogAutoReply::GetRecvString(int index)
@@ -234,7 +227,6 @@ CString CDialogAutoReply::GetRecvString(int index)
 /**************************************************************************************************
 **  函数名称:  GetSendString
 **  功能描述:  获取第X个发送字符串
-**  输入参数:  
 **  返回参数:  没填的话返回空字符串
 **************************************************************************************************/
 CString CDialogAutoReply::GetSendString(int index)
@@ -255,8 +247,6 @@ CString CDialogAutoReply::GetSendString(int index)
 /**************************************************************************************************
 **  函数名称:  OnInitDialog
 **  功能描述:  窗体初始化
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogAutoReply::OnInitDialog()
 {
@@ -268,8 +258,6 @@ BOOL CDialogAutoReply::OnInitDialog()
 /**************************************************************************************************
 **  函数名称:  OnClose
 **  功能描述:  窗体关闭
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAutoReply::OnClose()
 {

@@ -44,8 +44,6 @@ END_MESSAGE_MAP()
 /**************************************************************************************************
 **  函数名称:  ReadandDisplayFile
 **  功能描述:  读取并显示文件内容
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAboutMe::ReadandDisplayFile(bool fileshown)
 {
@@ -59,8 +57,7 @@ void CDialogAboutMe::ReadandDisplayFile(bool fileshown)
 	}
 	
 	if (myFile.Open(FileName, CFile::modeRead) == 0) {
-
-		SetDlgItemText(IDC_EDIT_ABOUT, "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n                      信息文件读取失败，请确认路径正确且文件未处于打开状态！");
+		SetDlgItemText(IDC_EDIT_ABOUT, "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n                      没有找到信息文件啊，是否被阁下误删了？");
 		UpdateData(TRUE);
 
 	} else {
@@ -98,8 +95,6 @@ void CDialogAboutMe::ReadandDisplayFile(bool fileshown)
 /**************************************************************************************************
 **  函数名称:  OnButtonSwitch
 **  功能描述:  切换显示内容
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAboutMe::OnButtonSwitch() 
 {
@@ -127,8 +122,6 @@ void CDialogAboutMe::OnButtonSwitch()
 /**************************************************************************************************
 **  函数名称:  OnButtonReadOK
 **  功能描述:  成功返回
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogAboutMe::OnButtonReadOK() 
 {
@@ -149,8 +142,6 @@ void CDialogAboutMe::OnButtonReadOK()
 /**************************************************************************************************
 **  函数名称:  OnInitDialog
 **  功能描述:  初始化
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogAboutMe::OnInitDialog() 
 {

@@ -8,7 +8,7 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-static const CString RecordPath = "Record\\";                                  /* 定义存放数据文件的文件夹的路径 */
+#pragma comment(lib, "version")
 
 static const int    Combo_Baud[12] = {600,  1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600};
 static const int    Combo_Data[4]  = {5,    6,    7,    8};
@@ -19,22 +19,6 @@ static const int    Combo_Check[5] = {0,    1,    2,    3,   4};
 CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMySScomDlg::IDD, pParent)
 {
-	m_Check_AutoSave = FALSE;
-	m_Check_AutoSend = FALSE;
-	m_Check_HexDspl = FALSE;
-	m_Check_HexSend = FALSE;
-	m_Check_AutoClear = FALSE;
-	m_Check_Filter = FALSE;
-	m_Edit_Recv = _T("");
-	m_Edit_Send = _T("");
-	m_Edit_AutoTimer = _T("");
-    m_Edit_Lines = _T("1000");
-	m_Check_Return = FALSE;
-	m_Check_ShowTime = FALSE;
-	m_Check_FrameDspl = FALSE;
-	s_NeedChgLne = TRUE;
-	s_DataRecved = FALSE;
-	m_Edit_FilePath = _T("");
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	AfxInitRichEdit();                                                         /* 初始化RichEdit控件 */
@@ -43,30 +27,37 @@ CMySScomDlg::CMySScomDlg(CWnd* pParent /*=NULL*/)
 void CMySScomDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_PROGRESS_SENDFILE, m_Progress_SendFile);
-	DDX_Control(pDX, IDC_COMBO_CHECK, m_Combo_Check);
-	DDX_Control(pDX, IDC_COMBO_STOP, m_Combo_Stop);
-	DDX_Control(pDX, IDC_COMBO_DATA, m_Combo_Data);
-	DDX_Control(pDX, IDC_COMBO_BAUD, m_Combo_Baud);
-	DDX_Control(pDX, IDC_COMBO_COMNO, m_Combo_ComNo);
-	DDX_Check(pDX, IDC_CHECK_AUTOSAVE, m_Check_AutoSave);
-	DDX_Check(pDX, IDC_CHECK_AUTOSEND, m_Check_AutoSend);
-	DDX_Check(pDX, IDC_CHECK_HEXDSPL, m_Check_HexDspl);
-	DDX_Check(pDX, IDC_CHECK_HEXSEND, m_Check_HexSend);
-	DDX_Check(pDX, IDC_CHECK_AUTOCLEAR, m_Check_AutoClear);
-	DDX_Text(pDX, IDC_EDIT_RECV, m_Edit_Recv);
-	DDX_Text(pDX, IDC_EDIT_SEND, m_Edit_Send);
-	DDX_Text(pDX, IDC_EDIT_TIMER, m_Edit_AutoTimer);
-	DDV_MaxChars(pDX, m_Edit_AutoTimer, 5);
-	DDX_Text(pDX, IDC_EDIT_LINES, m_Edit_Lines);
-	DDV_MaxChars(pDX, m_Edit_Lines, 5);
-	DDX_Check(pDX, IDC_CHECK_RETURN, m_Check_Return);
+	DDX_Control(pDX, IDC_PROGRESS_SENDFILE, m_Progs_SendFile);
+	DDX_Control(pDX, IDC_COMBO_COMMPORT, m_Combo_CommPort);
+	DDX_Control(pDX, IDC_COMBO_BAUDRATE, m_Combo_BaudRate);
+	DDX_Control(pDX, IDC_COMBO_DATABITS, m_Combo_DataBits);
+	DDX_Control(pDX, IDC_COMBO_CHECKBIT, m_Combo_CheckBit);
+	DDX_Control(pDX, IDC_COMBO_STOPBITS, m_Combo_StopBits);
+
 	DDX_Check(pDX, IDC_CHECK_SHOWTIME, m_Check_ShowTime);
-	DDX_Check(pDX, IDC_CHECK_FRAMEDSPL, m_Check_FrameDspl);
-	DDX_Check(pDX, IDC_CHECK_AUTOREPLY, m_Check_AutoReply);
+	DDX_Check(pDX, IDC_CHECK_HEXDISPL, m_Check_HexDispl);
+	DDX_Check(pDX, IDC_CHECK_HEXFRAME, m_Check_HexFrame);
+	DDX_Check(pDX, IDC_CHECK_PROTOACK, m_Check_ProtoACK);
+	DDX_Check(pDX, IDC_CHECK_AUTOCLER, m_Check_AutoCler);
+	DDX_Check(pDX, IDC_CHECK_AUTOSAVE, m_Check_AutoSave);
+	DDX_Check(pDX, IDC_CHECK_AUTOFILT, m_Check_AutoFilt);
+	DDX_Check(pDX, IDC_CHECK_KEYWORDS, m_Check_Keywords);
+	DDX_Check(pDX, IDC_CHECK_HEXSSEND, m_Check_HexsSend);
+	DDX_Check(pDX, IDC_CHECK_CRLFSEND, m_Check_CRLFSend);
+	DDX_Check(pDX, IDC_CHECK_AUTOSEND, m_Check_AutoSend);
+	
+	DDX_Text(pDX, IDC_EDIT_RECVCSTR, m_Edit_RecvCstr);
+	DDX_Text(pDX, IDC_EDIT_SENDCSTR, m_Edit_SendCstr);
+
+	DDX_Text(pDX, IDC_EDIT_SENDTIME, m_Edit_SendTime);
+	DDV_MaxChars(pDX, m_Edit_SendTime, 5);
+
+	DDX_Text(pDX, IDC_EDIT_AUTCLRKB, m_Edit_AutClrKB);
+	DDV_MaxChars(pDX, m_Edit_AutClrKB, 5);
+
 	DDX_Text(pDX, IDC_EDIT_FILEPATH, m_Edit_FilePath);
-	DDX_Check(pDX, IDC_CHECK_FILTER, m_Check_Filter);
-	DDX_Control(pDX, IDC_EDIT_RECV, m_RichEdit_Recv);
+
+	DDX_Control(pDX, IDC_EDIT_RECVCSTR, m_RichEdit_Recv);
 }
 
 BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
@@ -100,32 +91,38 @@ BEGIN_MESSAGE_MAP(CMySScomDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_SEND, OnButtonSendData)
 	ON_BN_CLICKED(IDC_BUTTON_SRSEND, OnButtonSuperSend)
 	ON_BN_CLICKED(IDC_BUTTON_EXFUNCT, OnButtonExtrafunc)
+	ON_BN_CLICKED(IDC_BUTTON_KEYWORD, OnButtonConfigKeywords)
 	ON_BN_CLICKED(IDC_BUTTON_OPENFILE, OnButtonOpenFile)
 	ON_BN_CLICKED(IDC_BUTTON_SENDFILE, OnButtonSendFile)
 	ON_BN_CLICKED(IDC_BUTTON_SETFILTER, OnButtonConfigDsplFilt)
 	ON_BN_CLICKED(IDC_BUTTON_SETREPLY, OnButtonConfigAutoReply)
 
-	ON_BN_CLICKED(IDC_CHECK_HEXDSPL, OnCheckHexDisplay)
+	ON_BN_CLICKED(IDC_CHECK_HEXDISPL, OnCheckHexDisplay)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSAVE, OnCheckAutoSave)
-	ON_BN_CLICKED(IDC_CHECK_HEXSEND, OnCheckHexSend)
+	ON_BN_CLICKED(IDC_CHECK_HEXSSEND, OnCheckHexSend)
 	ON_BN_CLICKED(IDC_CHECK_AUTOSEND, OnCheckAutoSend)
-	ON_BN_CLICKED(IDC_CHECK_RETURN, OnCheckAddReturn)
+	ON_BN_CLICKED(IDC_CHECK_CRLFSEND, OnCheckAddReturn)
 	ON_BN_CLICKED(IDC_CHECK_SHOWTIME, OnCheckShowTime)
-	ON_BN_CLICKED(IDC_CHECK_AUTOCLEAR, OnCheckAutoClear)
-	ON_BN_CLICKED(IDC_CHECK_FRAMEDSPL, OnCheckFrameDspl)
-	ON_BN_CLICKED(IDC_CHECK_FILTER, OnCheckDsplFilt)
-	ON_BN_CLICKED(IDC_CHECK_AUTOREPLY, OnCheckAutoReply)
+	ON_BN_CLICKED(IDC_CHECK_AUTOCLER, OnCheckAutoClear)
+	ON_BN_CLICKED(IDC_CHECK_HEXFRAME, OnCheckFrameDspl)
+	ON_BN_CLICKED(IDC_CHECK_AUTOFILT, OnCheckDsplFilt)
+	ON_BN_CLICKED(IDC_CHECK_PROTOACK, OnCheckAutoReply)
+	ON_BN_CLICKED(IDC_CHECK_KEYWORDS, OnCheckKeyword)
 	
 	ON_MESSAGE(WM_USERMSG_NOTIFYICON, OnUsrMsgHdlIconNotify)
 	ON_MESSAGE(WM_USERMSG_COMDEVLIST, OnUsrMsgHdlComDevList)
+	ON_MESSAGE(WM_USERMSG_COMDEVWAIT, OnUsrMsgHdlComDevWait)
 	ON_MESSAGE(WM_USERMSG_DATARECVED, OnUsrMsgHdlDataRecved)
 	ON_MESSAGE(WM_USERMSG_DATATOSEND, OnUsrMsgHdlDatatoSend)
 	ON_MESSAGE(WM_USERMSG_ARDLGCLOSE, OnUsrMsgHdlARDlgClose)
 	ON_MESSAGE(WM_USERMSG_DFDLGCLOSE, OnUsrMsgHdlDFDlgClose)
 	ON_MESSAGE(WM_USERMSG_EFDLGCLOSE, OnUsrMsgHdlEFDlgClose)
 	ON_MESSAGE(WM_USERMSG_SSDLGCLOSE, OnUsrMsgHdlSSDlgClose)
+	ON_MESSAGE(WM_USERMSG_KWDLGCLOSE, OnUsrMsgHdlKWDlgClose)
+
 	ON_WM_SYSCOMMAND()
 	ON_WM_CONTEXTMENU()
+	ON_EN_CHANGE(IDC_EDIT_SENDCSTR, &CMySScomDlg::OnChangeEditSendcstr)
 END_MESSAGE_MAP()
 
 BEGIN_EVENTSINK_MAP(CMySScomDlg, CDialog)
@@ -138,8 +135,8 @@ BEGIN_EASYSIZE_MAP(CMySScomDlg)
 	EASYSIZE(IDC_STATIC_RECEIVE,    IDC_STATIC_CONTROL,  ES_BORDER,          ES_BORDER,          ES_BORDER,        0)
 	EASYSIZE(IDC_STATIC_SEND,       IDC_STATIC_CONTROL,  ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
 	EASYSIZE(IDC_STATIC_FILE,       IDC_STATIC_CONTROL,  ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_EDIT_RECV,         ES_BORDER,           ES_BORDER,          ES_BORDER,          ES_BORDER,        0)
-	EASYSIZE(IDC_EDIT_SEND,         ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_EDIT_RECVCSTR,     ES_BORDER,           ES_BORDER,          ES_BORDER,          ES_BORDER,        0)
+	EASYSIZE(IDC_EDIT_SENDCSTR,     ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
 	EASYSIZE(IDC_PROGRESS_SENDFILE, ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
 	EASYSIZE(IDC_BUTTON_SEND,       ES_KEEPSIZE,         ES_KEEPSIZE,        ES_BORDER,          IDC_STATIC_SEND,  0)
 	EASYSIZE(IDC_EDIT_FILEPATH,     ES_BORDER,           ES_KEEPSIZE,        ES_BORDER,          ES_BORDER,        0)
@@ -151,13 +148,13 @@ END_EASYSIZE_MAP
 /**************************************************************************************************
 **  函数名称:  EnumCommPortList
 **  功能描述:  本函数用来枚举电脑上存在可用的串口
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
-BOOL CMySScomDlg::EnumCommPortList()
+BOOL CMySScomDlg::EnumCommPortList(void)
 {
-	HKEY hSERIALCOMM;
-	BOOL bSuccess = FALSE;
+	HKEY    hSERIALCOMM;
+	BOOL    bSuccess = FALSE;
+	CString comstr;
+	bool    newone;
 	
 	s_PortNumber.RemoveAll();
 	
@@ -195,7 +192,18 @@ BOOL CMySScomDlg::EnumCommPortList()
 
 					if (dwType == REG_SZ) {
 						TCHAR* szPort = (TCHAR *)(byValue);
-						s_PortNumber.Add(szPort);	
+
+						newone = TRUE;
+
+						for (int i = 0; i < s_PortNumber.GetSize(); i++) {     /* 这段话是用来剔除名称一样的重复项 */
+							comstr = s_PortNumber.GetAt(i);
+							if (comstr == szPort) {
+								newone = FALSE;
+							}
+						}
+						if (newone == TRUE) {
+							s_PortNumber.Add(szPort);
+						}
 					}
 					
 					dwValueNameSize = dwMaxValueNameSizeInChars;
@@ -223,6 +231,51 @@ BOOL CMySScomDlg::EnumCommPortList()
 	return bSuccess;
 }
 
+/**************************************************************************************************
+**  函数名称:  GetProgramVersion
+**  功能描述:  获取本程序的版本号
+**************************************************************************************************/
+CString CMySScomDlg::GetProgramVersion(void)
+{
+	TCHAR szFullPath[MAX_PATH];
+	DWORD dwVerInfoSize = 0;
+	DWORD dwVerHnd;
+	VS_FIXEDFILEINFO * pFileInfo;
+	HANDLE  hMem;
+	LPVOID  lpvMem;
+	unsigned int uInfoSize = 0;
+	CString strVersion;
+	WORD m_nProdVersion[4];
+
+	GetModuleFileName(NULL, szFullPath, sizeof(szFullPath));
+	dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd);
+
+	if (dwVerInfoSize) {
+
+		hMem = GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
+		lpvMem = GlobalLock(hMem);
+		GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpvMem);
+
+		::VerQueryValue(lpvMem, (LPTSTR)_T("\\"), (void**)&pFileInfo, &uInfoSize);
+
+		m_nProdVersion[0] = HIWORD(pFileInfo->dwProductVersionMS); 
+		m_nProdVersion[1] = LOWORD(pFileInfo->dwProductVersionMS);
+		m_nProdVersion[2] = HIWORD(pFileInfo->dwProductVersionLS);
+		m_nProdVersion[3] = LOWORD(pFileInfo->dwProductVersionLS); 
+
+		#if RELEASE_VERSION == 1
+		strVersion.Format(_T("V%d.%d"), m_nProdVersion[0], m_nProdVersion[1]);
+		#else
+		strVersion.Format(_T("V%d.%d.%d.%d [Beta %s %s]"), m_nProdVersion[0], m_nProdVersion[1], m_nProdVersion[2], m_nProdVersion[3], __DATE__, __TIME__);
+		#endif
+
+		GlobalUnlock(hMem);
+		GlobalFree(hMem);
+	}
+
+	return strVersion;
+}
+
 
 /* ============================================================================================= */
 /* ====================================                    ===================================== */
@@ -235,8 +288,6 @@ BOOL CMySScomDlg::EnumCommPortList()
 /**************************************************************************************************
 **  函数名称:  SetControlStatus
 **  功能描述:  设置控件的状态
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::SetControlStatus(bool Enable)
 {
@@ -244,49 +295,57 @@ void CMySScomDlg::SetControlStatus(bool Enable)
     GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(Enable);
     GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(Enable);
-    GetDlgItem(IDC_CHECK_HEXDSPL)->EnableWindow(Enable);
-    GetDlgItem(IDC_CHECK_AUTOCLEAR)->EnableWindow(Enable);
+    GetDlgItem(IDC_CHECK_HEXDISPL)->EnableWindow(Enable);
+    GetDlgItem(IDC_CHECK_AUTOCLER)->EnableWindow(Enable);
     GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
-    GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
+    GetDlgItem(IDC_CHECK_HEXSSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_SHOWTIME)->EnableWindow(Enable);
-	GetDlgItem(IDC_CHECK_FILTER)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_AUTOFILT)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_KEYWORDS)->EnableWindow(Enable);
+	GetDlgItem(IDC_BUTTON_KEYWORD)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_OVER)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_LINES)->EnableWindow(Enable);
-	GetDlgItem(IDC_EDIT_LINES)->EnableWindow(Enable);
-	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_AUTCLRKB)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_SENDTIME)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
-	GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_CRLFSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(Enable);
 
-    if ((IsDlgButtonChecked(IDC_CHECK_AUTOCLEAR) == FALSE) || (Enable == FALSE)) {
+    if ((IsDlgButtonChecked(IDC_CHECK_AUTOCLER) == FALSE) || (Enable == FALSE)) {
         GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_HEXFRAME)->EnableWindow(FALSE);
     } else {
         GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(TRUE);
-		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(TRUE);
+		GetDlgItem(IDC_CHECK_HEXFRAME)->EnableWindow(TRUE);
     }
 
-	if (IsDlgButtonChecked(IDC_CHECK_HEXDSPL) == FALSE) {
-		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(FALSE);
-		GetDlgItem(IDC_CHECK_AUTOREPLY)->EnableWindow(FALSE);
+	if (IsDlgButtonChecked(IDC_CHECK_HEXDISPL) == FALSE) {
+		GetDlgItem(IDC_CHECK_HEXFRAME)->EnableWindow(FALSE);
+		GetDlgItem(IDC_CHECK_PROTOACK)->EnableWindow(FALSE);
 	} else {
-		GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(Enable);
-		GetDlgItem(IDC_CHECK_AUTOREPLY)->EnableWindow(Enable);
+		GetDlgItem(IDC_CHECK_HEXFRAME)->EnableWindow(Enable);
+		GetDlgItem(IDC_CHECK_PROTOACK)->EnableWindow(Enable);
 	}
 
 	if (Enable == TRUE) {
-		if (IsDlgButtonChecked(IDC_CHECK_AUTOREPLY) == TRUE) {
+		if (IsDlgButtonChecked(IDC_CHECK_PROTOACK) == TRUE) {
 			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(TRUE);
 		} else {
 			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(FALSE);
 		}
 
-		if (IsDlgButtonChecked(IDC_CHECK_FILTER) == TRUE) {
+		if (IsDlgButtonChecked(IDC_CHECK_AUTOFILT) == TRUE) {
 			GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(TRUE);
 		} else {
 			GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(FALSE);
+		}
+
+		if (IsDlgButtonChecked(IDC_CHECK_KEYWORDS) == TRUE) {
+			GetDlgItem(IDC_BUTTON_KEYWORD)->EnableWindow(TRUE);
+		} else {
+			GetDlgItem(IDC_BUTTON_KEYWORD)->EnableWindow(FALSE);
 		}
 	}
 }
@@ -294,21 +353,19 @@ void CMySScomDlg::SetControlStatus(bool Enable)
 /**************************************************************************************************
 **  函数名称:  SetSendCtrlArea
 **  功能描述:  在发送文件的时候设置各个发送区的状态
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::SetSendCtrlArea(bool Enable)
 {
-	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_HEXSSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(Enable);
-	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(Enable);
+	GetDlgItem(IDC_EDIT_SENDTIME)->EnableWindow(Enable);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_SRSEND)->EnableWindow(Enable);
-	GetDlgItem(IDC_CHECK_RETURN)->EnableWindow(Enable);
+	GetDlgItem(IDC_CHECK_CRLFSEND)->EnableWindow(Enable);
 	GetDlgItem(IDC_EDIT_FILEPATH)->EnableWindow(Enable);
 	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(Enable);
 	SetDlgItemText(IDC_BUTTON_SENDFILE, (Enable == TRUE) ? "开始发送" : "停止发送");
-	GetDlgItem(IDC_EDIT_SEND)->ShowWindow((Enable == TRUE) ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_EDIT_SENDCSTR)->ShowWindow((Enable == TRUE) ? SW_SHOW : SW_HIDE);
 	GetDlgItem(IDC_BUTTON_SEND)->ShowWindow((Enable == TRUE) ? SW_SHOW : SW_HIDE);
 	GetDlgItem(IDC_PROGRESS_SENDFILE)->ShowWindow((Enable == TRUE) ? SW_HIDE : SW_SHOW);
 
@@ -329,8 +386,6 @@ void CMySScomDlg::SetSendCtrlArea(bool Enable)
 /**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlIconNotify
 **  功能描述:  处理托盘图标消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlIconNotify(WPARAM wParam, LPARAM lParam)
 {
@@ -360,9 +415,7 @@ LRESULT CMySScomDlg::OnUsrMsgHdlIconNotify(WPARAM wParam, LPARAM lParam)
 
 /**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlComDevList
-**  功能描述:  处理更新串口号下拉列表内容的消息 （串口设备监听线程监听到串口设备发生变化时，发送本消息给主窗体通知其刷新列表显示）
-**  输入参数:  
-**  返回参数:  
+**  功能描述:  处理更新串口号下拉列表内容的消息 （串口设备监听线程监听到串口设备发生变化时，发送本消息给主窗体通知其立即刷新列表显示）
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlComDevList(WPARAM wParam, LPARAM lParam)
 {
@@ -372,10 +425,19 @@ LRESULT CMySScomDlg::OnUsrMsgHdlComDevList(WPARAM wParam, LPARAM lParam)
 }
 
 /**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlComDevWait
+**  功能描述:  处理稍候更新串口设备列表的消息 （串口设备监听线程监听到串口设备发生变化时，发送本消息给主窗体通知其稍候刷新列表显示）
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlComDevWait(WPARAM wParam, LPARAM lParam)
+{
+	s_DevNeedUpd = TRUE;
+
+	return true;
+}
+
+/**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlDataRecved
 **  功能描述:  处理接收到了串口数据的消息 （串口数据监听线程收到串口数据时，发送本消息给主窗体进行数据解析处理）
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlDataRecved(WPARAM wParam, LPARAM lParam)
 {
@@ -391,8 +453,6 @@ LRESULT CMySScomDlg::OnUsrMsgHdlDataRecved(WPARAM wParam, LPARAM lParam)
 /**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlDatatoSend
 **  功能描述:  处理有串口数据需要发送的消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlDatatoSend(WPARAM wParam, LPARAM lParam)
 {
@@ -408,8 +468,6 @@ LRESULT CMySScomDlg::OnUsrMsgHdlDatatoSend(WPARAM wParam, LPARAM lParam)
 /**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlARDlgClose
 **  功能描述:  处理自动回复窗口关闭的消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlARDlgClose(WPARAM wParam, LPARAM lParam)
 {
@@ -421,21 +479,24 @@ LRESULT CMySScomDlg::OnUsrMsgHdlARDlgClose(WPARAM wParam, LPARAM lParam)
 /**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlDFDlgClose
 **  功能描述:  处理显示过滤窗口关闭的消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlDFDlgClose(WPARAM wParam, LPARAM lParam)
 {
-	//GetDlgItem(IDC_BUTTON_EXFUNCT)->EnableWindow(TRUE);
+	return true;
+}
 
+/**************************************************************************************************
+**  函数名称:  OnUsrMsgHdlKWDlgClose
+**  功能描述:  处理关键字匹配窗口关闭的消息
+**************************************************************************************************/
+LRESULT CMySScomDlg::OnUsrMsgHdlKWDlgClose(WPARAM wParam, LPARAM lParam)
+{
 	return true;
 }
 
 /**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlEFDlgClose
 **  功能描述:  处理附加功能窗口关闭的消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlEFDlgClose(WPARAM wParam, LPARAM lParam)
 {
@@ -447,15 +508,13 @@ LRESULT CMySScomDlg::OnUsrMsgHdlEFDlgClose(WPARAM wParam, LPARAM lParam)
 /**************************************************************************************************
 **  函数名称:  OnUsrMsgHdlSSDlgClose
 **  功能描述:  处理高级发送窗口关闭的消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 LRESULT CMySScomDlg::OnUsrMsgHdlSSDlgClose(WPARAM wParam, LPARAM lParam)
 {
 	SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
-	GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(TRUE);
+	GetDlgItem(IDC_CHECK_HEXSSEND)->EnableWindow(TRUE);
 	GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
+	GetDlgItem(IDC_EDIT_SENDTIME)->EnableWindow(TRUE);
 	GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
@@ -471,13 +530,76 @@ LRESULT CMySScomDlg::OnUsrMsgHdlSSDlgClose(WPARAM wParam, LPARAM lParam)
 /* ====================================                    ===================================== */
 /* ============================================================================================= */
 
+
 /* ==================================== 以下为自定义处理函数 =================================== */
+
+/**************************************************************************************************
+**  函数名称:  KeyWordMatchOK
+**  功能描述:  关键字匹配成功
+**************************************************************************************************/
+bool CMySScomDlg::KeyWordMatchOK(CString showstr)
+{
+	CString  tempstr;
+	
+	for (int i = 1; i < s_PDlgKeyWords->GetKeywordMax(); i++) {                /* 逐条分析，关键字是否匹配成功 */
+		tempstr = s_PDlgKeyWords->GetKeywordX(i);
+		if ((tempstr != "") && (tempstr.GetLength() > 0)) {
+			if (showstr.Find(tempstr, 0) != -1) {
+				s_PDlgKeyWords->AddNewMatchRec(i);                             /* 将匹配结果通知到该页面进行处理 */
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+/**************************************************************************************************
+**  函数名称:  ShakeMainWindow
+**  功能描述:  抖动窗体
+**************************************************************************************************/
+void CMySScomDlg::ShakeMainWindow(void)
+{
+	CRect rect;  
+	int m_move = SHAKE_DISTANCE;
+
+	GetWindowRect(&rect);  
+
+	for (int i = 1; i < 11; i++)  {                                            /* 为了使窗口抖动后能回到原来的位置，这里设置i必须为5的倍数并且i<5*n+1 */
+		rect.OffsetRect(0, m_move);                                            /* OffsetRect函数将指定的矩形移动到指定的位置,这里是将矩形向上移动10像素 */
+		MoveWindow(&rect);  
+		Sleep(40);
+		rect.OffsetRect(m_move,0);
+		MoveWindow(&rect);
+		Sleep(40);
+		m_move = (m_move == SHAKE_DISTANCE) ? (-SHAKE_DISTANCE) : SHAKE_DISTANCE;
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  AttractAttention
+**  功能描述:  吸引用户的注意
+**************************************************************************************************/
+void CMySScomDlg::AttractAttention(void)
+{
+	FlashWindowEx(FLASHW_ALL | FLASHW_TIMERNOFG, 10, 0);
+
+	if (IsIconic() == TRUE) {                                                  /* 如果窗体已经最小化，将其最大化显示 */
+		ShowWindow(SW_SHOWMAXIMIZED);
+	} else {                                                                   /* 否则，将其按原来的状态显示出来即可 */
+		ShowWindow(SW_SHOW);
+	}
+
+	ShakeMainWindow();
+
+	if (s_PDlgKeyWords->IsWindowVisible() == FALSE) {
+		s_PDlgKeyWords->ShowHideDlgWindow(TRUE);                               /* 弹出窗体，用于展示匹配结果 */
+	}
+}
 
 /**************************************************************************************************
 **  函数名称:  CloseAllChildWin
 **  功能描述:  关闭所有子窗口
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::CloseAllChildWin(void)
 {
@@ -490,26 +612,105 @@ void CMySScomDlg::CloseAllChildWin(void)
 	s_PDlgDsplFilt->ShowHideDlgWindow(FALSE);                                  /* 关闭过滤设置窗口 */
 	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_DFDLGCLOSE, 0, 0);
 
+	s_PDlgKeyWords->ShowHideDlgWindow(FALSE);                                  /* 关闭关键字符窗口 */
+	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_KWDLGCLOSE, 0, 0);
+
 	s_PDlgAutoRply->ShowHideDlgWindow(FALSE);                                  /* 关闭自动回复窗口 */
 	::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_ARDLGCLOSE, 0, 0);
 }
 
 /**************************************************************************************************
+**  函数名称:  UserFnKeyHdl
+**  功能描述:  用户自定义Fn功能键消息处理
+**************************************************************************************************/
+bool CMySScomDlg::UserFnKeyHdl(WPARAM key)
+{
+	unsigned char dirbuf[512];
+	CString       pathstr;
+	
+	if (key == VK_F1) {                                                        /* 按下F1键：弹出系统帮助的对话框 */
+		CDialogAboutMe Dlgabout;
+		Dlgabout.DoModal();
+		return true;
+	}
+
+	if (key == VK_F2) {                                                        /* 按下F2键：自动打开系统保存文件的目录 */
+		GetCurrentDirectory(512, (LPSTR)dirbuf);
+		pathstr = dirbuf;
+		pathstr = pathstr + "\\" + REC_DIR_PATH;
+		ShellExecute(NULL, "open", pathstr, NULL, NULL, SW_SHOWNORMAL);
+		return true;
+	}
+
+	if (key == VK_F5) {                                                        /* 按下F5键：清空数据窗口的全部内容 */
+		OnButtonClearAll();
+		return true;
+	}
+
+	if (key == VK_F8) {                                                        /* 按下F8键：开始发送文件数据内容 */
+		if (SerialDevisOpened() == TRUE) {
+			OnButtonSendFile();
+		} else {
+			MessageBox("串口都没打开，您叫我把文件往哪里发送？", "提示", MB_OK + MB_ICONERROR);
+		}
+		return true;
+	}
+
+	if (key == VK_F12) {                                                       /* 按下F12键：保存数据窗口的全部内容 */
+		OnButtonSaveFile();
+		return true;
+	}
+
+	MessageBox("此热键的功能尚未定义......\r\n阁下是否有很好的建议？欢迎随时出谋划策！", "提示", MB_OK + MB_ICONINFORMATION);
+	return false;
+}
+
+/**************************************************************************************************
+**  函数名称:  GetHighExactTime
+**  功能描述:  获取精确的时间
+**************************************************************************************************/
+CString CMySScomDlg::GetHighExactTime(void)
+{
+	CString       timestr;
+	LARGE_INTEGER litmp;
+	CTime         NowTime;
+	LONGLONG      NowTick;
+	double        difFreq, difTime;
+
+	QueryPerformanceFrequency(&litmp);
+	difFreq = (double)litmp.QuadPart;                                          /* 获得计数器的时钟频率 */
+
+	QueryPerformanceCounter(&litmp);
+	NowTick = litmp.QuadPart;                                                  /* 获得中止值 */
+
+	difTime = (1000 * ((double)(NowTick - s_StartdTcik))) / difFreq;           /* 获得对应的时间值，单位为ms */
+
+	NowTime = CTime::GetCurrentTime();
+	timestr.Format("[%.2d:%.2d:%.2d:%.3d] ", NowTime.GetHour(), NowTime.GetMinute(), NowTime.GetSecond(), ((int)difTime % 1000));
+
+	return timestr;
+}
+
+/**************************************************************************************************
 **  函数名称:  SaveEditContent
 **  功能描述:  保存编辑框的内容到文本文件
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool CMySScomDlg::SaveEditContent(void)
 {
     CFile   MyFile;                                                            /* 定义文件类 */
+	CString CommStr, FileName;
+	int     ComNumber;
     CTime   NowTime  = CTime::GetCurrentTime();                                /* 获取现在时间 */
-    CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";
+
+	ComNumber = m_Combo_CommPort.GetCurSel();
+	m_Combo_CommPort.GetLBText(ComNumber, CommStr);
+
+	FileName = "All_Rec_" + CommStr + NowTime.Format("_%y-%m-%d_%H-%M-%S") + ".txt";
     
-    GetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+    GetDlgItemText(IDC_EDIT_RECVCSTR, m_Edit_RecvCstr);
 	
-	if (MyFile.Open(RecordPath + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
-        MyFile.Write(m_Edit_Recv, m_Edit_Recv.GetLength());                    /* 写入文本文件 */
+	if (MyFile.Open(REC_DIR_PATH + FileName, CFile::modeCreate | CFile::modeReadWrite)) {
+        MyFile.Write(m_Edit_RecvCstr, m_Edit_RecvCstr.GetLength());            /* 写入文本文件 */
         MyFile.Close();                                                        /* 关闭文件 */
 		return TRUE;
     } else {
@@ -518,54 +719,49 @@ bool CMySScomDlg::SaveEditContent(void)
 }
 
 /**************************************************************************************************
+**  函数名称:  ExcuteAutoReply
+**  功能描述:  处理协议数据的自动回复
+**************************************************************************************************/
+void CMySScomDlg::ExcuteAutoReply(CString instr)
+{
+	CString TempStr;
+	unsigned char sbuf[MAX_SEND_BYTE];
+
+	for (int i = 0; i < s_PDlgAutoRply->GetTotalStringNo(); i++) {
+		TempStr = s_PDlgAutoRply->GetRecvString(i);
+		if ((TempStr.GetLength() > 0) && (instr.Find(TempStr, 0) != -1)) {
+			TempStr = s_PDlgAutoRply->GetSendString(i);
+			if (TempStr.GetLength() > 0) {
+				strncpy_s((char *)&sbuf[0], sizeof(sbuf), (LPCTSTR)TempStr, TempStr.GetLength());
+				SendDatatoComm(sbuf, TempStr.GetLength(), TRUE);
+			}
+		}
+	}
+}
+
+/**************************************************************************************************
 **  函数名称:  UpdateEditStr
 **  功能描述:  将更新部分的字符显示出来
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::UpdateEditStr(CString showstr)
 {
-	int     linecnt;
-	CString TimeStr, TempStr;
-	unsigned char sbuf[MAX_SEND_BYTE];
-
-    /* 如果没有开启自动清空数据的功能，同时窗口内已经接收了太多的内容，为了防止CPU占用率过高，因此需要强制清空 */
-
-    if ((m_Check_AutoClear == FALSE) && (s_RecvedByte >= MAX_DISP_BYTE)) {
-        s_RecvedLine = 0;                                                      /* 首先清空变量值 */
-        s_RecvedByte = 0;
-        m_Edit_Recv = "";
-        SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);                            /* 清空编辑框内容 */
-		MessageBox("接收到的数据内容实在太多啦，我受不了啦\r\n所以就擅自清理掉了，还望您老不要生气哈......\r\n从系统稳定性出发，小的建议您老最好还是开启自动清空功能\r\n否则，老是给我塞啊塞却又从不清理一下的话，我很容易崩溃的哦~~~", "提示", MB_OK + MB_ICONINFORMATION);
-    }
-
     /* 如果开启了显示过滤功能，则进行字符串匹配，不需要显示的字符串内容不予显示，只是更新一下状态栏的统计信息 */
-	if ((m_Check_Filter == TRUE) && (s_PDlgDsplFilt->StringCanDisplay(showstr) == FALSE)) {
+	if ((m_Check_AutoFilt == TRUE) && (s_PDlgDsplFilt->StringCanDisplay(showstr) == FALSE)) {
 		UpdateStatusBarNow();
 		return;
 	}
 
-	/* 如果在16进制显示模式下，同时开启了自动回复的功能。则判断接收到的字符中是否有满足条件的字段，并进行自动回复 */
-	if ((m_Check_HexDspl == TRUE) && (m_Check_AutoReply == TRUE)) {
-		for (int i = 0; i < s_PDlgAutoRply->GetTotalStringNo(); i++) {
-			TempStr = s_PDlgAutoRply->GetRecvString(i);
-			if ((TempStr.GetLength() > 0) && (showstr.Find(TempStr, 0) != -1)) {
-				TempStr = s_PDlgAutoRply->GetSendString(i);
-				if (TempStr.GetLength() > 0) {
-					strncpy_s((char *)&sbuf[0], sizeof(sbuf), (LPCTSTR)TempStr, TempStr.GetLength());
-					SendDatatoComm(sbuf, TempStr.GetLength(), TRUE);
-				}
-			}
-		}
+	/* 如果开启了关键字自动匹配的功能，则进行字符串匹配。匹配成功时，自动进行窗体抖动及弹出对话框提示，来吸引用户的注意 */
+	if ((m_Check_Keywords == TRUE) && (KeyWordMatchOK(showstr) == TRUE)) {
+		AttractAttention();
 	}
-    
-    if (m_Check_HexDspl == TRUE) {                                             /* 16进制模式下 */
-		linecnt = s_RecvedByte;                                                /* 以字符数来判断结果 */
-	} else {                                                                   /* 字符模式下 */
-        linecnt = s_RecvedLine;                                                /* 以行数来判断结果 */
-    }
 
-	#if 0                                                                      /* ◆◆这种方法会导致中文乱码◆◆ */
+	/* 如果在16进制显示模式下，同时开启了自动回复的功能。则判断接收到的字符中是否有满足条件的字段，并进行自动回复 */
+	if ((m_Check_HexDispl == TRUE) && (m_Check_ProtoACK == TRUE)) {
+		ExcuteAutoReply(showstr);
+	}
+
+	#if 1                                                                      /* ◆◆这种方法会导致中文乱码◆◆ */
 	{
 		s_Edit_Recv->SetSel(-1, -1);                                           /* 添加本次的内容显示 */
 		s_Edit_Recv->ReplaceSel((LPCTSTR)showstr);
@@ -573,88 +769,38 @@ void CMySScomDlg::UpdateEditStr(CString showstr)
 	}
 	#else                                                                      /* ◆◆这种方法会导致CPU占用率过高◆◆ */
 	{
-		m_Edit_Recv += showstr;                                                /* 添加本次的内容显示 */
-		SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+		m_Edit_RecvCstr += showstr;                                            /* 添加本次的内容显示 */
+		SetDlgItemText(IDC_EDIT_RECVCSTR, m_Edit_RecvCstr);
         s_Edit_Recv->SetSel(-1, -1);
 		s_Edit_Recv->PostMessage(WM_VSCROLL, SB_BOTTOM, 0);                    /* 让编辑框内容滚动到最后一行 */
 	}
 	#endif
 
 	if (showstr.Right(1) == "\n") {                                            /* 如果接收到了回车符 */
-
-		if (m_Check_AutoClear == TRUE) {                                       /* 如果需要自动清空内容 */
-			
-			GetDlgItemText(IDC_EDIT_LINES, m_Edit_Lines);                      /* 读取数据并保存 */
-			
-			if (linecnt >= atoi((LPSTR)(LPCTSTR)m_Edit_Lines)) {               /* 判断是否满足清空条件*/
-				
-				s_RecvedLine = 0;                                              /* 首先清空变量值 */
-				s_RecvedByte = 0;
-				
-				if (m_Check_AutoSave) {
+		if (m_Check_AutoCler == TRUE) {                                        /* 如果需要自动清空内容 */
+			GetDlgItemText(IDC_EDIT_AUTCLRKB, m_Edit_AutClrKB);                /* 读取数据并保存 */
+			if (s_RecvedByte >= (atoi((LPSTR)(LPCTSTR)m_Edit_AutClrKB) * 1024)) {        /* 判断是否满足清空条件*/
+				if (m_Check_AutoSave == TRUE) {                                /* 如果需要自动保存 */
 					SaveEditContent();                                         /* 保存编辑框的数据 */
 				}
-				
-				m_Edit_Recv = "";
-				SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);                    /* 清空编辑框内容 */
+				s_RecvedByte = 0;
+				m_Edit_RecvCstr = "";
+				SetDlgItemText(IDC_EDIT_RECVCSTR, m_Edit_RecvCstr);            /* 清空编辑框内容 */
 			}
 		}
 	}
-
-    /*************************************************************************************************\
-    |                          以下语句实现对接收编辑框的闪屏现象的屏蔽作用                           |
-    \*************************************************************************************************/
-    
-    if (GetFocus() == GetDlgItem(IDC_EDIT_RECV)) {                             /* 将窗口焦点转移至发送编辑框 */
-        GetDlgItem(IDC_EDIT_INPUT)->SetFocus();
-    }
 
 	UpdateStatusBarNow();                                                      /* 更新状态栏统计数据的显示 */
 }
 
 /**************************************************************************************************
-**  函数名称:  UpdateEditDisplay
-**  功能描述:  更新编辑框的显示
-**  输入参数:  
-**  返回参数:  
-**************************************************************************************************/
-void CMySScomDlg::UpdateEditDisplay(void)
-{
-	CString TimeStr, TempStr;
-    CTime   NowTime;
-
-    if (m_Check_HexDspl == TRUE) {                                             /* 16进制模式下 */
-
-        TempStr = TransformtoHex(s_RecvString);                                /* 转换结果为16进制显示 */
-
-		if (s_NeedChgLne == TRUE) {                                            /* 如果需要换行显示 */
-			if (m_Check_ShowTime == TRUE) {                                    /* 启用时间显示功能 */
-				NowTime = CTime::GetCurrentTime();                             /* 获取现在时间 */
-				TimeStr = NowTime.Format("[%H:%M:%S] ");
-				TempStr = TimeStr + TempStr; 
-			}
-			s_NeedChgLne = FALSE;
-		}
-    } else {                                                                   /* 字符模式下 */
-		TempStr = s_RecvString;                                                /* 不用转换，直接显示 */
-    }
-
-	s_RecvString = "";
-
-	UpdateEditStr(TempStr);                                                    /* 更新显示接收到的字符 */
-}
-
-/**************************************************************************************************
 **  函数名称:  HandleUSARTData
 **  功能描述:  接收串口数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::HandleUSARTData(unsigned char *sbuf, DWORD len)
 {
     DWORD   i;
     CString ShowStr, TempStr, TimeStr;
-    CTime   NowTime;
 
 	TempStr = "";
 	ShowStr = "";
@@ -663,7 +809,7 @@ void CMySScomDlg::HandleUSARTData(unsigned char *sbuf, DWORD len)
 
     for (i = 0; i < len; i++) {                                                /* 将数组转换为Cstring型变量 */
 
-		if (m_Check_HexDspl == TRUE) {                                         /* 当前处于16进制显示模式 */
+		if (m_Check_HexDispl == TRUE) {                                        /* 当前处于16进制显示模式 */
 
 			/* 考虑到00字符的特殊性，需要对其进行转义才能存储。转义规则如下：00转义成FF 01，FF转义成FF 02，其他字符不转义 */
 
@@ -675,9 +821,16 @@ void CMySScomDlg::HandleUSARTData(unsigned char *sbuf, DWORD len)
 				TempStr.Format("%c", sbuf[i]);
 			}
 
-			ShowStr += TempStr;                                                /* 保存数据内容 */
+			TempStr = TransformtoHex(TempStr);                                 /* 转换结果为16进制显示 */
+
+			if ((s_NeedChgLne == TRUE) && (m_Check_ShowTime == TRUE)) {        /* 如果需要换行显示 */
+				ShowStr +=  GetHighExactTime() + TempStr; 
+				s_NeedChgLne = FALSE;
+			} else {
+				ShowStr += TempStr; 
+			}
 			
-			if (m_Check_FrameDspl == TRUE) {                                   /* 这里判断接下来一段时间内是否没有再收到其他数据 */
+			if (m_Check_HexFrame == TRUE) {                                    /* 这里判断接下来一段时间内是否没有再收到其他数据 */
 				KillTimer(Timer_No_FrameDspl);                                 /* 以实现16进制下，按帧换行显示的功能 */
 				SetTimer(Timer_No_FrameDspl, CHNGLINE_INTERVAL, NULL);         /* 这里重新启动定时器判断是否没有再收到其他数据 */
 			}
@@ -687,9 +840,7 @@ void CMySScomDlg::HandleUSARTData(unsigned char *sbuf, DWORD len)
 			if (s_NeedChgLne == TRUE) {                                        /* 如果接收完一整行 */
 
 				if (m_Check_ShowTime == TRUE) {                                /* 如果启用了时间显示功能 */
-					NowTime = CTime::GetCurrentTime();                         /* 获取当前系统时间 */
-					TimeStr = NowTime.Format("[%H:%M:%S] ");
-					ShowStr = ShowStr + TimeStr;
+					ShowStr = ShowStr + GetHighExactTime();
 				}
 				
 				s_NeedChgLne = FALSE;
@@ -699,8 +850,6 @@ void CMySScomDlg::HandleUSARTData(unsigned char *sbuf, DWORD len)
 			ShowStr += TempStr;                                                /* 保存数据内容 */
 
 			if (TempStr == "\n") {                                             /* 本次接收到回车符 */
-
-				s_RecvedLine++;                                                /* 接收到的行数累加 */
 			    s_NeedChgLne = TRUE;                                           /* 标记需要换行显示 */
 			}
         }
@@ -714,15 +863,13 @@ void CMySScomDlg::HandleUSARTData(unsigned char *sbuf, DWORD len)
 /**************************************************************************************************
 **  函数名称:  NeedAutoSendData
 **  功能描述:  启动定时发送数据的功能
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::NeedAutoSendData(void)
 {
     int Timer;
     CString TempStr;
 
-    GetDlgItemText(IDC_EDIT_TIMER, TempStr);
+    GetDlgItemText(IDC_EDIT_SENDTIME, TempStr);
     
     Timer = atoi((LPSTR)(LPCTSTR)TempStr);
     
@@ -730,11 +877,11 @@ void CMySScomDlg::NeedAutoSendData(void)
 
         SetTimer(Timer_No_AutoSend, Timer, NULL);                              /* 启动定时器 */
 
-        GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(FALSE);
+        GetDlgItem(IDC_EDIT_SENDTIME)->EnableWindow(FALSE);
         GetDlgItem(IDC_STATIC_MS)->EnableWindow(FALSE);
 
-        m_Edit_AutoTimer = TempStr;                                            /* 更新编辑框内容 */
-        SetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);
+        m_Edit_SendTime = TempStr;                                             /* 更新编辑框内容 */
+        SetDlgItemText(IDC_EDIT_SENDTIME, m_Edit_SendTime);
 
         GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(FALSE);                      /* 禁用发送按钮 */
 		GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(FALSE);
@@ -743,10 +890,10 @@ void CMySScomDlg::NeedAutoSendData(void)
 
         MessageBox("发送时间间隔不能为0，请确认！  ", "提示", MB_OK + MB_ICONEXCLAMATION);
 
-        SetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);                      /* 还原编辑框内容 */
+        SetDlgItemText(IDC_EDIT_SENDTIME, m_Edit_SendTime);                    /* 还原编辑框内容 */
 
         m_Check_AutoSend = FALSE;
-        UpdateData(FALSE);                                                     /* 取消复选框被选中的状态 */
+        UpdateData(FALSE);                                                    /* 取消复选框被选中的状态 */
 
         return;
     }
@@ -755,8 +902,6 @@ void CMySScomDlg::NeedAutoSendData(void)
 /**************************************************************************************************
 **  函数名称:  UpdateStatusBarNow
 **  功能描述:  更新状态栏的显示
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::UpdateStatusBarNow(void)
 {
@@ -767,18 +912,12 @@ void CMySScomDlg::UpdateStatusBarNow(void)
     this->GetWindowRect(&DialogMain);                                          /* 获取主界面在屏幕上的位置 */
 
 #if VERSION_CTRL == VERSION_YAXON
-	if (DialogMain.Width() > 1300) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - Designed By LEON (LEON1741@126.com) - 仅限内部交流，谢谢！";
-	} else if (DialogMain.Width() > 1200) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - Designed By LEON (LEON1741@126.com)";
+	if (DialogMain.Width() > 1200) {
+		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具 ※ 设计者：姚老师 ※ 随时欢迎交流，谢谢！";
 	} else if (DialogMain.Width() > 1100) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - Designed By LEON";
+		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具 ※ 设计者：姚老师";
 	} else if (DialogMain.Width() > 1000) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部 - LEON";
-	} else if (DialogMain.Width() > 900) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络研发部";
-	} else if (DialogMain.Width() > 850) {
-		DisplayStr = " 欢迎使用MySScom - 雅迅网络";
+		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具";
 	} else if (DialogMain.Width() > 800) {
 		DisplayStr = " 欢迎使用MySScom";
 	} else if (DialogMain.Width() > 700) {
@@ -788,13 +927,13 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 	}
 #else
     if (DialogMain.Width() > 1200) {
-        DisplayStr = " 欢迎使用MySScom - Designed By LEON (LEON1741@126.com) - Welcome to Email me!!";
+        DisplayStr = " 欢迎使用MySScom ※ Designed By LEON (LEON1741@126.com) ※ Welcome to Email me!!";
     } else if (DialogMain.Width() > 1100) {
-        DisplayStr = " 欢迎使用MySScom - Designed By LEON (LEON1741@126.com)";
+        DisplayStr = " 欢迎使用MySScom ※ Designed By LEON (LEON1741@126.com)";
     } else if (DialogMain.Width() > 1000) {
-        DisplayStr = " 欢迎使用MySScom - Designed By LEON";
+        DisplayStr = " 欢迎使用MySScom ※ Designed By LEON";
     } else if (DialogMain.Width() > 850) {
-        DisplayStr = " 欢迎使用MySScom - LEON";
+        DisplayStr = " 欢迎使用MySScom ※ LEON";
     } else if (DialogMain.Width() > 800) {
         DisplayStr = " 欢迎使用MySScom";
     } else if (DialogMain.Width() > 720) {
@@ -808,26 +947,23 @@ void CMySScomDlg::UpdateStatusBarNow(void)
         
     DisplayStr = (SerialDevisOpened() == TRUE) ? " 串口已打开" : " 串口未打开";  
     s_CStatusBar.SetPaneText(1, DisplayStr);
-
-    DisplayStr.Format(" Lines: %.5d", s_RecvedLine);
-    s_CStatusBar.SetPaneText(2, DisplayStr);
         
-    DisplayStr.Format(" Recv: %.6d", s_RecvedByte);
-    s_CStatusBar.SetPaneText(3, DisplayStr);
+	DisplayStr.Format(" 接收: %.3d, %.3d, %.3d", (s_RecvedByte / 1000000), ((s_RecvedByte % 1000000)  / 1000), (s_RecvedByte % 1000));
+    s_CStatusBar.SetPaneText(2, DisplayStr);
 
-    DisplayStr.Format(" Send: %.6d", s_SendedByte);
-    s_CStatusBar.SetPaneText(4, DisplayStr);
+	DisplayStr.Format(" 发送: %.3d, %.3d, %.3d", (s_SendedByte / 1000000), ((s_SendedByte % 1000000)  / 1000), (s_SendedByte % 1000));
+    s_CStatusBar.SetPaneText(3, DisplayStr);
 
     Nowtime = CTime::GetCurrentTime();
     DisplayStr = " 当前时间: " + Nowtime.Format("%Y-%m-%d") + " " + Nowtime.Format("%H:%M:%S");
-    s_CStatusBar.SetPaneText(5, DisplayStr);
+    s_CStatusBar.SetPaneText(4, DisplayStr);
+
+	UpdateMainStatic();                                                        /* 更新提示框的显示 */
 }
 
 /**************************************************************************************************
 **  函数名称:  SendDatatoComm
 **  功能描述:  将指定的字符串发送出去
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool CMySScomDlg::SendDatatoComm(unsigned char *sbuf, int slen, BOOL needhex)
 {
@@ -864,7 +1000,7 @@ bool CMySScomDlg::SendDatatoComm(unsigned char *sbuf, int slen, BOOL needhex)
         s_SendedByte += SendSerialData(sbuf, slen);                            /* 写入串口发送，发送字节数累加 */
     }
 	
-    if (m_Check_Return == TRUE) {                                              /* 补发回车换行符 */
+    if (m_Check_CRLFSend == TRUE) {                                            /* 补发回车换行符 */
 		
         temp[0] = '\r';
         temp[1] = '\n';
@@ -880,14 +1016,12 @@ bool CMySScomDlg::SendDatatoComm(unsigned char *sbuf, int slen, BOOL needhex)
 /**************************************************************************************************
 **  函数名称:  SendFileDatatoComm
 **  功能描述:  将文件数据发送到串口
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool CMySScomDlg::SendFileDatatoComm(void)
 {
 	CFile          filename;
 	int            baudrate, sendbyte;
-	unsigned long  fileleng;
+	unsigned long  filetlen;
 	unsigned char *filebuff;                                                   /* 用于存放文件数据 */
 	double         tempbyte;
 	CString        dsplystr;
@@ -898,16 +1032,16 @@ bool CMySScomDlg::SendFileDatatoComm(void)
 		return FALSE;
 	}
 
-	fileleng = (unsigned long)filename.GetLength();                            /* 获取文件长度 */
+	filetlen = (unsigned long)filename.GetLength();                            /* 获取文件长度 */
 	
-	baudrate = m_Combo_Baud.GetCurSel();
+	baudrate = m_Combo_BaudRate.GetCurSel();
 	baudrate = Combo_Baud[baudrate];
 
 	tempbyte = ((double)baudrate / FILESEND_BYTE) * 1.1;
 	sendbyte = (int)tempbyte;
 
-	if ((s_FileDatPos + sendbyte) > fileleng) {                                /* 这里需要对最后一包进行特殊判断 */
-		sendbyte = fileleng - s_FileDatPos;
+	if ((s_FileDatPos + sendbyte) > filetlen) {                                /* 这里需要对最后一包进行特殊判断 */
+		sendbyte = filetlen - s_FileDatPos;
 	}
 	
     filebuff = new unsigned char[sendbyte];                                    /* 分配内存空间 */
@@ -918,19 +1052,19 @@ bool CMySScomDlg::SendFileDatatoComm(void)
 	s_FileDatPos += sendbyte;
 	s_SendedByte += sendbyte;
 
-	totltime = (fileleng * 10) / baudrate;                                     /* 计算发送整个文件的耗时 */
-	lefttime = (fileleng - s_FileDatPos) * 10 / baudrate;                      /* 计算发送整个文件的耗时 */
+	totltime = (filetlen * 10) / baudrate + 1;                                 /* 计算发送整个文件的耗时 */
+	lefttime = (filetlen - s_FileDatPos) * 10 / baudrate + 1;                  /* 计算发送剩余部分的耗时 */
 
-	m_Progress_SendFile.SetPos(s_FileDatPos * PROGRESS_POS / fileleng);        /* 更新进度条显示 */
+	m_Progs_SendFile.SetPos(s_FileDatPos * PROGRESS_POS / filetlen);           /* 更新进度条显示 */
 
 	dsplystr.Format("发送区：预计耗时%0.2d分%0.2d秒，当前进度%0.2d%%，剩余%0.2d分%0.2d秒", 
-		            totltime / 60, totltime % 60, s_FileDatPos * 100 / fileleng, lefttime / 60, lefttime % 60);
+		            totltime / 60, totltime % 60, s_FileDatPos * 100 / filetlen, lefttime / 60, lefttime % 60);
 	SetDlgItemText(IDC_STATIC_SEND, dsplystr);
 	
 	filename.Close();                                                          /* 关闭文件 */
 	delete []filebuff;                                                         /* 释放空间 */
 
-	if (s_FileDatPos >= fileleng) {                                            /* 全部数据发送完毕 */
+	if (s_FileDatPos >= filetlen) {                                            /* 全部数据发送完毕 */
 		s_FileDatPos = 0;
 		KillTimer(Timer_No_SendFile);
 		SetSendCtrlArea(TRUE);                                                 /* 启用其他发送控件 */
@@ -940,100 +1074,85 @@ bool CMySScomDlg::SendFileDatatoComm(void)
 }
 
 /**************************************************************************************************
+**  函数名称:  ConfigFileCanUse
+**  功能描述:  分析当前版本的程序是否能够兼容使用目标版本下的配置文件
+**************************************************************************************************/
+bool CMySScomDlg::ConfigFileCanUse(CString target)
+{
+	return TRUE;
+}
+
+/**************************************************************************************************
 **  函数名称:  CreateSettingFile
 **  功能描述:  创建配置文件，并写入默认参数
-**  输入参数:  
-**  返回参数:  
+**  注意事项:  若配置文件已经存在，则需校验其中的版本号，从而分析出是否兼容该版本的文件格式
 **************************************************************************************************/
 void CMySScomDlg::CreateSettingFile(void)
 {
-    CString temp;
+	char TempChar[256];
+	CString oldver, showstr;
 	
 	// 以下语句判断目录下是否存在INI文件，若不存在则创建该文件并写入默认值
 
-    if (!(::GetPrivateProfileInt("SystemInfo", "Created", 0, ".\\Settings.ini"))) {
+    if ((::GetPrivateProfileInt(FLAG_SYSRUNREC, SYSRUNREC_RUNTIMES, 0, CONFIGFILENAME)) == FALSE) {
+		::WritePrivateProfileString(FLAG_SYSRUNREC, SYSRUNREC_PROGMVER, GetProgramVersion(), CONFIGFILENAME);
+        ::WritePrivateProfileString(FLAG_SYSRUNREC, SYSRUNREC_RUNTIMES, "1",  CONFIGFILENAME);
+		return;
+	}
 
-        ::WritePrivateProfileString("SystemInfo", "Created",    "1",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "CommPort",   "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "BaudRate",   "4",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "DataBits",   "3",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "CheckBits",  "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("PortConfig", "StopBits",   "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "ShowSData",  "1",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "ShowDirec",  "1",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "HexDispl",   "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "AutoClar",   "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "AutoSave",   "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "FramDspl",   "1",    ".\\Settings.ini");
-        ::WritePrivateProfileString("RecvConfig", "ShowTime",   "1",    ".\\Settings.ini");
-        ::WritePrivateProfileString("SendConfig", "HexaSend",   "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("SendConfig", "AutoTime",   "1000", ".\\Settings.ini");
-        ::WritePrivateProfileString("SendConfig", "AddReturn",  "0",    ".\\Settings.ini");
-        ::WritePrivateProfileString("SendConfig", "SendStrH",   "",     ".\\Settings.ini");
-		::WritePrivateProfileString("SendConfig", "SendStrC",   "",     ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_SYSRUNREC, SYSRUNREC_PROGMVER, "", TempChar, sizeof(TempChar), CONFIGFILENAME);
+	oldver.Format("%s", TempChar);
+
+	if (ConfigFileCanUse(oldver) == FALSE) {                                   /* 配置文件版本不能兼容 */
+		showstr = "检测到目录下现有的配置文件版本过旧，无法使用！\r\n系统即将自动创建一个全新的配置文件\r\n并将原来的配置文件更名为\"Settings_old.ini\"\r\n若旧文件中存在重要信息，请手动拷贝其中的内容到新文件中！";
+		MessageBox(showstr, "抱歉", MB_OK + MB_ICONINFORMATION);
+		rename(CONFIGFILENAME, CONFIGBACKNAME);                                /* 将原有的配置文件更名，然后新建一个，并写入关键信息 */
+		::WritePrivateProfileString(FLAG_SYSRUNREC, SYSRUNREC_PROGMVER, GetProgramVersion(), CONFIGFILENAME);
+		::WritePrivateProfileString(FLAG_SYSRUNREC, SYSRUNREC_RUNTIMES, "1",  CONFIGFILENAME);
 	}
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateAllParas
 **  功能描述:  读取配置文件的各个参数内容并初始化对话框的值
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateAllParas(void)
 {
-    int  TempData;                                                             /* 需要注意的是：自动发送使能和循环发送使能两项无须初始化 */
     char TempChar[MAX_SEND_BYTE];
-    CString TempStr;
 
-	s_DialogPos_X = (::GetPrivateProfileInt("DialogPos", "DialogPos_X",  0, ".\\Settings.ini"));
-	s_DialogPos_Y = (::GetPrivateProfileInt("DialogPos", "DialogPos_Y",  0, ".\\Settings.ini"));
+	s_DialogPos_X = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_POSTIONX, 0, CONFIGFILENAME));
+	s_DialogPos_Y = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_POSTIONY, 0, CONFIGFILENAME));
 
-    TempData = (::GetPrivateProfileInt("PortConfig", "CommPort",  0, ".\\Settings.ini"));
-    m_Combo_ComNo.SetCurSel(TempData);
-    TempData = (::GetPrivateProfileInt("PortConfig", "BaudRate",  4, ".\\Settings.ini"));
-    m_Combo_Baud.SetCurSel(TempData);
-    TempData = (::GetPrivateProfileInt("PortConfig", "DataBits",  3, ".\\Settings.ini"));
-    m_Combo_Data.SetCurSel(TempData);
-    TempData = (::GetPrivateProfileInt("PortConfig", "CheckBits", 0, ".\\Settings.ini"));
-    m_Combo_Check.SetCurSel(TempData);
-    TempData = (::GetPrivateProfileInt("PortConfig", "StopBits",  0, ".\\Settings.ini"));
-    m_Combo_Stop.SetCurSel(TempData);
+    m_Combo_CommPort.SetCurSel(::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_COMMPORT, 0, CONFIGFILENAME));
+    m_Combo_BaudRate.SetCurSel(::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_BAUDRATE, 4, CONFIGFILENAME));
+    m_Combo_DataBits.SetCurSel(::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_DATABITS, 3, CONFIGFILENAME));
+    m_Combo_CheckBit.SetCurSel(::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_CHECKBIT, 0, CONFIGFILENAME));
+    m_Combo_StopBits.SetCurSel(::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_STOPBITS, 0, CONFIGFILENAME));
 
-    m_Check_HexDspl   = (::GetPrivateProfileInt("RecvConfig", "HexDispl", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-    m_Check_ShowTime  = (::GetPrivateProfileInt("RecvConfig", "ShowTime", 1, ".\\Settings.ini")) ? TRUE : FALSE;
-    m_Check_FrameDspl = (::GetPrivateProfileInt("RecvConfig", "FramDspl", 1, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_ShowTime = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_SHOWTIME, 1, CONFIGFILENAME)) ? TRUE : FALSE;
+    m_Check_HexDispl = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_HEXDISPL, 0, CONFIGFILENAME)) ? TRUE : FALSE;
+    m_Check_HexFrame = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_HEXFRAME, 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_ProtoACK = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_PROTOACK, 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_HexsSend = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_HEXSSEND, 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_CRLFSend = (::GetPrivateProfileInt(FLAG_MAINFRAME, MAINFRAME_CRLFSEND, 0, CONFIGFILENAME)) ? TRUE : FALSE;
 
-    ::GetPrivateProfileString("SendConfig", "AutoLines", "1000", TempChar, 5, ".\\Settings.ini");
-    m_Edit_Lines.Format("%s", TempChar);
-    SetDlgItemText(IDC_EDIT_LINES, TempChar);
+    ::GetPrivateProfileString(FLAG_MAINFRAME, MAINFRAME_AUTCLRKB, "1000", TempChar, 5, CONFIGFILENAME);
+    m_Edit_AutClrKB.Format("%s", TempChar);
+    
+    ::GetPrivateProfileString(FLAG_MAINFRAME, MAINFRAME_SENDTIME, "1000", TempChar, 5, CONFIGFILENAME);
+    m_Edit_SendTime.Format("%s", TempChar);
 
-    m_Check_HexSend = (::GetPrivateProfileInt("SendConfig", "HexaSend", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-    ::GetPrivateProfileString("SendConfig", "AutoTime", "1000", TempChar, 5, ".\\Settings.ini");
-    m_Edit_AutoTimer.Format("%s", TempChar);
+    ::GetPrivateProfileString(FLAG_MAINFRAME, MAINFRAME_SENDSTRS, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
+    s_SendStr_Chr.Format("%s", TempChar);
+	s_SendStr_Chr = FormatQuotesStrRead(s_SendStr_Chr);
 
-    m_Check_Return = (::GetPrivateProfileInt("SendConfig", "AddReturn", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-
-    ::GetPrivateProfileString("SendConfig", "SendStrC", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
-    TempStr.Format("%s", TempChar);
-	s_SendStr_Chr = FormatQuotesStrRead(TempStr);
-
-	::GetPrivateProfileString("SendConfig", "SendStrH", "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_MAINFRAME, MAINFRAME_SENDHEXS, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
 	s_SendStr_Hex.Format("%s", TempChar);
 
-	if (m_Check_HexDspl == TRUE) {                                             /* 根据读入的参数值初始化提示框内容 */
-        SetDlgItemText(IDC_STATIC_LINES, "字符");
-    } else {
-        SetDlgItemText(IDC_STATIC_LINES, "行");
-    }
+	m_Edit_SendCstr = (m_Check_HexsSend == TRUE) ? s_SendStr_Hex : s_SendStr_Chr;
 
-	if (m_Check_HexSend == TRUE) {                                             /* 根据读入的参数值初始化提示框内容 */
-		m_Edit_Send = s_SendStr_Hex;
-	} else {
-		m_Edit_Send = s_SendStr_Chr;
-	}
-
-	SetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+	::GetPrivateProfileString(FLAG_MAINFRAME, MAINFRAME_FILEPATH, "", TempChar, 1024, CONFIGFILENAME);
+	m_Edit_FilePath.Format("%s", TempChar);
     
 	UpdateData(FALSE);                                                         /* 更新编辑框内容 */
 }
@@ -1041,8 +1160,6 @@ void CMySScomDlg::InitiateAllParas(void)
 /**************************************************************************************************
 **  函数名称:  RecordAllParas
 **  功能描述:  将对话框中各个参数的值记录到配置文件中
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::RecordAllParas(void)
 {
@@ -1050,63 +1167,58 @@ void CMySScomDlg::RecordAllParas(void)
     CString ParaStr, TempStr;
 	CRect rect;
 
-	GetWindowRect(&rect);
-	s_DialogPos_X = rect.left;
-	s_DialogPos_Y = rect.top;
+	TempData = (::GetPrivateProfileInt(FLAG_SYSRUNREC, SYSRUNREC_RUNTIMES, 0, CONFIGFILENAME));
+	ParaStr.Format("%d", TempData + 1);
+	::WritePrivateProfileString(FLAG_SYSRUNREC, SYSRUNREC_RUNTIMES, ParaStr, CONFIGFILENAME);
     
+	GetWindowRect(&rect);
+	s_DialogPos_X = (rect.left < 0) ? 0 : rect.left;                           /* 这里要防止出现负值，因此要做限定 */
+	s_DialogPos_Y = (rect.top  < 0) ? 0 : rect.top;
+
 	ParaStr.Format("%d", s_DialogPos_X);
-	::WritePrivateProfileString("DialogPos", "DialogPos_X", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_POSTIONX, ParaStr, CONFIGFILENAME);
 
 	ParaStr.Format("%d", s_DialogPos_Y);
-	::WritePrivateProfileString("DialogPos", "DialogPos_Y", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_POSTIONY, ParaStr, CONFIGFILENAME);
 	
-	TempData = m_Combo_ComNo.GetCurSel();
-    ParaStr.Format("%d", TempData);
-    ::WritePrivateProfileString("PortConfig", "CommPort",  ParaStr, ".\\Settings.ini");
-    TempData = m_Combo_Baud.GetCurSel();
-    ParaStr.Format("%d", TempData);
-    ::WritePrivateProfileString("PortConfig", "BaudRate",  ParaStr, ".\\Settings.ini");
-    TempData = m_Combo_Data.GetCurSel();
-    ParaStr.Format("%d", TempData);
-    ::WritePrivateProfileString("PortConfig", "DataBits",  ParaStr, ".\\Settings.ini");
-    TempData = m_Combo_Check.GetCurSel();
-    ParaStr.Format("%d", TempData);
-    ::WritePrivateProfileString("PortConfig", "CheckBits", ParaStr, ".\\Settings.ini");
-    TempData = m_Combo_Stop.GetCurSel();
-    ParaStr.Format("%d", TempData);
-    ::WritePrivateProfileString("PortConfig", "StopBits",  ParaStr, ".\\Settings.ini");
+    ParaStr.Format("%d", m_Combo_CommPort.GetCurSel());
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_COMMPORT, ParaStr, CONFIGFILENAME);
 
-    ::WritePrivateProfileString("RecvConfig", "HexDispl",   m_Check_HexDspl   ? "1" : "0", ".\\Settings.ini");
-    ::WritePrivateProfileString("RecvConfig", "ShowTime",   m_Check_ShowTime  ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("RecvConfig", "FramDspl",   m_Check_FrameDspl ? "1" : "0", ".\\Settings.ini");
+    ParaStr.Format("%d", m_Combo_BaudRate.GetCurSel());
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_BAUDRATE, ParaStr, CONFIGFILENAME);
 
-    GetDlgItemText(IDC_EDIT_LINES, ParaStr);
-    ::WritePrivateProfileString("SendConfig", "AutoLines", ParaStr, ".\\Settings.ini");
+    ParaStr.Format("%d", m_Combo_DataBits.GetCurSel());
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_DATABITS, ParaStr, CONFIGFILENAME);
 
-    ::WritePrivateProfileString("SendConfig", "HexaSend",  m_Check_HexSend ? "1" : "0", ".\\Settings.ini");
-    GetDlgItemText(IDC_EDIT_TIMER, m_Edit_AutoTimer);
-    ::WritePrivateProfileString("SendConfig", "AutoTime",  m_Edit_AutoTimer, ".\\Settings.ini");
+    ParaStr.Format("%d", m_Combo_CheckBit.GetCurSel());
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_CHECKBIT, ParaStr, CONFIGFILENAME);
 
-    ::WritePrivateProfileString("SendConfig", "AddReturn", m_Check_Return  ? "1" : "0", ".\\Settings.ini");
+    ParaStr.Format("%d", m_Combo_StopBits.GetCurSel());
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_STOPBITS, ParaStr, CONFIGFILENAME);
 
-    GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
-	if (m_Check_HexSend == TRUE) {                                                /* 首先同步更新一下编辑框的内容 */
-		s_SendStr_Hex = m_Edit_Send;
-	} else {
-		s_SendStr_Chr = m_Edit_Send;
-	}
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_SHOWTIME, m_Check_ShowTime  ?  "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_HEXDISPL, m_Check_HexDispl  ?  "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_HEXFRAME, m_Check_HexFrame  ?  "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_HEXSSEND, m_Check_HexsSend  ?  "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_CRLFSEND, m_Check_CRLFSend  ?  "1" : "0", CONFIGFILENAME);
 
-	::WritePrivateProfileString("SendConfig", "SendStrH",  s_SendStr_Hex, ".\\Settings.ini");
+    GetDlgItemText(IDC_EDIT_AUTCLRKB, m_Edit_AutClrKB);
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_AUTCLRKB, m_Edit_AutClrKB, CONFIGFILENAME);
 
-	ParaStr = FormatQuotesStrWrite(s_SendStr_Chr);
-	::WritePrivateProfileString("SendConfig", "SendStrC",  ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_AUTOSEND, m_Check_AutoSend  ?  "1" : "0", CONFIGFILENAME);
+    GetDlgItemText(IDC_EDIT_SENDTIME, m_Edit_SendTime);
+    ::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_SENDTIME, m_Edit_SendTime, CONFIGFILENAME);
+
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_SENDHEXS, s_SendStr_Hex, CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_SENDSTRS, FormatQuotesStrWrite(s_SendStr_Chr), CONFIGFILENAME);
+
+	GetDlgItemText(IDC_EDIT_FILEPATH, m_Edit_FilePath);
+	::WritePrivateProfileString(FLAG_MAINFRAME, MAINFRAME_FILEPATH, m_Edit_FilePath, CONFIGFILENAME);
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateStatusBar
 **  功能描述:  初始化状态栏
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateStatusBar(void)
 {
@@ -1116,8 +1228,7 @@ void CMySScomDlg::InitiateStatusBar(void)
         ID_INDICATOR_CAPS,
         ID_INDICATOR_NUM,
         ID_INDICATOR_SCRL,
-        ID_INDICATOR_OVR,
-        ID_INDICATOR_REC,
+        ID_INDICATOR_OVR
     };
 
     CTime   time;
@@ -1125,62 +1236,50 @@ void CMySScomDlg::InitiateStatusBar(void)
     UINT    nID = 0;
     
     if (!s_CStatusBar.Create(this) || !s_CStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT))) {
-        TRACE0("Failed to create status barn");
+        TRACE0("Failed to create status bar!");
         return;
     }
 
     time = CTime::GetCurrentTime();
     m_strTime = " 当前时间: " + time.Format("%Y-%m-%d") + " " + time.Format("%H:%M:%S");
 
-#if VERSION_CTRL == VERSION_YAXON
     s_CStatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 1);
-    s_CStatusBar.SetPaneText(0, " 欢迎使用MySScom - 雅迅网络");
-#else
-    s_CStatusBar.SetPaneInfo(0, nID, SBPS_STRETCH, 1);
-    s_CStatusBar.SetPaneText(0, " 欢迎使用MySScom - LEON");
-#endif
+    s_CStatusBar.SetPaneText(0, " 欢迎使用MySScom");
 
     s_CStatusBar.SetPaneInfo(1, nID, SBPS_NORMAL, 90);
     s_CStatusBar.SetPaneText(1, " 串口未打开");
+    
+    s_CStatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 140);
+    s_CStatusBar.SetPaneText(2, " 接收: 000, 000, 000");
+    
+    s_CStatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 140);
+    s_CStatusBar.SetPaneText(3, " 发送: 000, 000, 000");
 
-    s_CStatusBar.SetPaneInfo(2, nID, SBPS_NORMAL, 90);
-    s_CStatusBar.SetPaneText(2, " Lines: 00000");
-    
-    s_CStatusBar.SetPaneInfo(3, nID, SBPS_NORMAL, 100);
-    s_CStatusBar.SetPaneText(3, " Recv: 000000");
-    
-    s_CStatusBar.SetPaneInfo(4, nID, SBPS_NORMAL, 100);
-    s_CStatusBar.SetPaneText(4, " Send: 000000");
+    s_CStatusBar.SetPaneInfo(4, nID, SBPS_NORMAL, 200);
+    s_CStatusBar.SetPaneText(4, m_strTime);
 
-    s_CStatusBar.SetPaneInfo(5, nID, SBPS_NORMAL, 200);
-    s_CStatusBar.SetPaneText(5, m_strTime);
-    
     RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateComboComs
 **  功能描述:  初始化串口号组合框
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateComboComs(void)
 {
     EnumCommPortList();                                                        /* 枚举可用的串口 */
 
-	m_Combo_ComNo.ResetContent();
-	m_Combo_ComNo.AddString("请选择");                                         /* 第一行为提示行 */
+	m_Combo_CommPort.ResetContent();
+	m_Combo_CommPort.AddString("请选择");                                      /* 第一行为提示行 */
 
     for (int i = 0; i < s_PortNumber.GetSize(); i++) {
-        m_Combo_ComNo.AddString(s_PortNumber.GetAt(i));
+        m_Combo_CommPort.AddString(s_PortNumber.GetAt(i));
     }
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateComboBaud
 **  功能描述:  初始化波特率组合框
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateComboBaud(void)
 {
@@ -1188,15 +1287,13 @@ void CMySScomDlg::InitiateComboBaud(void)
     
     for (int i = 0; i < (sizeof(Combo_Baud) / sizeof(Combo_Baud[0])); i++) {
         TempStr.Format("%d bps", Combo_Baud[i]);
-        m_Combo_Baud.AddString(TempStr);
+        m_Combo_BaudRate.AddString(TempStr);
     }
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateComboData
 **  功能描述:  初始化数据位组合框
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateComboData(void)
 {
@@ -1204,43 +1301,37 @@ void CMySScomDlg::InitiateComboData(void)
     
     for (int i = 0; i < (sizeof(Combo_Data) / sizeof(Combo_Data[0])); i++) {
         TempStr.Format("%d 位", Combo_Data[i]);
-        m_Combo_Data.AddString(TempStr);
+        m_Combo_DataBits.AddString(TempStr);
     }
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateComboCheck
 **  功能描述:  初始化校验位组合框
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateComboCheck(void)
 {
-    m_Combo_Check.AddString("None 校验");
-    m_Combo_Check.AddString("Odd  校验");
-    m_Combo_Check.AddString("Even 校验");
-    m_Combo_Check.AddString("Mark 校验");
-    m_Combo_Check.AddString("Space校验");
+    m_Combo_CheckBit.AddString("None 校验");
+    m_Combo_CheckBit.AddString("Odd  校验");
+    m_Combo_CheckBit.AddString("Even 校验");
+    m_Combo_CheckBit.AddString("Mark 校验");
+    m_Combo_CheckBit.AddString("Space校验");
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateComboStop
 **  功能描述:  初始化停止位组合框
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateComboStop(void)
 {
-    m_Combo_Stop.AddString("1  位");
-    m_Combo_Stop.AddString("1.5位");
-    m_Combo_Stop.AddString("2  位");
+    m_Combo_StopBits.AddString("1  位");
+    m_Combo_StopBits.AddString("1.5位");
+    m_Combo_StopBits.AddString("2  位");
 }
 
 /**************************************************************************************************
 **  函数名称:  InitiateChildWins
 **  功能描述:  初始化各个子窗体页面
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool CMySScomDlg::InitiateChildWins(void)
 {
@@ -1289,6 +1380,21 @@ bool CMySScomDlg::InitiateChildWins(void)
 		s_PDlgDsplFilt->InitiateAllParas();
 	}
 
+	s_PDlgKeyWords = new CDialogKeywords();                                    /* 以下语句创建关键字监听窗体，并隐藏待用 */
+
+	if (s_PDlgKeyWords != NULL){
+
+		int Result = s_PDlgKeyWords->Create(IDD_DIALOG_KEYWORDS, this);
+
+		if (!Result) {
+			MessageBox("系统资源不足，创建对话框失败......   ", "抱歉", MB_OK + MB_ICONERROR);
+			return FALSE;
+		}
+
+		s_PDlgKeyWords->ShowWindow(SW_HIDE);
+		s_PDlgKeyWords->InitiateAllParas();
+	}
+
 	s_PDlgAutoRply = new CDialogAutoReply();                                   /* 以下语句创建自动回复窗体，并隐藏待用 */
 
 	if (s_PDlgAutoRply != NULL){
@@ -1310,56 +1416,88 @@ bool CMySScomDlg::InitiateChildWins(void)
 /**************************************************************************************************
 **  函数名称:  InitiateToolsTip
 **  功能描述:  初始化主界面下各个控件的悬浮提示信息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::InitiateToolsTip(void)
 {
 	m_tooltip.Create(this);
 	m_tooltip.Activate(TRUE);
 
-	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_COMNO),     IDS_STRING_001);
-	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_BAUD),      IDS_STRING_002);
-	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_DATA),      IDS_STRING_003);
-	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_STOP),      IDS_STRING_004);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_COMMPORT),  IDS_STRING_001);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_BAUDRATE),  IDS_STRING_002);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_DATABITS),  IDS_STRING_003);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_STOPBITS),  IDS_STRING_004);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_ONOFF),    IDS_STRING_005);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE),    IDS_STRING_006);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_CLEAR),    IDS_STRING_007);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SAVE),     IDS_STRING_008);
-	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXDSPL),   IDS_STRING_009);
-	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOCLEAR), IDS_STRING_010);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXDISPL),  IDS_STRING_009);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOCLER),  IDS_STRING_010);
 	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSAVE),  IDS_STRING_011);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SEND),     IDS_STRING_015);
-	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXSEND),   IDS_STRING_016);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXSSEND),  IDS_STRING_016);
 	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOSEND),  IDS_STRING_017);
-	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_TIMER),      IDS_STRING_018);
-	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_RETURN),    IDS_STRING_020);
-	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_CHECK),     IDS_STRING_021);
-	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_LINES),      IDS_STRING_024);
+	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SENDTIME),   IDS_STRING_018);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_CRLFSEND),  IDS_STRING_020);
+	m_tooltip.AddTool(GetDlgItem(IDC_COMBO_CHECKBIT),  IDS_STRING_021);
+	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_AUTCLRKB),   IDS_STRING_024);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_EXFUNCT),  IDS_STRING_025);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SRSEND),   IDS_STRING_026);
-	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SEND),       IDS_STRING_027);
+	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_SENDCSTR),   IDS_STRING_027);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_OPENFILE), IDS_STRING_028);
 	m_tooltip.AddTool(GetDlgItem(IDC_BUTTON_SENDFILE), IDS_STRING_029);
 	m_tooltip.AddTool(GetDlgItem(IDC_EDIT_FILEPATH),   IDS_STRING_030);
 	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_SHOWTIME),  IDS_STRING_031);
-	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_FRAMEDSPL), IDS_STRING_032);
-	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_FILTER),    IDS_STRING_033);
-	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOREPLY), IDS_STRING_034);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_HEXFRAME),  IDS_STRING_032);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_AUTOFILT),  IDS_STRING_033);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_PROTOACK),  IDS_STRING_034);
+	m_tooltip.AddTool(GetDlgItem(IDC_CHECK_KEYWORDS),  IDS_STRING_035);
+}
+
+/**************************************************************************************************
+**  函数名称:  InitiateMainStatic
+**  功能描述:  初始化主界面帮助提示框的显示
+**************************************************************************************************/
+void CMySScomDlg::InitiateMainStatic(void)
+{
+	CFont* font = new CFont;
+
+	s_MainStatic = new CStatic;
+	CRect rect1(STATIC_LEFT, STATIC_TOP, STATIC_LEFT + STATIC_WIDTH, STATIC_TOP + STATIC_HEIGHT);
+
+	s_MainStatic->CreateEx(NULL, "static", STATIC_TEXT, WS_CHILD | WS_VISIBLE, rect1, this, IDS_MAINSTATIC, NULL);
+	
+	font->CreateFont(14, 0, 0, 0, 0, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "arial");
+	s_MainStatic->SetFont(font);
+
+	s_MainStatic->ShowWindow(FALSE);
+}
+
+/**************************************************************************************************
+**  函数名称:  UpdateMainStatic
+**  功能描述:  更新主界面的信息提示框的显示
+**************************************************************************************************/
+void CMySScomDlg::UpdateMainStatic(void)
+{
+	CRect rectDlg;
+	GetClientRect(rectDlg);
+
+	if (rectDlg.Height() > MAINWIN_HEIGHT) {                                   /* 根据窗体当前的高度来判断 */
+		s_MainStatic->ShowWindow(TRUE);
+	} else {
+		s_MainStatic->ShowWindow(FALSE);
+	}
 }
 
 /**************************************************************************************************
 **  函数名称:  UpdateComboComs
 **  功能描述:  更新串口号组合框
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::UpdateComboComs(void)
 {
     int      pindex;
 	CString  comstr;
 	
-	pindex = m_Combo_ComNo.GetCurSel();                                        /* 首先获取当前选择的串口号 */
+	pindex = m_Combo_CommPort.GetCurSel();                                     /* 首先获取当前选择的串口号 */
 
 	if (pindex == 0) {                                                         /* 0表示没有选中有效的串口号 */
 		comstr = "";
@@ -1370,25 +1508,23 @@ void CMySScomDlg::UpdateComboComs(void)
 	InitiateComboComs();
 
 	if (comstr == "") {                                                        /* 表示之前没有选择有效串口号 */
-		m_Combo_ComNo.SetCurSel(0);                                            /* 直接选中提示栏 */
+		m_Combo_CommPort.SetCurSel(0);                                         /* 直接选中提示栏 */
 		return;
 	}
 
 	for (pindex = 0; pindex < s_PortNumber.GetSize(); pindex++) {              /* 之前曾经选中过某个串口号 */
 		if (s_PortNumber.GetAt(pindex) == comstr) {                            /* 逐个比对，定位出该串口的序号 */
-			m_Combo_ComNo.SetCurSel(pindex + 1);                               /* 自动选中该串口号 */
+			m_Combo_CommPort.SetCurSel(pindex + 1);                            /* 自动选中该串口号 */
 			return;
 		}
 	}
 
-	m_Combo_ComNo.SetCurSel(0);                                                /* 比对失败，说明之前选中的串口已消失，则恢复到提示栏 */
+	m_Combo_CommPort.SetCurSel(0);                                             /* 比对失败，说明之前选中的串口已消失，则恢复到提示栏 */
 }
 
 /**************************************************************************************************
 **  函数名称:  TaskBarAddIcon
 **  功能描述:  在任务栏增加图标显示
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CMySScomDlg::TaskBarAddIcon(HWND hwnd, UINT uID, HICON hicon, LPSTR lpszTip)
 {
@@ -1413,8 +1549,6 @@ BOOL CMySScomDlg::TaskBarAddIcon(HWND hwnd, UINT uID, HICON hicon, LPSTR lpszTip
 /**************************************************************************************************
 **  函数名称:  TaskBarDeleteIcon
 **  功能描述:  在任务栏删除图标显示
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CMySScomDlg::TaskBarDeleteIcon(HWND hwnd, UINT uID)
 {
@@ -1438,8 +1572,6 @@ BOOL CMySScomDlg::TaskBarDeleteIcon(HWND hwnd, UINT uID)
 /**************************************************************************************************
 **  函数名称:  OnButtonPortCtrl
 **  功能描述:  串口开关
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonPortCtrl() 
 {
@@ -1464,35 +1596,35 @@ void CMySScomDlg::OnButtonPortCtrl()
 		SetControlStatus(FALSE);
 
         SetDlgItemText(IDC_BUTTON_ONOFF, "打开串口");
-        GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(TRUE);
-        GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(TRUE);
-        GetDlgItem(IDC_COMBO_DATA)->EnableWindow(TRUE);
-        GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(TRUE);
-        GetDlgItem(IDC_COMBO_STOP)->EnableWindow(TRUE);
+        GetDlgItem(IDC_COMBO_COMMPORT)->EnableWindow(TRUE);
+        GetDlgItem(IDC_COMBO_BAUDRATE)->EnableWindow(TRUE);
+        GetDlgItem(IDC_COMBO_DATABITS)->EnableWindow(TRUE);
+        GetDlgItem(IDC_COMBO_CHECKBIT)->EnableWindow(TRUE);
+        GetDlgItem(IDC_COMBO_STOPBITS)->EnableWindow(TRUE);
 
         return;
     }
 
-    int ComNumber = m_Combo_ComNo.GetCurSel();                                 /* 得到串口号 */
+    int ComNumber = m_Combo_CommPort.GetCurSel();                              /* 得到串口号 */
 
     if (ComNumber == 0) {
         MessageBox("连串口号都没有选择，你叫我打开什么东东...？   ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 
-	m_Combo_ComNo.GetLBText(ComNumber, TempStr);                               /* 获取串口号选择项 */
+	m_Combo_CommPort.GetLBText(ComNumber, TempStr);                            /* 获取串口号选择项 */
     CString ComDevFile = "\\\\.\\" + TempStr;
 
-    TempStr.Format("%d", Combo_Baud[m_Combo_Baud.GetCurSel()]);                /* 获取波特率选择项 */
+    TempStr.Format("%d", Combo_Baud[m_Combo_BaudRate.GetCurSel()]);            /* 获取波特率选择项 */
     spara.baudrate = atoi(TempStr);
     
-    TempStr.Format("%d", Combo_Data[m_Combo_Data.GetCurSel()]);                /* 获取数据位选择项 */
+    TempStr.Format("%d", Combo_Data[m_Combo_DataBits.GetCurSel()]);            /* 获取数据位选择项 */
     spara.databits = atoi(TempStr);
     
-    TempStr.Format("%d", Combo_Check[m_Combo_Check.GetCurSel()]);              /* 获取校验位选择项 */
+    TempStr.Format("%d", Combo_Check[m_Combo_CheckBit.GetCurSel()]);           /* 获取校验位选择项 */
     spara.checkbit = atoi(TempStr);
 
-    TempStr.Format("%d", Combo_Stop[m_Combo_Stop.GetCurSel()]);                /* 获取停止位选择项 */
+    TempStr.Format("%d", Combo_Stop[m_Combo_StopBits.GetCurSel()]);            /* 获取停止位选择项 */
     spara.stopbits = atoi(TempStr);
 
 	if (OpenSerialDevice(ComDevFile, &spara) == FALSE) {                       /* 打开串口并初始化 */
@@ -1501,18 +1633,16 @@ void CMySScomDlg::OnButtonPortCtrl()
 
     SetControlStatus(TRUE);                                                    /* 启用各个按钮控件 */
     SetDlgItemText(IDC_BUTTON_ONOFF, "关闭串口");
-    GetDlgItem(IDC_COMBO_COMNO)->EnableWindow(FALSE);
-    GetDlgItem(IDC_COMBO_BAUD)->EnableWindow(FALSE);
-    GetDlgItem(IDC_COMBO_DATA)->EnableWindow(FALSE);
-    GetDlgItem(IDC_COMBO_CHECK)->EnableWindow(FALSE);
-    GetDlgItem(IDC_COMBO_STOP)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_COMMPORT)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_BAUDRATE)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_DATABITS)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_CHECKBIT)->EnableWindow(FALSE);
+    GetDlgItem(IDC_COMBO_STOPBITS)->EnableWindow(FALSE);
 }
 
 /**************************************************************************************************
 **  函数名称:  OnButtonRecvPause
 **  功能描述:  暂停接收/恢复接收
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonRecvPause() 
 {
@@ -1530,15 +1660,12 @@ void CMySScomDlg::OnButtonRecvPause()
 /**************************************************************************************************
 **  函数名称:  OnButtonClearAll
 **  功能描述:  清除窗口内已经接收的数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonClearAll()
 {
-    m_Edit_Recv = "";
-    SetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+    m_Edit_RecvCstr = "";
+    SetDlgItemText(IDC_EDIT_RECVCSTR, m_Edit_RecvCstr);
 
-    s_RecvedLine = 0;
     s_RecvedByte = 0;
     s_SendedByte = 0;
     s_RecvString = "";
@@ -1550,17 +1677,15 @@ void CMySScomDlg::OnButtonClearAll()
 /**************************************************************************************************
 **  函数名称:  OnButtonSaveFile
 **  功能描述:  将接收到的数据保存到文件中
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonSaveFile()
 {
     CTime   NowTime  = CTime::GetCurrentTime();                                /* 获取现在时间 */
     CString FileName = NowTime.Format("%y-%m-%d %H-%M-%S") + ".txt";           /* 指定文件名 */
     
-    GetDlgItemText(IDC_EDIT_RECV, m_Edit_Recv);
+    GetDlgItemText(IDC_EDIT_RECVCSTR, m_Edit_RecvCstr);
     
-    if (m_Edit_Recv.GetLength() <= 0) {
+    if (m_Edit_RecvCstr.GetLength() <= 0) {
         MessageBox("尚未接收到任何内容，无须保存！   ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
@@ -1575,23 +1700,21 @@ void CMySScomDlg::OnButtonSaveFile()
 /**************************************************************************************************
 **  函数名称:  OnButtonSendData
 **  功能描述:  发送窗口内输入的数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonSendData()
 {
     unsigned char buff[MAX_SEND_BYTE];
 	
-	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+	GetDlgItemText(IDC_EDIT_SENDCSTR, m_Edit_SendCstr);
     
-    if (m_Edit_Send.GetLength() <= 0) {
+    if (m_Edit_SendCstr.GetLength() <= 0) {
         MessageBox("发送窗口内容为空，未发送任何数据！ ", "提示", MB_OK + MB_ICONINFORMATION);
         return;
     }
 	
-	strncpy_s((char *)&buff[0], sizeof(buff), (LPCTSTR)m_Edit_Send, m_Edit_Send.GetLength());
+	strncpy_s((char *)&buff[0], sizeof(buff), (LPCTSTR)m_Edit_SendCstr, m_Edit_SendCstr.GetLength());
 
-	if (SendDatatoComm(buff, m_Edit_Send.GetLength(), m_Check_HexSend) == FALSE) {
+	if (SendDatatoComm(buff, m_Edit_SendCstr.GetLength(), m_Check_HexsSend) == FALSE) {
 		MessageBox("您输入的数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
 		return;
 	}
@@ -1600,12 +1723,10 @@ void CMySScomDlg::OnButtonSendData()
 /**************************************************************************************************
 **  函数名称:  OnButtonSuperSend
 **  功能描述:  显示高级发送窗口
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonSuperSend() 
 {
-	if (s_PDlgSuprSend->IsWindowVisible()) {                                     /* 窗口已经打开，尝试关闭 */
+	if (s_PDlgSuprSend->IsWindowVisible()) {                                   /* 窗口已经打开，尝试关闭 */
 
 		if ((s_PDlgSuprSend->s_issenddata) == TRUE) {
 			MessageBox("请先停止自动循环发送功能，再尝试关闭高级发送窗口......   ", "提示", MB_OK + MB_ICONINFORMATION);
@@ -1614,9 +1735,9 @@ void CMySScomDlg::OnButtonSuperSend()
 			s_PDlgSuprSend->ShowHideDlgWindow(FALSE);
 			SetDlgItemText(IDC_BUTTON_SRSEND, "高级发送");
 			
-			GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(TRUE);
+			GetDlgItem(IDC_CHECK_HEXSSEND)->EnableWindow(TRUE);
 			GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(TRUE);
-			GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
+			GetDlgItem(IDC_EDIT_SENDTIME)->EnableWindow(TRUE);
 			GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
 			GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);
 			GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(TRUE);
@@ -1632,9 +1753,9 @@ void CMySScomDlg::OnButtonSuperSend()
 			s_PDlgSuprSend->ShowHideDlgWindow(TRUE);
 			SetDlgItemText(IDC_BUTTON_SRSEND, "正常发送");
 
-			GetDlgItem(IDC_CHECK_HEXSEND)->EnableWindow(FALSE);
+			GetDlgItem(IDC_CHECK_HEXSSEND)->EnableWindow(FALSE);
 			GetDlgItem(IDC_CHECK_AUTOSEND)->EnableWindow(FALSE);
-			GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(FALSE);
+			GetDlgItem(IDC_EDIT_SENDTIME)->EnableWindow(FALSE);
 			GetDlgItem(IDC_STATIC_MS)->EnableWindow(FALSE);
 			GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(FALSE);
 			GetDlgItem(IDC_BUTTON_OPENFILE)->EnableWindow(FALSE);
@@ -1646,12 +1767,10 @@ void CMySScomDlg::OnButtonSuperSend()
 /**************************************************************************************************
 **  函数名称:  OnButtonExtrafunc
 **  功能描述:  显示附加功能窗口
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonExtrafunc() 
 {
-	if (s_PDlgExtrfunc->IsWindowVisible() == FALSE) {                            /* 窗口尚未打开，尝试打开 */
+	if (s_PDlgExtrfunc->IsWindowVisible() == FALSE) {                          /* 窗口尚未打开，尝试打开 */
 		s_PDlgExtrfunc->ShowHideDlgWindow(TRUE);
 	}
 }
@@ -1659,19 +1778,17 @@ void CMySScomDlg::OnButtonExtrafunc()
 /**************************************************************************************************
 **  函数名称:  OnButtonOpenFile
 **  功能描述:  打开文件
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonOpenFile() 
 {
 	CFile myFile;
 	
 	CFileDialog dlg(TRUE, "*.bin", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR, 
-						  "所有支持的文件(*.bin;*.hex;*.dat)|*.bin;*.hex;*.dat|\
-						   bin文件(*.bin)|*.bin|\
-						   hex文件(*.hex)|*.hex|\
-						   dat文件(*.dat)|*.dat|\
-						   所有文件(*.*)|*.*||");
+					"所有支持的文件(*.bin;*.hex;*.dat)|*.bin;*.hex;*.dat|\
+					bin文件(*.bin)|*.bin|\
+					hex文件(*.hex)|*.hex|\
+					dat文件(*.dat)|*.dat|\
+					所有文件(*.*)|*.*||");
 	
 	if (dlg.DoModal() != IDOK) {                                               /* 未选择任何文件 */
 		return;
@@ -1685,8 +1802,6 @@ void CMySScomDlg::OnButtonOpenFile()
 /**************************************************************************************************
 **  函数名称:  OnButtonSendFile
 **  功能描述:  发送文件
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonSendFile() 
 {
@@ -1712,7 +1827,7 @@ void CMySScomDlg::OnButtonSendFile()
 				s_FileDatPos = 0;
 				SetTimer(Timer_No_SendFile, FILESEND_BYTE, NULL);              /* 开启定时器 */
 				SetSendCtrlArea(FALSE);                                        /* 禁用其他发送控件 */
-				m_Progress_SendFile.SetPos(0);
+				m_Progs_SendFile.SetPos(0);
 			}
 		}
 	} else {                                                                   /* 正在发送过程中，则停止发送 */
@@ -1725,12 +1840,10 @@ void CMySScomDlg::OnButtonSendFile()
 /**************************************************************************************************
 **  函数名称:  OnButtonConfigAutoReply
 **  功能描述:  打开自动回复功能的设置窗口
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonConfigAutoReply()
 {
-	if (s_PDlgAutoRply->IsWindowVisible() == FALSE) {                            /* 窗口尚未打开，尝试打开 */
+	if (s_PDlgAutoRply->IsWindowVisible() == FALSE) {                          /* 窗口尚未打开，尝试打开 */
 		s_PDlgAutoRply->ShowHideDlgWindow(TRUE);
 	}
 }
@@ -1738,39 +1851,44 @@ void CMySScomDlg::OnButtonConfigAutoReply()
 /**************************************************************************************************
 **  函数名称:  OnButtonConfigDsplFilt
 **  功能描述:  打开显示过滤法则的设置窗口
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnButtonConfigDsplFilt()
 {
-	if (s_PDlgDsplFilt->IsWindowVisible() == FALSE) {                            /* 窗口尚未打开，尝试打开 */
+	if (s_PDlgDsplFilt->IsWindowVisible() == FALSE) {                          /* 窗口尚未打开，尝试打开 */
 		s_PDlgDsplFilt->ShowHideDlgWindow(TRUE);
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  OnButtonConfigKeywords
+**  功能描述:  打开关键字符匹配的设置窗口
+**************************************************************************************************/
+void CMySScomDlg::OnButtonConfigKeywords()
+{
+	if (s_PDlgKeyWords->IsWindowVisible() == FALSE) {                          /* 窗口尚未打开，尝试打开 */
+		s_PDlgKeyWords->ShowHideDlgWindow(TRUE);
 	}
 }
 
 /**************************************************************************************************
 **  函数名称:  OnCheckHexDisplay
 **  功能描述:  显示16进制字符复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckHexDisplay()
 {
-    m_Check_HexDspl = !m_Check_HexDspl;
+    m_Check_HexDispl = !m_Check_HexDispl;
 
-	GetDlgItem(IDC_CHECK_FRAMEDSPL)->EnableWindow(m_Check_HexDspl);
-	GetDlgItem(IDC_CHECK_AUTOREPLY)->EnableWindow(m_Check_HexDspl);
-	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(m_Check_HexDspl);
+	GetDlgItem(IDC_CHECK_HEXFRAME)->EnableWindow(m_Check_HexDispl);
+	GetDlgItem(IDC_CHECK_PROTOACK)->EnableWindow(m_Check_HexDispl);
+	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(m_Check_HexDispl);
 
-    if (m_Check_HexDspl == TRUE) {
-        SetDlgItemText(IDC_STATIC_LINES, "字符");
-		if (IsDlgButtonChecked(IDC_CHECK_AUTOREPLY) == TRUE) {
+    if (m_Check_HexDispl == TRUE) {
+		if (IsDlgButtonChecked(IDC_CHECK_PROTOACK) == TRUE) {
 			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(TRUE);
 		} else {
 			GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(FALSE);
 		}
     } else {
-        SetDlgItemText(IDC_STATIC_LINES, "行");
 		if (s_PDlgAutoRply->IsWindowVisible() == TRUE) {
 			s_PDlgAutoRply->ShowHideDlgWindow(FALSE);
 		}
@@ -1780,37 +1898,35 @@ void CMySScomDlg::OnCheckHexDisplay()
 /**************************************************************************************************
 **  函数名称:  OnCheckAutoClear
 **  功能描述:  自动清除功能复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckAutoClear() 
 {
     int     TempData;
     CString TempStr;
     
-    m_Check_AutoClear = !m_Check_AutoClear;
+    m_Check_AutoCler = !m_Check_AutoCler;
     
-    GetDlgItemText(IDC_EDIT_LINES, TempStr);
+    GetDlgItemText(IDC_EDIT_AUTCLRKB, TempStr);
 
     TempData = atoi((LPSTR)(LPCTSTR)TempStr);
     
     if (TempData < 100) {        
-        MessageBox("您设置的行数值过小，系统不建议使用。请设置一个大于100的值！     ", "提示", MB_OK + MB_ICONINFORMATION);
-        SetDlgItemText(IDC_EDIT_LINES, m_Edit_Lines);                          /* 还原编辑框内容 */
-        m_Check_AutoClear = FALSE;        
+        MessageBox("您设置的行数值过小，不建议使用。请设置一个大于100的值！     ", "提示", MB_OK + MB_ICONINFORMATION);
+        SetDlgItemText(IDC_EDIT_AUTCLRKB, m_Edit_AutClrKB);                    /* 还原编辑框内容 */
+        m_Check_AutoCler = FALSE;        
         UpdateData(FALSE);
         return;
     }
 
-    if (m_Check_AutoClear == TRUE) {
+    if (m_Check_AutoCler == TRUE) {
         GetDlgItem(IDC_STATIC_OVER)->EnableWindow(FALSE);
         GetDlgItem(IDC_STATIC_LINES)->EnableWindow(FALSE);
-        GetDlgItem(IDC_EDIT_LINES)->EnableWindow(FALSE);
+        GetDlgItem(IDC_EDIT_AUTCLRKB)->EnableWindow(FALSE);
         GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(TRUE);
     } else {
         GetDlgItem(IDC_STATIC_OVER)->EnableWindow(TRUE);
         GetDlgItem(IDC_STATIC_LINES)->EnableWindow(TRUE);
-        GetDlgItem(IDC_EDIT_LINES)->EnableWindow(TRUE);
+        GetDlgItem(IDC_EDIT_AUTCLRKB)->EnableWindow(TRUE);
         GetDlgItem(IDC_CHECK_AUTOSAVE)->EnableWindow(FALSE);
     }
 }
@@ -1818,8 +1934,6 @@ void CMySScomDlg::OnCheckAutoClear()
 /**************************************************************************************************
 **  函数名称:  OnCheckAutoSave
 **  功能描述:  自动保存功能复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckAutoSave()
 {
@@ -1829,21 +1943,19 @@ void CMySScomDlg::OnCheckAutoSave()
 /**************************************************************************************************
 **  函数名称:  OnCheckHexSend
 **  功能描述:  发送16进制数据复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckHexSend()
 {
-    m_Check_HexSend = !m_Check_HexSend;
+    m_Check_HexsSend = !m_Check_HexsSend;
 	
-	GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);                                /* 首先保存当前内容，然后更新显示 */
+	GetDlgItemText(IDC_EDIT_SENDCSTR, m_Edit_SendCstr);                        /* 首先保存当前内容，然后更新显示 */
 
-	if (m_Check_HexSend == FALSE) {                                            /* 之前是16进制模式，则现在是字符模式 */
-		s_SendStr_Hex = m_Edit_Send;
-		SetDlgItemText(IDC_EDIT_SEND, s_SendStr_Chr);
+	if (m_Check_HexsSend == FALSE) {                                           /* 之前是16进制模式，则现在是字符模式 */
+		s_SendStr_Hex = m_Edit_SendCstr;
+		SetDlgItemText(IDC_EDIT_SENDCSTR, s_SendStr_Chr);
 	} else {                                                                   /* 之前是字符模式，则现在是16进制模式 */
-		s_SendStr_Chr = m_Edit_Send;
-		SetDlgItemText(IDC_EDIT_SEND, s_SendStr_Hex);
+		s_SendStr_Chr = m_Edit_SendCstr;
+		SetDlgItemText(IDC_EDIT_SENDCSTR, s_SendStr_Hex);
 	}
 	
 	UpdateData(TRUE);
@@ -1852,24 +1964,22 @@ void CMySScomDlg::OnCheckHexSend()
 /**************************************************************************************************
 **  函数名称:  OnCheckAutoSend
 **  功能描述:  自动发送功能复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckAutoSend()
 {   
     m_Check_AutoSend = !m_Check_AutoSend;
 
-    GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
+    GetDlgItemText(IDC_EDIT_SENDCSTR, m_Edit_SendCstr);
 
-    if (m_Edit_Send.GetLength() <= 0) {
-        MessageBox("貌似发送区为空吧，请问您老想让我发送什么东东？ ", "提示", MB_OK + MB_ICONINFORMATION);
+    if (m_Edit_SendCstr.GetLength() <= 0) {
+        MessageBox("什么数据都不填，是想要发送一串空气么......   ", "提示", MB_OK + MB_ICONINFORMATION);
         m_Check_AutoSend = FALSE;
         UpdateData(FALSE);
         return;
     }
 
     if (m_Check_AutoSend) {
-        if (m_Edit_Send.GetLength() >= MAX_SEND_BYTE) {                        /* 确保输入的数据不会过长 */
+        if (m_Edit_SendCstr.GetLength() >= MAX_SEND_BYTE) {                    /* 确保输入的数据不会过长 */
             MessageBox("您输入的数据过长，提交发送请求失败......   ", "提示", MB_OK + MB_ICONINFORMATION);
             m_Check_AutoSend = FALSE;
             UpdateData(FALSE);
@@ -1882,7 +1992,7 @@ void CMySScomDlg::OnCheckAutoSend()
     } else {
 
         KillTimer(Timer_No_AutoSend);                                          /* 否则，用户取消了自动发送的功能 */
-        GetDlgItem(IDC_EDIT_TIMER)->EnableWindow(TRUE);
+        GetDlgItem(IDC_EDIT_SENDTIME)->EnableWindow(TRUE);
         GetDlgItem(IDC_STATIC_MS)->EnableWindow(TRUE);
         GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(TRUE);                       /* 重新启用发送按钮 */
 		GetDlgItem(IDC_BUTTON_SENDFILE)->EnableWindow(TRUE);
@@ -1893,19 +2003,15 @@ void CMySScomDlg::OnCheckAutoSend()
 /**************************************************************************************************
 **  函数名称:  OnCheckAddReturn
 **  功能描述:  发送时补加回车符复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckAddReturn()
 {
-    m_Check_Return = !m_Check_Return;
+    m_Check_CRLFSend = !m_Check_CRLFSend;
 }
 
 /**************************************************************************************************
 **  函数名称:  OnCheckShowTime
 **  功能描述:  行头位置显示时间复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckShowTime()
 {
@@ -1915,28 +2021,24 @@ void CMySScomDlg::OnCheckShowTime()
 /**************************************************************************************************
 **  函数名称:  OnCheckFrameDspl
 **  功能描述:  帧格式显示自动换行功能复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckFrameDspl() 
 {
-	m_Check_FrameDspl = !m_Check_FrameDspl;
+	m_Check_HexFrame = !m_Check_HexFrame;
 }
 
 /**************************************************************************************************
 **  函数名称:  OnCheckAutoReply
 **  功能描述:  自动回复复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckAutoReply()
 {
-	m_Check_AutoReply = !m_Check_AutoReply;
+	m_Check_ProtoACK = !m_Check_ProtoACK;
 
-	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(m_Check_AutoReply);
+	GetDlgItem(IDC_BUTTON_SETREPLY)->EnableWindow(m_Check_ProtoACK);
 
-	if (m_Check_AutoReply == FALSE) {
-		if (s_PDlgAutoRply->IsWindowVisible() == TRUE) {                         /* 窗口尚未关闭 */
+	if (m_Check_ProtoACK == FALSE) {
+		if (s_PDlgAutoRply->IsWindowVisible() == TRUE) {                       /* 窗口尚未关闭 */
 			s_PDlgAutoRply->ShowHideDlgWindow(FALSE);
 		}
 	}
@@ -1945,16 +2047,14 @@ void CMySScomDlg::OnCheckAutoReply()
 /**************************************************************************************************
 **  函数名称:  OnCheckDsplFilt
 **  功能描述:  显示内容过滤复选框状态切换
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnCheckDsplFilt()
 {
-	m_Check_Filter = !m_Check_Filter;
+	m_Check_AutoFilt = !m_Check_AutoFilt;
 
-	GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(m_Check_Filter);
+	GetDlgItem(IDC_BUTTON_SETFILTER)->EnableWindow(m_Check_AutoFilt);
 
-	if (m_Check_Filter == FALSE) {
+	if (m_Check_AutoFilt == FALSE) {
 		if (s_PDlgDsplFilt->IsWindowVisible() == TRUE) {                       /* 窗口尚未关闭 */
 			s_PDlgDsplFilt->ShowHideDlgWindow(FALSE);
 		}
@@ -1962,10 +2062,40 @@ void CMySScomDlg::OnCheckDsplFilt()
 }
 
 /**************************************************************************************************
+**  函数名称:  OnCheckKeyword
+**  功能描述:  关键字监听开关复选框状态切换
+**************************************************************************************************/
+void CMySScomDlg::OnCheckKeyword()
+{
+	m_Check_Keywords = !m_Check_Keywords;
+
+	GetDlgItem(IDC_BUTTON_KEYWORD)->EnableWindow(m_Check_Keywords);
+
+	if (m_Check_Keywords == FALSE) {
+		if (s_PDlgKeyWords->IsWindowVisible() == TRUE) {                       /* 窗口尚未关闭 */
+			s_PDlgKeyWords->ShowHideDlgWindow(FALSE);
+		}
+	}
+}
+
+/**************************************************************************************************
+**  函数名称:  OnChangeEditSendcstr
+**  功能描述:  发送编辑框内容变化
+**************************************************************************************************/
+void CMySScomDlg::OnChangeEditSendcstr()
+{
+	GetDlgItemText(IDC_EDIT_SENDCSTR, m_Edit_SendCstr);
+	
+	if (m_Check_HexsSend == FALSE) {                                           /* 字符模式下更新s_SendStr_Chr */
+		s_SendStr_Chr = m_Edit_SendCstr;
+	} else {                                                                   /* 16进制模式更新s_SendStr_Hex */
+		s_SendStr_Hex = m_Edit_SendCstr;
+	}
+}
+
+/**************************************************************************************************
 **  函数名称:  OnMenuEditCopy
 **  功能描述:  编辑框菜单 - 复制所选内容
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditCopy()
 {
@@ -1989,8 +2119,6 @@ void CMySScomDlg::OnMenuEditCopy()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditClear
 **  功能描述:  编辑框菜单 - 清除全部内容
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditClear()
 {
@@ -2004,8 +2132,6 @@ void CMySScomDlg::OnMenuEditClear()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditFont
 **  功能描述:  编辑框菜单 - 显示字体设置
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditFont()
 {
@@ -2022,14 +2148,13 @@ void CMySScomDlg::OnMenuEditFont()
 	BOOL bIsUnderline = cf.dwEffects & CFE_UNDERLINE;
 	BOOL bIsStrickout = cf.dwEffects & CFE_STRIKEOUT;
 
-	//设置属性
-	lf.lfCharSet = cf.bCharSet;
-	lf.lfHeight = cf.yHeight/15;
+	lf.lfCharSet        = cf.bCharSet;
+	lf.lfHeight         = cf.yHeight / 15;
 	lf.lfPitchAndFamily = cf.bPitchAndFamily;
-	lf.lfItalic = bIsItalic;
-	lf.lfWeight = (bIsBold ? FW_BOLD : FW_NORMAL);
-	lf.lfUnderline = bIsUnderline;
-	lf.lfStrikeOut = bIsStrickout;
+	lf.lfItalic         = bIsItalic;
+	lf.lfWeight         = (bIsBold ? FW_BOLD : FW_NORMAL);
+	lf.lfUnderline      = bIsUnderline;
+	lf.lfStrikeOut      = bIsStrickout;
 	sprintf_s(lf.lfFaceName, cf.szFaceName);
 
 	CFontDialog dlg(&lf);
@@ -2045,8 +2170,6 @@ void CMySScomDlg::OnMenuEditFont()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditAbout
 **  功能描述:  编辑框菜单 - 程序介绍说明
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditAbout()
 {
@@ -2058,8 +2181,6 @@ void CMySScomDlg::OnMenuEditAbout()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditColorWhite
 **  功能描述:  编辑框菜单 - 背景颜色设置 - 雪花白
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditColorWhite()
 {
@@ -2069,8 +2190,6 @@ void CMySScomDlg::OnMenuEditColorWhite()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditColorGray
 **  功能描述:  编辑框菜单 - 背景颜色设置 - 科技灰
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditColorGray()
 {
@@ -2080,8 +2199,6 @@ void CMySScomDlg::OnMenuEditColorGray()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditColorGreen
 **  功能描述:  编辑框菜单 - 背景颜色设置 - 薄荷绿
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditColorGreen()
 {
@@ -2091,8 +2208,6 @@ void CMySScomDlg::OnMenuEditColorGreen()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditColorBlue
 **  功能描述:  编辑框菜单 - 背景颜色设置 - 碧空蓝
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditColorBlue()
 {
@@ -2102,8 +2217,6 @@ void CMySScomDlg::OnMenuEditColorBlue()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditColorPink
 **  功能描述:  编辑框菜单 - 背景颜色设置 - 浪漫粉
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditColorPink()
 {
@@ -2113,8 +2226,6 @@ void CMySScomDlg::OnMenuEditColorPink()
 /**************************************************************************************************
 **  函数名称:  OnMenuEditColorPurple
 **  功能描述:  编辑框菜单 - 背景颜色设置 - 轻纱紫
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditColorPurple()
 {
@@ -2124,8 +2235,6 @@ void CMySScomDlg::OnMenuEditColorPurple()
 /**************************************************************************************************
 **  函数名称:  OnMenuTrayAbout
 **  功能描述:  托盘菜单 - 关于程序
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayAbout()
 {
@@ -2137,8 +2246,6 @@ void CMySScomDlg::OnMenuTrayAbout()
 /**************************************************************************************************
 **  函数名称:  OnMenuTrayShow
 **  功能描述:  托盘菜单 - 显示界面
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayShow()
 {
@@ -2148,8 +2255,6 @@ void CMySScomDlg::OnMenuTrayShow()
 /**************************************************************************************************
 **  函数名称:  OnMenuTrayHide
 **  功能描述:  托盘菜单 - 隐藏界面
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayHide()
 {
@@ -2160,8 +2265,6 @@ void CMySScomDlg::OnMenuTrayHide()
 /**************************************************************************************************
 **  函数名称:  OnMenuTrayExit
 **  功能描述:  托盘菜单 - 退出程序
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayExit()
 {
@@ -2173,6 +2276,7 @@ void CMySScomDlg::OnMenuTrayExit()
 	s_PDlgExtrfunc->RecordAllParas();
 	s_PDlgDsplFilt->RecordAllParas();
 	s_PDlgAutoRply->RecordAllParas();
+	s_PDlgKeyWords->RecordAllParas();
 
 	CloseSerialDevice();                                                       /* 关闭串口设备 */
     
@@ -2194,8 +2298,6 @@ void CMySScomDlg::OnMenuTrayExit()
 /**************************************************************************************************
 **  函数名称:  OnPaint
 **  功能描述:  处理窗体重绘消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnPaint() 
 {
@@ -2226,8 +2328,6 @@ void CMySScomDlg::OnPaint()
 /**************************************************************************************************
 **  函数名称:  OnQueryDragIcon
 **  功能描述:  获取窗体图标
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 HCURSOR CMySScomDlg::OnQueryDragIcon()
 {
@@ -2237,22 +2337,26 @@ HCURSOR CMySScomDlg::OnQueryDragIcon()
 /**************************************************************************************************
 **  函数名称:  OnInitDialog
 **  功能描述:  窗口初始化
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CMySScomDlg::OnInitDialog()
 {
-    CDialog::OnInitDialog();
+    LARGE_INTEGER litmp;
+	
+	CDialog::OnInitDialog();
 
 	s_RecvPaused = FALSE;
+	s_DevNeedUpd = FALSE;
+	s_NeedChgLne = TRUE;
 	s_RecvString = "";
 	s_LopSendCnt = 0;
-	s_RecvedLine = 0;
 	s_RecvedByte = 0;
 	s_SendedByte = 0;
 	s_FileDatPos = 0;
 
-	CreateDirectory(RecordPath, NULL);                                         /* 创建Record文件夹，用于保存数据 */
+	QueryPerformanceCounter(&litmp);
+	s_StartdTcik = litmp.QuadPart;                                             /* 获得初始值 */
+
+	CreateDirectory(REC_DIR_PATH, NULL);                                       /* 创建Record文件夹，用于保存数据 */
 	CreateSettingFile();                                                       /* 创建程序配置参数文件并初始化各个参数 */
 
 	if (InitiateChildWins() == FALSE) {                                        /* 创建各个子窗体的页面 */
@@ -2260,14 +2364,16 @@ BOOL CMySScomDlg::OnInitDialog()
 	}
 	
 	GetDlgItem(IDC_PROGRESS_SENDFILE)->ShowWindow(SW_HIDE);                    /* 隐藏进度条，并初始化配置 */
-	m_Progress_SendFile.SetRange(0, PROGRESS_POS);
-	m_Progress_SendFile.SetPos(0);
+	m_Progs_SendFile.SetRange(0, PROGRESS_POS);
+	m_Progs_SendFile.SetPos(0);
 
     SetIcon(m_hIcon, TRUE);
     SetIcon(m_hIcon, FALSE);
 
-    s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECV);
-    s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SEND);
+	SetWindowText("MySScom " + GetProgramVersion());                           /* 设置对话框标题为程序版本号 */
+
+    s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECVCSTR);
+    s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SENDCSTR);
 
     InitiateStatusBar();                                                       /* 初始化状态栏各个区域位置 */
     InitiateComboComs();                                                       /* 初始化选择串口号的列表框 */
@@ -2277,6 +2383,7 @@ BOOL CMySScomDlg::OnInitDialog()
     InitiateComboStop();                                                       /* 初始化选择停止位的列表框 */
 	InitiateAllParas();                                                        /* 初始化主界面下各控件参数 */
 	InitiateToolsTip();                                                        /* 初始化控件的悬浮提示信息 */
+	InitiateMainStatic();                                                      /* 初始化主界面提示框的显示 */
 
     SetControlStatus(FALSE);                                                   /* 首先禁用各个按钮控件 */
 
@@ -2304,8 +2411,6 @@ BOOL CMySScomDlg::OnInitDialog()
 /**************************************************************************************************
 **  函数名称:  OnTimer
 **  功能描述:  定时器消息处理
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnTimer(UINT nIDEvent) 
 {
@@ -2315,19 +2420,24 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
     {
         case Timer_No_UpdateDsp:                                              /* 更新编辑框内容显示 */
             if (s_DataRecved == TRUE) {
-                UpdateEditDisplay();
+				UpdateEditStr(s_RecvString);
+				s_RecvString = "";
                 s_DataRecved = FALSE;
             }
             break;
         
         case Timer_No_StatusBar:                                               /* 状态栏定时更新 */
             UpdateStatusBarNow();
+			if (s_DevNeedUpd == TRUE) {                                        /* 顺便更新一下串口设备列表 */
+				s_DevNeedUpd = FALSE;
+				UpdateComboComs();
+			}
             break;
             
         case Timer_No_AutoSend:                                                /* 自动发送数据 */
-            GetDlgItemText(IDC_EDIT_SEND, m_Edit_Send);
-			strncpy_s((char *)&buff[0], sizeof(buff), (LPCTSTR)m_Edit_Send, m_Edit_Send.GetLength());
-			if (SendDatatoComm(buff, m_Edit_Send.GetLength(), m_Check_HexSend) == FALSE) {
+            GetDlgItemText(IDC_EDIT_SENDCSTR, m_Edit_SendCstr);
+			strncpy_s((char *)&buff[0], sizeof(buff), (LPCTSTR)m_Edit_SendCstr, m_Edit_SendCstr.GetLength());
+			if (SendDatatoComm(buff, m_Edit_SendCstr.GetLength(), m_Check_HexsSend) == FALSE) {
 				OnCheckAutoSend();
 				UpdateData(FALSE);
 				MessageBox("您输入的数据帧内容过长，或者存在非法字符，请确认！......       ", "提醒", MB_OK + MB_ICONEXCLAMATION);
@@ -2336,7 +2446,6 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
             
 		case Timer_No_FrameDspl:                                               /* 16进制下按帧换行显示判定 */
 			KillTimer(Timer_No_FrameDspl);
-			s_RecvedLine++;
 			UpdateEditStr("\r\n");                                             /* 立即换行显示 */
 			s_NeedChgLne = TRUE;                                               /* 标志下次需要换行显示 */
 			break;
@@ -2360,8 +2469,6 @@ void CMySScomDlg::OnTimer(UINT nIDEvent)
 /**************************************************************************************************
 **  函数名称:  PreTranslateMessage
 **  功能描述:  系统消息预处理函数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg) 
 {
@@ -2371,11 +2478,16 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 
     if (pMsg->message == WM_KEYDOWN) {
 
-		if (SerialDevisOpened() == TRUE) {
-			if ((GetFocus() == GetDlgItem(IDC_EDIT_INPUT)) || GetFocus() == GetDlgItem(IDC_EDIT_RECV)) {
-				keyvalue = GetKeyValue(pMsg->wParam);
+		if ((pMsg->wParam >= VK_F1) && (pMsg->wParam <= VK_F12)) {             /* 此处处理用户自定义的Fn功能键 */
+			UserFnKeyHdl(pMsg->wParam);
+			return true;
+		}
+
+		if (SerialDevisOpened() == TRUE) {                                     /* 此处将用户按键键值发送到串口 */
+			if ((GetFocus() == GetDlgItem(IDC_EDIT_INPUT)) || GetFocus() == GetDlgItem(IDC_EDIT_RECVCSTR)) {
+				keyvalue = GetKeyValue(pMsg->wParam);                          /* 只提取那些有意义的按键键值 */
 				if (keyvalue > 0) {
-					s_SendedByte += SendSerialData(&keyvalue, 1);
+					s_SendedByte += SendSerialData(&keyvalue, 1);              /* 将按键键值通过串口发送出去 */
 				}
 			}
 		}
@@ -2391,8 +2503,6 @@ BOOL CMySScomDlg::PreTranslateMessage(MSG* pMsg)
 /**************************************************************************************************
 **  函数名称:  OnClose
 **  功能描述:  处理窗口关闭消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnClose() 
 {
@@ -2408,9 +2518,7 @@ void CMySScomDlg::OnClose()
 
 /**************************************************************************************************
 **  函数名称:  OnSize
-**  功能描述:  处理窗口大小缩放消息
-**  输入参数:  
-**  返回参数:  
+**  功能描述:  处理窗口大小缩放消息 （变动后，此时窗体大小已经确定）
 **************************************************************************************************/
 void CMySScomDlg::OnSize(UINT nType, int cx, int cy) 
 {
@@ -2423,9 +2531,7 @@ void CMySScomDlg::OnSize(UINT nType, int cx, int cy)
 
 /**************************************************************************************************
 **  函数名称:  OnSizing
-**  功能描述:  处理窗口大小缩放消息
-**  输入参数:  
-**  返回参数:  
+**  功能描述:  处理窗口大小缩放消息 （改变中，此时窗体大小尚未定型）
 **************************************************************************************************/
 void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect) 
 {
@@ -2439,8 +2545,6 @@ void CMySScomDlg::OnSizing(UINT fwSide, LPRECT pRect)
 /**************************************************************************************************
 **  函数名称:  OnContextMenu
 **  功能描述:  处理上下文菜单消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 {
@@ -2458,10 +2562,17 @@ void CMySScomDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 }
 
 /**************************************************************************************************
+**  函数名称:  WinHelp
+**  功能描述:  重载系统帮助函数 - 用于屏蔽系统帮助功能
+**************************************************************************************************/
+void CMySScomDlg::WinHelp(DWORD dwData, UINT nCmd)
+{
+	return;
+}
+
+/**************************************************************************************************
 **  函数名称:  OnSysCommand
 **  功能描述:  处理系统消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CMySScomDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
@@ -2469,7 +2580,8 @@ void CMySScomDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		CloseAllChildWin();                                                    /* 关闭所有子窗口 */
 	}
 
+	UpdateStatusBarNow();
+
 	CDialog::OnSysCommand(nID, lParam);
 }
-
 

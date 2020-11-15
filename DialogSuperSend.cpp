@@ -168,8 +168,6 @@ END_MESSAGE_MAP()
 /**************************************************************************************************
 **  函数名称:  EditDataValid
 **  功能描述:  判断edit控件内的数据是否有效
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 bool CDialogSuperSend::EditDataValid(CString cstr, BOOL ishex)
 {
@@ -191,7 +189,6 @@ bool CDialogSuperSend::EditDataValid(CString cstr, BOOL ishex)
 /**************************************************************************************************
 **  函数名称:  GetSrValidDataNo
 **  功能描述:  获取高级发送区内edit控件内数据有效的控件ID
-**  输入参数:  
 **  返回参数:  返回内容有效的编辑框的序号，全无效则返回0xFF
 **************************************************************************************************/
 int CDialogSuperSend::GetSrValidDataNo(void)
@@ -218,7 +215,6 @@ int CDialogSuperSend::GetSrValidDataNo(void)
 /**************************************************************************************************
 **  函数名称:  GetSrValidTimeNo
 **  功能描述:  获取高级发送区内edit控件内时间有效的控件ID
-**  输入参数:  
 **  返回参数:  返回内容有效的编辑框的序号，全无效则返回0xFF
 **************************************************************************************************/
 int CDialogSuperSend::GetSrValidTimeNo(void)
@@ -241,7 +237,6 @@ int CDialogSuperSend::GetSrValidTimeNo(void)
 /**************************************************************************************************
 **  函数名称:  GetSrInValidTimeNo
 **  功能描述:  获取高级发送区内edit控件内时间非法的控件ID
-**  输入参数:  
 **  返回参数:  返回内容非法（不是100的倍数）的编辑框的序号，全部合法（不填也视为合法）则返回0xFF
 **************************************************************************************************/
 int CDialogSuperSend::GetSrInValidTimeNo(void)
@@ -265,8 +260,6 @@ int CDialogSuperSend::GetSrInValidTimeNo(void)
 /**************************************************************************************************
 **  函数名称:  TrytoSendData
 **  功能描述:  尝试发送数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::TrytoSendData(int index)
 {	
@@ -301,8 +294,6 @@ void CDialogSuperSend::TrytoSendData(int index)
 /**************************************************************************************************
 **  函数名称:  TrytoContinueSend
 **  功能描述:  尝试继续连发数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::TrytoContinueSend(void)
 {
@@ -330,8 +321,6 @@ void CDialogSuperSend::TrytoContinueSend(void)
 /**************************************************************************************************
 **  函数名称:  TrytoSendEachData
 **  功能描述:  尝试连发单条数据
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::TrytoSendEachData(void)
 {
@@ -370,8 +359,6 @@ void CDialogSuperSend::TrytoSendEachData(void)
 /**************************************************************************************************
 **  函数名称:  ShowHideTimeEdit
 **  功能描述:  显示或隐藏时间编辑框
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::ShowHideTimeEdit(bool enanble)
 {
@@ -392,6 +379,10 @@ void CDialogSuperSend::ShowHideTimeEdit(bool enanble)
 /* ==================================== 以下为控件消息处理 ===================================== */
 
 
+/**************************************************************************************************
+**  函数名称:  OnButtonStartSend
+**  功能描述:  开始启动发送流程
+**************************************************************************************************/
 void CDialogSuperSend::OnButtonStartSend() 
 {
 	int     Timer;
@@ -400,7 +391,7 @@ void CDialogSuperSend::OnButtonStartSend()
 	if (s_issenddata == FALSE) {                                               /* 如果当前没有在发送数据 */
 
 		if (GetSrValidDataNo() == 0xFF) {                                      /* 判断数据区是否有效 */
-			MessageBox("这么多的编辑框，您至少选一个输入点内容吧\r\n否则，您叫我发送什么呢？~~~  ", "提示", MB_OK + MB_ICONINFORMATION);
+			MessageBox("这么多的编辑框，您至少选一个输入点内容吧\r\n否则，叫我发送什么呢？~~~  ", "提示", MB_OK + MB_ICONINFORMATION);
 			UpdateData(FALSE);                                                 /* 取消复选框被选中的状态 */
 			return;
 		}
@@ -469,6 +460,10 @@ void CDialogSuperSend::OnButtonStartSend()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnButtonExpand
+**  功能描述:  收缩/展开 扩展面板
+**************************************************************************************************/
 void CDialogSuperSend::OnButtonExpand() 
 {
 	CRect rect;
@@ -486,12 +481,20 @@ void CDialogSuperSend::OnButtonExpand()
 	}
 }
 
+/**************************************************************************************************
+**  函数名称:  OnRadioSendAll
+**  功能描述:  选择统一定时发送所有数据
+**************************************************************************************************/
 void CDialogSuperSend::OnRadioSendAll() 
 {
 	s_cirsendall = TRUE;
 	ShowHideTimeEdit(!s_cirsendall);
 }
 
+/**************************************************************************************************
+**  函数名称:  OnRadioSendEach
+**  功能描述:  选择分开定时发送各条数据
+**************************************************************************************************/
 void CDialogSuperSend::OnRadioSendEach() 
 {
 	s_cirsendall = FALSE;
@@ -512,8 +515,6 @@ void CDialogSuperSend::OnRadioSendEach()
 /**************************************************************************************************
 **  函数名称:  InitateSrDlgPos
 **  功能描述:  初始化本窗口的位置和显示尺寸
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::InitateSrDlgPos(void)
 {
@@ -528,8 +529,6 @@ void CDialogSuperSend::InitateSrDlgPos(void)
 /**************************************************************************************************
 **  函数名称:  ShowHideDlgWindow
 **  功能描述:  显示和隐藏本窗口，包括读取和存储窗口位置参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::ShowHideDlgWindow(bool show)
 {
@@ -551,76 +550,74 @@ void CDialogSuperSend::ShowHideDlgWindow(bool show)
 /**************************************************************************************************
 **  函数名称:  InitiateAllParas
 **  功能描述:  初始化各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::InitiateAllParas(void)
 {
 	char TempChar[MAX_SEND_BYTE];
 	CString TempStr;
 
-	m_Check_SSHex_01 = (::GetPrivateProfileInt("SuprSend", "SrHexa01", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_02 = (::GetPrivateProfileInt("SuprSend", "SrHexa02", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_03 = (::GetPrivateProfileInt("SuprSend", "SrHexa03", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_04 = (::GetPrivateProfileInt("SuprSend", "SrHexa04", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_05 = (::GetPrivateProfileInt("SuprSend", "SrHexa05", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_06 = (::GetPrivateProfileInt("SuprSend", "SrHexa06", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_07 = (::GetPrivateProfileInt("SuprSend", "SrHexa07", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_08 = (::GetPrivateProfileInt("SuprSend", "SrHexa08", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_09 = (::GetPrivateProfileInt("SuprSend", "SrHexa09", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_10 = (::GetPrivateProfileInt("SuprSend", "SrHexa10", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_11 = (::GetPrivateProfileInt("SuprSend", "SrHexa11", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_12 = (::GetPrivateProfileInt("SuprSend", "SrHexa12", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_13 = (::GetPrivateProfileInt("SuprSend", "SrHexa13", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_14 = (::GetPrivateProfileInt("SuprSend", "SrHexa14", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_15 = (::GetPrivateProfileInt("SuprSend", "SrHexa15", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_16 = (::GetPrivateProfileInt("SuprSend", "SrHexa16", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_17 = (::GetPrivateProfileInt("SuprSend", "SrHexa17", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_18 = (::GetPrivateProfileInt("SuprSend", "SrHexa18", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_19 = (::GetPrivateProfileInt("SuprSend", "SrHexa19", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_20 = (::GetPrivateProfileInt("SuprSend", "SrHexa20", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_21 = (::GetPrivateProfileInt("SuprSend", "SrHexa21", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_22 = (::GetPrivateProfileInt("SuprSend", "SrHexa22", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_23 = (::GetPrivateProfileInt("SuprSend", "SrHexa23", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_24 = (::GetPrivateProfileInt("SuprSend", "SrHexa24", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_25 = (::GetPrivateProfileInt("SuprSend", "SrHexa25", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_26 = (::GetPrivateProfileInt("SuprSend", "SrHexa26", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_27 = (::GetPrivateProfileInt("SuprSend", "SrHexa27", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_28 = (::GetPrivateProfileInt("SuprSend", "SrHexa28", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_29 = (::GetPrivateProfileInt("SuprSend", "SrHexa29", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_30 = (::GetPrivateProfileInt("SuprSend", "SrHexa30", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_31 = (::GetPrivateProfileInt("SuprSend", "SrHexa31", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_32 = (::GetPrivateProfileInt("SuprSend", "SrHexa32", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_33 = (::GetPrivateProfileInt("SuprSend", "SrHexa33", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_34 = (::GetPrivateProfileInt("SuprSend", "SrHexa34", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_35 = (::GetPrivateProfileInt("SuprSend", "SrHexa35", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_36 = (::GetPrivateProfileInt("SuprSend", "SrHexa36", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_37 = (::GetPrivateProfileInt("SuprSend", "SrHexa37", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_38 = (::GetPrivateProfileInt("SuprSend", "SrHexa38", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_39 = (::GetPrivateProfileInt("SuprSend", "SrHexa39", 0, ".\\Settings.ini")) ? TRUE : FALSE;
-	m_Check_SSHex_40 = (::GetPrivateProfileInt("SuprSend", "SrHexa40", 0, ".\\Settings.ini")) ? TRUE : FALSE;
+	m_Check_SSHex_01 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa01", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_02 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa02", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_03 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa03", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_04 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa04", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_05 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa05", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_06 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa06", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_07 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa07", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_08 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa08", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_09 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa09", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_10 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa10", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_11 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa11", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_12 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa12", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_13 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa13", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_14 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa14", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_15 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa15", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_16 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa16", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_17 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa17", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_18 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa18", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_19 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa19", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_20 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa20", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_21 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa21", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_22 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa22", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_23 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa23", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_24 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa24", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_25 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa25", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_26 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa26", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_27 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa27", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_28 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa28", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_29 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa29", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_30 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa30", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_31 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa31", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_32 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa32", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_33 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa33", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_34 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa34", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_35 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa35", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_36 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa36", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_37 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa37", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_38 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa38", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_39 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa39", 0, CONFIGFILENAME)) ? TRUE : FALSE;
+	m_Check_SSHex_40 = (::GetPrivateProfileInt(FLAG_SUPERSEND, "SrHexa40", 0, CONFIGFILENAME)) ? TRUE : FALSE;
 
 	for (int tt = 0, idc_edit_data = IDC_EDIT_SSDATA_01, idc_edit_time = IDC_EDIT_SSTIME_01; tt < EXTMODE_NUM; tt++) {
 
 		TempStr.Format("SrData%.2d", tt);
 		memset(TempChar, 0, MAX_SEND_BYTE);
-		::GetPrivateProfileString("SuprSend", TempStr, "", TempChar, MAX_SEND_BYTE, ".\\Settings.ini");
+		::GetPrivateProfileString(FLAG_SUPERSEND, TempStr, "", TempChar, MAX_SEND_BYTE, CONFIGFILENAME);
 		TempStr.Format("%s", TempChar);
 		TempStr = FormatQuotesStrRead(TempStr);
 		SetDlgItemText(idc_edit_data + tt, TempStr);
 
 		TempStr.Format("SrTime%.2d", tt);
-		::GetPrivateProfileString("SuprSend", TempStr, "", TempChar, 5, ".\\Settings.ini");
+		::GetPrivateProfileString(FLAG_SUPERSEND, TempStr, "", TempChar, 5, CONFIGFILENAME);
 		TempStr.Format("%s", TempChar);
 		SetDlgItemText(idc_edit_time + tt, TempStr);
 	}
 
-	::GetPrivateProfileString("SuprSend", "LoopTime", "", TempChar, 5, ".\\Settings.ini");
+	::GetPrivateProfileString(FLAG_SUPERSEND, SUPERSEND_LOOPTIME, "", TempChar, 5, CONFIGFILENAME);
 	m_Edit_AutoTime.Format("%s", TempChar);
 	SetDlgItemText(IDC_EDIT_AUTOTIME, m_Edit_AutoTime);
 
-	s_DialogPos_X = (::GetPrivateProfileInt("SuprSend", "DialogPos_X",  0, ".\\Settings.ini"));
-	s_DialogPos_Y = (::GetPrivateProfileInt("SuprSend", "DialogPos_Y",  0, ".\\Settings.ini"));
+	s_DialogPos_X = (::GetPrivateProfileInt(FLAG_SUPERSEND, SUPERSEND_POSTIONX, 0, CONFIGFILENAME));
+	s_DialogPos_Y = (::GetPrivateProfileInt(FLAG_SUPERSEND, SUPERSEND_POSTIONY, 0, CONFIGFILENAME));
 
 	UpdateData(FALSE);                                                         /* 更新编辑框内容 */
 }
@@ -628,73 +625,79 @@ void CDialogSuperSend::InitiateAllParas(void)
 /**************************************************************************************************
 **  函数名称:  RecordAllParas
 **  功能描述:  保存各个参数
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::RecordAllParas(void)
 {
 	CString ParaStr, TempStr;
 
-	::WritePrivateProfileString("SuprSend", "SrHexa01",  m_Check_SSHex_01 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa02",  m_Check_SSHex_02 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa03",  m_Check_SSHex_03 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa04",  m_Check_SSHex_04 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa05",  m_Check_SSHex_05 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa06",  m_Check_SSHex_06 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa07",  m_Check_SSHex_07 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa08",  m_Check_SSHex_08 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa09",  m_Check_SSHex_09 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa10",  m_Check_SSHex_10 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa11",  m_Check_SSHex_11 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa12",  m_Check_SSHex_12 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa13",  m_Check_SSHex_13 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa14",  m_Check_SSHex_14 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa15",  m_Check_SSHex_15 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa16",  m_Check_SSHex_16 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa17",  m_Check_SSHex_17 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa18",  m_Check_SSHex_18 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa19",  m_Check_SSHex_19 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa20",  m_Check_SSHex_20 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa21",  m_Check_SSHex_21 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa22",  m_Check_SSHex_22 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa23",  m_Check_SSHex_23 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa24",  m_Check_SSHex_24 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa25",  m_Check_SSHex_25 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa26",  m_Check_SSHex_26 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa27",  m_Check_SSHex_27 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa28",  m_Check_SSHex_28 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa29",  m_Check_SSHex_29 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa30",  m_Check_SSHex_30 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa31",  m_Check_SSHex_31 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa32",  m_Check_SSHex_32 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa33",  m_Check_SSHex_33 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa34",  m_Check_SSHex_34 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa35",  m_Check_SSHex_35 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa36",  m_Check_SSHex_36 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa37",  m_Check_SSHex_37 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa38",  m_Check_SSHex_38 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa39",  m_Check_SSHex_39 ? "1" : "0", ".\\Settings.ini");
-	::WritePrivateProfileString("SuprSend", "SrHexa40",  m_Check_SSHex_40 ? "1" : "0", ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa01",  m_Check_SSHex_01 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa02",  m_Check_SSHex_02 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa03",  m_Check_SSHex_03 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa04",  m_Check_SSHex_04 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa05",  m_Check_SSHex_05 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa06",  m_Check_SSHex_06 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa07",  m_Check_SSHex_07 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa08",  m_Check_SSHex_08 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa09",  m_Check_SSHex_09 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa10",  m_Check_SSHex_10 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa11",  m_Check_SSHex_11 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa12",  m_Check_SSHex_12 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa13",  m_Check_SSHex_13 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa14",  m_Check_SSHex_14 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa15",  m_Check_SSHex_15 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa16",  m_Check_SSHex_16 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa17",  m_Check_SSHex_17 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa18",  m_Check_SSHex_18 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa19",  m_Check_SSHex_19 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa20",  m_Check_SSHex_20 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa21",  m_Check_SSHex_21 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa22",  m_Check_SSHex_22 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa23",  m_Check_SSHex_23 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa24",  m_Check_SSHex_24 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa25",  m_Check_SSHex_25 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa26",  m_Check_SSHex_26 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa27",  m_Check_SSHex_27 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa28",  m_Check_SSHex_28 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa29",  m_Check_SSHex_29 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa30",  m_Check_SSHex_30 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa31",  m_Check_SSHex_31 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa32",  m_Check_SSHex_32 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa33",  m_Check_SSHex_33 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa34",  m_Check_SSHex_34 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa35",  m_Check_SSHex_35 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa36",  m_Check_SSHex_36 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa37",  m_Check_SSHex_37 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa38",  m_Check_SSHex_38 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa39",  m_Check_SSHex_39 ? "1" : "0", CONFIGFILENAME);
+	::WritePrivateProfileString(FLAG_SUPERSEND, "SrHexa40",  m_Check_SSHex_40 ? "1" : "0", CONFIGFILENAME);
 
 	for (int tt = 0, idc_edit_data = IDC_EDIT_SSDATA_01, idc_edit_time = IDC_EDIT_SSTIME_01; tt < EXTMODE_NUM; tt++) {
 
 		GetDlgItemText(idc_edit_data + tt, ParaStr);
 		ParaStr = FormatQuotesStrWrite(ParaStr);
 		TempStr.Format("SrData%.2d", tt);
-		::WritePrivateProfileString("SuprSend", TempStr, ParaStr, ".\\Settings.ini");
+		::WritePrivateProfileString(FLAG_SUPERSEND, TempStr, ParaStr, CONFIGFILENAME);
 
 		GetDlgItemText(idc_edit_time + tt, ParaStr);
 		TempStr.Format("SrTime%.2d", tt);
-		::WritePrivateProfileString("SuprSend", TempStr, ParaStr, ".\\Settings.ini");
+		::WritePrivateProfileString(FLAG_SUPERSEND, TempStr, ParaStr, CONFIGFILENAME);
 	}
 
 	GetDlgItemText(IDC_EDIT_AUTOTIME, ParaStr);
-	::WritePrivateProfileString("SuprSend", "LoopTime", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_SUPERSEND, SUPERSEND_LOOPTIME, ParaStr, CONFIGFILENAME);
 
+	if ((s_DialogPos_X < 0) || (s_DialogPos_X > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_X = 0;
+	}
+
+	if ((s_DialogPos_Y < 0) || (s_DialogPos_Y > MAX_WIN_POS)) {                /* 防止边界异常 */
+		s_DialogPos_Y = 0;
+	}
+	
 	ParaStr.Format("%d", s_DialogPos_X);
-	::WritePrivateProfileString("SuprSend", "DialogPos_X", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_SUPERSEND, SUPERSEND_POSTIONX, ParaStr, CONFIGFILENAME);
 	ParaStr.Format("%d", s_DialogPos_Y);
-	::WritePrivateProfileString("SuprSend", "DialogPos_Y", ParaStr, ".\\Settings.ini");
+	::WritePrivateProfileString(FLAG_SUPERSEND, SUPERSEND_POSTIONY, ParaStr, CONFIGFILENAME);
 }
 
 /* ============================================================================================= */
@@ -709,8 +712,6 @@ void CDialogSuperSend::RecordAllParas(void)
 /**************************************************************************************************
 **  函数名称:  OnInitDialog
 **  功能描述:  窗体初始化
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogSuperSend::OnInitDialog() 
 {
@@ -726,8 +727,6 @@ BOOL CDialogSuperSend::OnInitDialog()
 /**************************************************************************************************
 **  函数名称:  OnTimer
 **  功能描述:  定时器消息处理
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::OnTimer(UINT nIDEvent) 
 {
@@ -751,8 +750,6 @@ void CDialogSuperSend::OnTimer(UINT nIDEvent)
 /**************************************************************************************************
 **  函数名称:  OnClose
 **  功能描述:  窗体关闭消息处理
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 void CDialogSuperSend::OnClose() 
 {
@@ -771,8 +768,6 @@ void CDialogSuperSend::OnClose()
 /**************************************************************************************************
 **  函数名称:  PreTranslateMessage
 **  功能描述:  预处理消息
-**  输入参数:  
-**  返回参数:  
 **************************************************************************************************/
 BOOL CDialogSuperSend::PreTranslateMessage(MSG* pMsg) 
 {

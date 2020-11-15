@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -14,17 +14,21 @@
     <SccProjectName />
     <SccLocalPath />
     <Keyword>MFCProj</Keyword>
+    <ProjectGuid>{E0346DE8-6D86-47DC-A48C-D4BB7AE9D6DB}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -92,6 +96,9 @@
       <AdditionalOptions>
       </AdditionalOptions>
     </Link>
+    <PostBuildEvent>
+      <Command>copy .\$(Configuration)\MySScom.exe MySScom.exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -134,12 +141,16 @@
       <AdditionalOptions>
       </AdditionalOptions>
     </Link>
+    <PostBuildEvent>
+      <Command>copy .\$(Configuration)\MySScom.exe MySScom.exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DialogAboutMe.cpp" />
     <ClCompile Include="DialogAutoReply.cpp" />
     <ClCompile Include="DialogExtrafunct.cpp" />
     <ClCompile Include="DialogDisplayFilt.cpp" />
+    <ClCompile Include="DialogKeywords.cpp" />
     <ClCompile Include="DialogSuperSend.cpp" />
     <ClCompile Include="MySScom.cpp" />
     <ClCompile Include="MySScomDlg.cpp" />
@@ -161,6 +172,7 @@
     <ClInclude Include="DialogAutoReply.h" />
     <ClInclude Include="DialogExtrafunct.h" />
     <ClInclude Include="DialogDisplaylFilt.h" />
+    <ClInclude Include="DialogKeywords.h" />
     <ClInclude Include="DialogSuperSend.h" />
     <ClInclude Include="EasySize.h" />
     <ClInclude Include="MySScom.h" />
@@ -176,8 +188,6 @@
       <FileType>RC</FileType>
     </CustomBuild>
     <CustomBuild Include="res\YAXON.bmp" />
-    <CustomBuild Include="功能简要说明.txt" />
-    <CustomBuild Include="修改升级记录.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\LEON.bmp" />

@@ -471,11 +471,11 @@ void CDialogSuperSend::OnButtonExpand()
 	GetWindowRect(&rect);
 
 	if (s_expandmode == TRUE) {
-		SetWindowPos(NULL, 0, 0, rect.Width() / 2, rect.Height(), SWP_NOMOVE);
+		SetWindowPos(NULL, 0, 0, (rect.Width() / 2) + 5, rect.Height(), SWP_NOMOVE);
 		SetDlgItemText(IDC_BUTTON_EXPAND, ">> 扩展至40条数据 >>");
 		s_expandmode = FALSE;
 	} else {
-		SetWindowPos(NULL, 0, 0, rect.Width() * 2, rect.Height(), SWP_NOMOVE);
+		SetWindowPos(NULL, 0, 0, (rect.Width() - 5) * 2, rect.Height(), SWP_NOMOVE);
 		SetDlgItemText(IDC_BUTTON_EXPAND, "<< 精简至20条数据 <<");
 		s_expandmode = TRUE;
 	}
@@ -522,7 +522,7 @@ void CDialogSuperSend::InitateSrDlgPos(void)
 	
 	GetWindowRect(&rect);
 	
-	SetWindowPos(NULL, s_DialogPos_X, s_DialogPos_Y, rect.Width() / 2, rect.Height(), SWP_NOZORDER);	
+	SetWindowPos(NULL, s_DialogPos_X, s_DialogPos_Y, rect.Width() / 2 + 5, rect.Height(), SWP_NOZORDER);	
 	ShowWindow(SW_HIDE);
 }
 

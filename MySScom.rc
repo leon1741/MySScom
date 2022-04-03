@@ -618,7 +618,7 @@ IDB_BITMAP_LEON         BITMAP                  "res\\LEON.bmp"
 
 STRINGTABLE
 BEGIN
-    IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败。"
+    IDP_SOCKETS_INIT_FAILED "Windows 通信端口初始化失败"
     IDS_STRING_001          "选择需要打开的串口号"
     IDS_STRING_002          "请选择串口通信使用的波特率"
     IDS_STRING_003          "请选择串口通信使用的数据位"

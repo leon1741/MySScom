@@ -23,13 +23,13 @@ static UINT SerailDevHdlProc(LPVOID pParam)
 	hNotify = CreateEvent(NULL, FALSE, TRUE, NULL);                            /* 首先创建一个事件对象 */
 
 	if (hNotify == 0) {
-		MessageBox(NULL, "串口设备监听线程创建失败！请重启程序！", "抱歉", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, "系统资源异常，串口设备监听线程创建失败！请检查系统运行状态！", "抱歉", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
 		ExitProcess(0);
 	}
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("HARDWARE\\DEVICEMAP\\SERIALCOMM"), 0, KEY_NOTIFY, &hKeyx) != ERROR_SUCCESS) {
 		CloseHandle(hNotify);
-		MessageBox(NULL, "串口设备信息注册失败！请重启程序！", "抱歉", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+		MessageBox(NULL, "串口设备信息注册失败！请确认系统存在串口设备之后重启本程序", "抱歉", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
 		ExitProcess(0);
 	}
 
@@ -38,7 +38,7 @@ static UINT SerailDevHdlProc(LPVOID pParam)
 		if (RegNotifyChangeKeyValue(hKeyx, TRUE, REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_LAST_SET, hNotify, TRUE) != ERROR_SUCCESS) {
 			CloseHandle(hNotify);
 			RegCloseKey(hKeyx);
-			MessageBox(NULL, "串口设备注册信息监听失败！请重启程序！", "抱歉", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+			MessageBox(NULL, "系统资源异常，串口设备注册信息监听失败！请检查系统运行状态！", "抱歉", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
 			ExitProcess(0);
 		}
 

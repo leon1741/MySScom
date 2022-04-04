@@ -54,6 +54,8 @@ dkms.conf
 
 Record/*
 Debug/*
+Release/*
+
 .vs/*
 Settings.ini
 Thumbs.db

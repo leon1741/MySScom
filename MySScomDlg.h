@@ -1,6 +1,7 @@
 #pragma once
 
 #include "threadserial.h"
+#include "updatemanage.h"
 #include "DialogDisplaylFilt.h"
 #include "DialogSuperSend.h"
 #include "DialogExtrafunct.h"
@@ -9,25 +10,15 @@
 #include "DialogAboutMe.h"
 
 /*************************************************************************************************/
-/*                                     版本控制开关                                              */
-/*************************************************************************************************/
-#define  VERSION_COMON                 0x01                                    /* 公共版本 */
-#define  VERSION_YAXON                 0x02                                    /* 雅迅版本 */
-
-#define  VERSION_CTRL                  VERSION_YAXON
-
-#define  RELEASE_VERSION               0                                       /* 是否为正式发布版本 */
-
-/*************************************************************************************************/
 /*                                     定时器值定义                                              */
 /*************************************************************************************************/
-#define  Timer_No_UpdateDsp            0x01                                    /* 刷新显示内容定时器 */
-#define  Timer_No_StatusBar            0x02                                    /* 状态栏定时更新定时器 */
-#define  Timer_No_AutoSend             0x03                                    /* 自动发送数据定时器 */
-#define  Timer_No_FrameDspl            0x04                                    /* 自动换行显示定时器 */
-#define  Timer_No_SendFile             0x05                                    /* 发送文件数据定时器 */
-#define  Timer_No_SrAllSend            0x06                                    /* 全部数据自动连发的定时器 */
-#define  Timer_No_SrEachSend           0x07                                    /* 各条数据自动连发的定时器 */
+#define Timer_No_UpdateDsp             0x01                                    /* 刷新显示内容定时器 */
+#define Timer_No_StatusBar             0x02                                    /* 状态栏定时更新定时器 */
+#define Timer_No_AutoSend              0x03                                    /* 自动发送数据定时器 */
+#define Timer_No_FrameDspl             0x04                                    /* 自动换行显示定时器 */
+#define Timer_No_SendFile              0x05                                    /* 发送文件数据定时器 */
+#define Timer_No_SrAllSend             0x06                                    /* 全部数据自动连发的定时器 */
+#define Timer_No_SrEachSend            0x07                                    /* 各条数据自动连发的定时器 */
 
 /*************************************************************************************************/
 /*                                     各字段参数名称定义                                        */
@@ -59,23 +50,23 @@
 /*************************************************************************************************/
 /*                                     模块宏定义                                                */
 /*************************************************************************************************/
-#define  UPDATEEDIT_TIME               50                                      /* 编辑框刷新时间间隔 (单位: 毫秒) */
-#define  CHNGLINE_INTERVAL             100                                     /* 16进制模式下判断帧换行的延迟时间 (单位: 毫秒) */
-#define  STATUSBAR_TIME                1000                                    /* 状态栏刷新时间间隔 (单位: 毫秒) */
+#define UPDATEEDIT_TIME                50                                      /* 编辑框刷新时间间隔 (单位: 毫秒) */
+#define CHNGLINE_INTERVAL              100                                     /* 16进制模式下判断帧换行的延迟时间 (单位: 毫秒) */
+#define STATUSBAR_TIME                 1000                                    /* 状态栏刷新时间间隔 (单位: 毫秒) */
 
-#define  FILESEND_BYTE                 100                                     /* 发送文件时每次发送的字节数 */
+#define FILESEND_BYTE                  100                                     /* 发送文件时每次发送的字节数 */
 
-#define  PROGRESS_POS                  1000                                    /* 进度条最小进度刻度 */
+#define PROGRESS_POS                   1000                                    /* 进度条最小进度刻度 */
 
-#define  MIN_WIN_WIDTH                 860                                     /* 窗体宽度最小值 */
-#define  MIN_WIN_HIGHT                 540                                     /* 窗体高度最小值 */
+#define MIN_WIN_WIDTH                  860                                     /* 窗体宽度最小值 */
+#define MIN_WIN_HIGHT                  540                                     /* 窗体高度最小值 */
 
-#define  STATIC_LEFT                   18                                      /* 全屏显示时，提示信息框的左上角坐标 */
-#define  STATIC_TOP                    480                                     /* 全屏显示时，提示信息框的左上角坐标 */
-#define  STATIC_WIDTH                  122                                     /* 全屏显示时，提示信息框的宽度 */
-#define  STATIC_HEIGHT                 85                                      /* 全屏显示时，提示信息框的高度 */
+#define STATIC_LEFT                    18                                      /* 全屏显示时，提示信息框的左上角坐标 */
+#define STATIC_TOP                     480                                     /* 全屏显示时，提示信息框的左上角坐标 */
+#define STATIC_WIDTH                   122                                     /* 全屏显示时，提示信息框的宽度 */
+#define STATIC_HEIGHT                  85                                      /* 全屏显示时，提示信息框的高度 */
 
-#define  MAINWIN_HEIGHT                650                                     /* 可以显示提示信息的高度 */
+#define MAINWIN_HEIGHT                 650                                     /* 可以显示提示信息的高度 */
 
 class CMySScomDlg : public CDialog
 {
@@ -137,6 +128,7 @@ public:
 	bool                s_NeedChgLne;                                          /* 标记是否需要换行显示 */
 	bool                s_DataRecved;                                          /* 是否已经收到串口数据 */
 	bool                s_DevNeedUpd;                                          /* 串口设备是否需要更新 */
+	bool                s_ChkingUpdt;                                          /* 是否正在检测程序更新 */
 
 	int                 s_LopSendCnt;                                          /* 循环发送数据的计数器 */
 	int                 s_RecvedByte;                                          /* 已经接收的字节数 */
@@ -151,7 +143,6 @@ public:
 	CStatic            *s_MainStatic;                                          /* 放置于主窗口的静态控件 */
 
 	BOOL  EnumCommPortList(void);
-	CString GetProgramVersion(void);
 
 	void SetControlStatus(bool Enable);
 	void SetSendCtrlArea(bool Enable);
@@ -163,16 +154,10 @@ public:
 	bool UserFnKeyHdl(WPARAM key);
 	void ExcuteAutoReply(CString instr);
 
-	void InformAutoReplyDlgClose(void);
-	void InformDsplFiltDlgClose(void);
-	void InformExtrFuncDlgClose(void);
-	void InformSuprSendDlgClose(void);
-
 	CString GetHighExactTime(void);
 	bool SaveEditContent(void);
 	void UpdateEditStr(CString showstr);
 	void HandleUSARTData(unsigned char *sbuf, DWORD len);
-    void ReadHandleUartData(void);
 	void NeedAutoSendData(void);
 	void UpdateStatusBarNow(void);
 	bool SendDatatoComm(unsigned char *sbuf, int slen, BOOL needhex);

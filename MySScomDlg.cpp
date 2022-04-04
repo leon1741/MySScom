@@ -231,52 +231,6 @@ BOOL CMySScomDlg::EnumCommPortList(void)
 	return bSuccess;
 }
 
-/**************************************************************************************************
-**  函数名称:  GetProgramVersion
-**  功能描述:  获取本程序的版本号
-**************************************************************************************************/
-CString CMySScomDlg::GetProgramVersion(void)
-{
-	TCHAR szFullPath[MAX_PATH];
-	DWORD dwVerInfoSize = 0;
-	DWORD dwVerHnd;
-	VS_FIXEDFILEINFO * pFileInfo;
-	HANDLE  hMem;
-	LPVOID  lpvMem;
-	unsigned int uInfoSize = 0;
-	CString strVersion;
-	WORD m_nProdVersion[4];
-
-	GetModuleFileName(NULL, szFullPath, sizeof(szFullPath));
-	dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd);
-
-	if (dwVerInfoSize) {
-
-		hMem = GlobalAlloc(GMEM_MOVEABLE, dwVerInfoSize);
-		lpvMem = GlobalLock(hMem);
-		GetFileVersionInfo(szFullPath, dwVerHnd, dwVerInfoSize, lpvMem);
-
-		::VerQueryValue(lpvMem, (LPTSTR)_T("\\"), (void**)&pFileInfo, &uInfoSize);
-
-		m_nProdVersion[0] = HIWORD(pFileInfo->dwProductVersionMS); 
-		m_nProdVersion[1] = LOWORD(pFileInfo->dwProductVersionMS);
-		m_nProdVersion[2] = HIWORD(pFileInfo->dwProductVersionLS);
-		m_nProdVersion[3] = LOWORD(pFileInfo->dwProductVersionLS); 
-
-		#if RELEASE_VERSION == 1
-		strVersion.Format(_T("V%d.%d"), m_nProdVersion[0], m_nProdVersion[1]);
-		#else
-		strVersion.Format(_T("V%d.%d.%d.%d [Beta %s %s]"), m_nProdVersion[0], m_nProdVersion[1], m_nProdVersion[2], m_nProdVersion[3], __DATE__, __TIME__);
-		#endif
-
-		GlobalUnlock(hMem);
-		GlobalFree(hMem);
-	}
-
-	return strVersion;
-}
-
-
 /* ============================================================================================= */
 /* ====================================                    ===================================== */
 /* ==================================== 传说中华丽的分割线 ===================================== */
@@ -913,9 +867,9 @@ void CMySScomDlg::UpdateStatusBarNow(void)
 
 #if VERSION_CTRL == VERSION_YAXON
 	if (DialogMain.Width() > 1200) {
-		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具 ※ 设计者：姚老师 ※ 随时欢迎交流，谢谢！";
+		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具 ※ 设计者：姚亮 ※ 欢迎提出修改意见和建议";
 	} else if (DialogMain.Width() > 1100) {
-		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具 ※ 设计者：姚老师";
+		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具 ※ 设计者：姚亮";
 	} else if (DialogMain.Width() > 1000) {
 		DisplayStr = " 欢迎使用MySScom ※ 雅迅人自己的串口调试工具";
 	} else if (DialogMain.Width() > 800) {
@@ -2370,7 +2324,11 @@ BOOL CMySScomDlg::OnInitDialog()
     SetIcon(m_hIcon, TRUE);
     SetIcon(m_hIcon, FALSE);
 
-	SetWindowText("MySScom " + GetProgramVersion());                           /* 设置对话框标题为程序版本号 */
+	#if RELEASE_VERSION == 1
+	SetWindowText("MySScom V" + GetProgramVersion());                          /* 设置对话框标题为程序版本号 */
+	#else
+	SetWindowText("MySScom V" + GetProgramVersion() + " <Built @ " + __DATE__ + " " + __TIME__ + ">");
+	#endif
 
     s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECVCSTR);
     s_Edit_Send = (CEdit*)GetDlgItem(IDC_EDIT_SENDCSTR);
@@ -2393,9 +2351,14 @@ BOOL CMySScomDlg::OnInitDialog()
     INIT_EASYSIZE;                                                             /* 初始化各个控件的位置 */
 
 	if (CreateDeviceThread() == FALSE) {                                       /* 如果线程创建失败 */
-        MessageBox("串口设备监听线程创建失败！请重启程序！", "提示", MB_OK + MB_ICONERROR);
+        MessageBox("系统资源异常，串口设备监听线程创建失败！请重启程序！", "提示", MB_OK + MB_ICONERROR);
         return FALSE;
     }
+
+	if (CreateUpdateThread() == FALSE) {                                       /* 如果线程创建失败 */
+		MessageBox("系统资源异常，后台升级管理线程创建失败！请重启程序！", "提示", MB_OK + MB_ICONERROR);
+		return FALSE;
+	}
 
 	s_PDlgSuprSend->InitateSrDlgPos();                                         /* 这句话一定要放在最后面 */
 	
@@ -2584,4 +2547,6 @@ void CMySScomDlg::OnSysCommand(UINT nID, LPARAM lParam)
 
 	CDialog::OnSysCommand(nID, lParam);
 }
+
+
 

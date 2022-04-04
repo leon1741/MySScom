@@ -162,6 +162,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="ThreadSerial.cpp" />
+    <ClCompile Include="UpdateManage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MySScom.rc" />
@@ -181,6 +182,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="ThreadSerial.h" />
+    <ClInclude Include="UpdateManage.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="res\MySScom.ico" />

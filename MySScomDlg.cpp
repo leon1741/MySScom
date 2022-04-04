@@ -488,6 +488,15 @@ LRESULT CMySScomDlg::OnUsrMsgHdlSSDlgClose(WPARAM wParam, LPARAM lParam)
 /* ==================================== 以下为自定义处理函数 =================================== */
 
 /**************************************************************************************************
+**  函数名称:  ShowAboutMeDialog
+**  功能描述:  显示关于我的对话框
+**************************************************************************************************/
+void CMySScomDlg::ShowAboutMeDialog(void)
+{
+	ShellExecute(NULL, _T("open"), "https://gitee.com/leon1741/MySScom/blob/main/README.md", NULL, NULL, SW_SHOW);
+}
+
+/**************************************************************************************************
 **  函数名称:  KeyWordMatchOK
 **  功能描述:  关键字匹配成功
 **************************************************************************************************/
@@ -583,8 +592,7 @@ bool CMySScomDlg::UserFnKeyHdl(WPARAM key)
 	CString       pathstr;
 	
 	if (key == VK_F1) {                                                        /* 按下F1键：弹出系统帮助的对话框 */
-		CDialogAboutMe Dlgabout;
-		Dlgabout.DoModal();
+		ShowAboutMeDialog();
 		return true;
 	}
 
@@ -2127,9 +2135,7 @@ void CMySScomDlg::OnMenuEditFont()
 **************************************************************************************************/
 void CMySScomDlg::OnMenuEditAbout()
 {
-	CDialogAboutMe Dlgabout;
-
-	Dlgabout.DoModal();
+	ShowAboutMeDialog();
 }
 
 /**************************************************************************************************
@@ -2192,9 +2198,7 @@ void CMySScomDlg::OnMenuEditColorPurple()
 **************************************************************************************************/
 void CMySScomDlg::OnMenuTrayAbout()
 {
-    CDialogAboutMe Dlgabout;
-    
-    Dlgabout.DoModal();
+	ShowAboutMeDialog();
 }
 
 /**************************************************************************************************

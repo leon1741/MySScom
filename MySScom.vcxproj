@@ -146,7 +146,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DialogAboutMe.cpp" />
     <ClCompile Include="DialogAutoReply.cpp" />
     <ClCompile Include="DialogExtrafunct.cpp" />
     <ClCompile Include="DialogDisplayFilt.cpp" />
@@ -169,7 +168,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Basetsd.h" />
-    <ClInclude Include="DialogAboutMe.h" />
     <ClInclude Include="DialogAutoReply.h" />
     <ClInclude Include="DialogExtrafunct.h" />
     <ClInclude Include="DialogDisplaylFilt.h" />

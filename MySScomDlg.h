@@ -7,7 +7,6 @@
 #include "DialogExtrafunct.h"
 #include "DialogKeywords.h"
 #include "DialogAutoReply.h"
-#include "DialogAboutMe.h"
 
 /*************************************************************************************************/
 /*                                     定时器值定义                                              */
@@ -147,7 +146,8 @@ public:
 	void SetControlStatus(bool Enable);
 	void SetSendCtrlArea(bool Enable);
 
-    bool KeyWordMatchOK(CString showstr);
+	void ShowAboutMeDialog(void);
+	bool KeyWordMatchOK(CString showstr);
 	void ShakeMainWindow(void);
 	void AttractAttention(void);
 	void CloseAllChildWin(void);

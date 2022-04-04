@@ -12,72 +12,62 @@ static CString               s_update_link;                                    /
 /**************************************************************************************************
 **  函数名称:  CompareVerData
 **  功能描述:  比较2个程序版本号的大小[前者大则返回1，前者小则返回-1，两者相等则返回0，判断异常则返回-2]
-**  特殊说明:  按照"x.y.z.t"的格式，其中x/y/z/t均为数字，可支持多位
+**  特殊说明:  按照"x.y.z"的格式，其中x/y/z均为数字，可支持多位
 **************************************************************************************************/
 static int CompareVerData(CString ver1, CString ver2)
 {
-	int pos_dot1, pos_dot2, pos_dot3;
-	int ver1_array[4], ver2_array[4];
+	int pos_dot1, pos_dot2;
+	int ver1_array[3], ver2_array[3];
 	CString tempstr;
 
 	/* 下面的语句实现对版本1的内容解析，从字符串中提取出数字内容，存储到对应的数组中 */
 
 	pos_dot1 = ver1.Find(".", 0);
 	pos_dot2 = ver1.Find(".", pos_dot1 + 1);
-	pos_dot3 = ver1.Find(".", pos_dot2 + 1);
 
-	if ((pos_dot1 == -1) || (pos_dot2 == -1) || (pos_dot3 == -1)) {
+	if ((pos_dot1 == -1) || (pos_dot2 == -1)) {
 		tempstr.Format("版本1(%s)格式不符合要求", ver1);
 		MessageBox(NULL, ver1, "提示", MB_SYSTEMMODAL | MB_OK | MB_ICONEXCLAMATION);
 		return -2;
 	}
 
-	ver1_array[3] = atoi(ver1.Left(pos_dot1));
-	ver1_array[2] = atoi((ver1.Left(pos_dot2)).Right((ver1.Left(pos_dot2)).GetLength() - pos_dot1 - 1));
-	ver1_array[1] = atoi((ver1.Left(pos_dot3)).Right((ver1.Left(pos_dot3)).GetLength() - pos_dot2 - 1));
-	ver1_array[0] = atoi(ver1.Right(ver1.GetLength() - pos_dot3 - 1));
+	ver1_array[2] = atoi(ver1.Left(pos_dot1));
+	ver1_array[1] = atoi((ver1.Left(pos_dot2)).Right((ver1.Left(pos_dot2)).GetLength() - pos_dot1 - 1));
+	ver1_array[0] = atoi(ver1.Right(ver1.GetLength() - pos_dot2 - 1));
 
 	/* 下面的语句实现对版本2的内容解析，从字符串中提取出数字内容，存储到对应的数组中 */
 
 	pos_dot1 = ver2.Find(".", 0);
 	pos_dot2 = ver2.Find(".", pos_dot1 + 1);
-	pos_dot3 = ver2.Find(".", pos_dot2 + 1);
 
-	if ((pos_dot1 == -1) || (pos_dot2 == -1) || (pos_dot3 == -1)) {
+	if ((pos_dot1 == -1) || (pos_dot2 == -1)) {
 		tempstr.Format("版本2(%s)格式不符合要求", ver2);
 		MessageBox(NULL, ver1, "提示", MB_SYSTEMMODAL | MB_OK | MB_ICONEXCLAMATION);
 		return -2;
 	}
 
-	ver2_array[3] = atoi(ver2.Left(pos_dot1));
-	ver2_array[2] = atoi((ver2.Left(pos_dot2)).Right((ver2.Left(pos_dot2)).GetLength() - pos_dot1 - 1));
-	ver2_array[1] = atoi((ver2.Left(pos_dot3)).Right((ver2.Left(pos_dot3)).GetLength() - pos_dot2 - 1));
-	ver2_array[0] = atoi(ver2.Right(ver2.GetLength() - pos_dot3 - 1));
+	ver2_array[2] = atoi(ver2.Left(pos_dot1));
+	ver2_array[1] = atoi((ver2.Left(pos_dot2)).Right((ver2.Left(pos_dot2)).GetLength() - pos_dot1 - 1));
+	ver2_array[0] = atoi(ver2.Right(ver2.GetLength() - pos_dot2 - 1));
 	
 	/* 下面的语句实现对版本1和版本2的内容的比较 */
 
-	if (ver1_array[3] > ver2_array[3]) {
+	if (ver1_array[2] > ver2_array[2]) {
 		return 1;
-	} else if (ver1_array[3] < ver2_array[3]) {
+	} else if (ver1_array[2] < ver2_array[2]) {
 		return -1;
 	} else {
-		if (ver1_array[2] > ver2_array[2]) {
+		if (ver1_array[1] > ver2_array[1]) {
 			return 1;
-		} else if (ver1_array[2] < ver2_array[2]) {
+		} else if (ver1_array[1] < ver2_array[1]) {
 			return -1;
 		} else {
-			if (ver1_array[1] > ver2_array[1]) {
+			if (ver1_array[0] > ver2_array[0]) {
 				return 1;
-			} else if (ver1_array[1] < ver2_array[1]) {
+			} else if (ver1_array[0] < ver2_array[0]) {
 				return -1;
 			} else {
-				if (ver1_array[0] > ver2_array[0]) {
-					return 1;
-				} else if (ver1_array[0] < ver2_array[0]) {
-					return -1;
-				} else {
-					return 0;
-				}
+				return 0;
 			}
 		}
 	}
@@ -235,7 +225,7 @@ CString GetProgramVersion(void)
 	LPVOID  lpvMem;
 	unsigned int uInfoSize = 0;
 	CString strVersion;
-	WORD m_nProdVersion[4];
+	WORD m_nProdVersion[3];
 
 	GetModuleFileName(NULL, szFullPath, sizeof(szFullPath));
 	dwVerInfoSize = GetFileVersionInfoSize(szFullPath, &dwVerHnd);
@@ -251,9 +241,8 @@ CString GetProgramVersion(void)
 		m_nProdVersion[0] = HIWORD(pFileInfo->dwProductVersionMS);
 		m_nProdVersion[1] = LOWORD(pFileInfo->dwProductVersionMS);
 		m_nProdVersion[2] = HIWORD(pFileInfo->dwProductVersionLS);
-		m_nProdVersion[3] = LOWORD(pFileInfo->dwProductVersionLS);
 
-		strVersion.Format(_T("%d.%d.%d.%d"), m_nProdVersion[0], m_nProdVersion[1], m_nProdVersion[2], m_nProdVersion[3]);
+		strVersion.Format(_T("%d.%d.%d"), m_nProdVersion[0], m_nProdVersion[1], m_nProdVersion[2]);
 
 		GlobalUnlock(hMem);
 		GlobalFree(hMem);

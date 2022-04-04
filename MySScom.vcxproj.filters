@@ -30,9 +30,6 @@
     <ClCompile Include="DialogAutoReply.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DialogAboutMe.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DialogExtrafunct.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -80,9 +77,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DialogAutoReply.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DialogAboutMe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DialogExtrafunct.h">

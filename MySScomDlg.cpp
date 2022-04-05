@@ -493,7 +493,7 @@ LRESULT CMySScomDlg::OnUsrMsgHdlSSDlgClose(WPARAM wParam, LPARAM lParam)
 **************************************************************************************************/
 void CMySScomDlg::ShowAboutMeDialog(void)
 {
-	ShellExecute(NULL, _T("open"), "https://gitee.com/leon1741/MySScom/blob/main/README.md", NULL, NULL, SW_SHOW);
+	ShellExecute(NULL, _T("open"), README_FILE_PATH, NULL, NULL, SW_SHOW);
 }
 
 /**************************************************************************************************
@@ -2331,7 +2331,7 @@ BOOL CMySScomDlg::OnInitDialog()
 	#if RELEASE_VERSION == 1
 	SetWindowText("MySScom V" + GetProgramVersion());                          /* 设置对话框标题为程序版本号 */
 	#else
-	SetWindowText("MySScom V" + GetProgramVersion() + " <Built @ " + __DATE__ + " " + __TIME__ + ">");
+	SetWindowText("MySScom V" + GetProgramVersion() + " <Debug Version> <Built @ " + __DATE__ + " " + __TIME__ + ">");
 	#endif
 
     s_Edit_Recv = (CEdit*)GetDlgItem(IDC_EDIT_RECVCSTR);

@@ -81,28 +81,25 @@ static bool ParseUpdateFile(CString filestr)
 {
 	int pos_head_start, pos_head_end;
 	int pos_tail_start, pos_tail_end;
-	CString tempstr, versstr, linkstr;
-
-	versstr = "<NewVerInfo>";
-	linkstr = "<UpdateLink>";
+	CString tempstr;
 
 	/* 下面的语句负责解析出新版本号字段的详细内容 */
 
 	tempstr = filestr;                                                         /* 解析第2段：新程序版本号 */
 
-	pos_head_start = tempstr.Find(versstr, 0);
+	pos_head_start = tempstr.Find(UPDCTRL_HEAD_FLAG, 0);
 	if (pos_head_start == -1) {
 		MessageBox(NULL, "没有找到NewVerInfo头标部分", "提示", MB_SYSTEMMODAL | MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
-	pos_head_end = pos_head_start + strlen(versstr);
+	pos_head_end = pos_head_start + strlen(UPDCTRL_HEAD_FLAG);
 
-	pos_tail_start = tempstr.Find(versstr, pos_head_end);
+	pos_tail_start = tempstr.Find(UPDCTRL_HEAD_FLAG, pos_head_end);
 	if (pos_tail_start == -1) {
 		MessageBox(NULL, "没有找到NewVerInfo尾标部分", "提示", MB_SYSTEMMODAL | MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
-	pos_tail_end = pos_tail_start + strlen(versstr);
+	pos_tail_end = pos_tail_start + strlen(UPDCTRL_HEAD_FLAG);
 
 	s_newver_info = tempstr.Left(pos_tail_start);
 	s_newver_info = s_newver_info.Right(s_newver_info.GetLength() - pos_head_end);
@@ -111,19 +108,19 @@ static bool ParseUpdateFile(CString filestr)
 
 	tempstr = filestr.Right(filestr.GetLength() - pos_tail_end);               /* 解析第2段：下载链接地址 */
 
-	pos_head_start = tempstr.Find(linkstr, 0);
+	pos_head_start = tempstr.Find(UPDCTRL_TAIL_FLAG, 0);
 	if (pos_head_start == -1) {
 		MessageBox(NULL, "没有找到UpdateLink头标部分", "提示", MB_SYSTEMMODAL | MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
-	pos_head_end = pos_head_start + strlen(linkstr);
+	pos_head_end = pos_head_start + strlen(UPDCTRL_TAIL_FLAG);
 
-	pos_tail_start = tempstr.Find(linkstr, pos_head_end);
+	pos_tail_start = tempstr.Find(UPDCTRL_TAIL_FLAG, pos_head_end);
 	if (pos_tail_start == -1) {
 		MessageBox(NULL, "没有找到UpdateLink尾标部分", "提示", MB_SYSTEMMODAL | MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
-	pos_tail_end = pos_tail_start + strlen(linkstr);
+	pos_tail_end = pos_tail_start + strlen(UPDCTRL_TAIL_FLAG);
 
 	s_update_link = tempstr.Left(pos_tail_start);
 	s_update_link = s_update_link.Right(s_update_link.GetLength() - pos_head_end);
@@ -153,7 +150,7 @@ static UINT UpdateManageProc(LPVOID pParam)
 
 		success = false;
 
-		pfile = (CHttpFile *)Session.OpenURL("https://gitee.com/leon1741/MySScom/raw/main/update/update.ini");
+		pfile = (CHttpFile *)Session.OpenURL(UPDCTRL_FILE_PATH);               /* 打开网址链接的文件 */
 
 		if (pfile != NULL) {
 
@@ -185,7 +182,7 @@ static UINT UpdateManageProc(LPVOID pParam)
 		Sleep(30 * 60 * 1000);                                                 /* 间隔30分钟检测一次 */
 	}
 
-	tempstr.Format("检测到新版本[V%s]已经发布，是否自动跳转至下载地址？", s_newver_info);
+	tempstr.Format("检测到新版本[V%s]已经发布，是否自动跳转至下载地址？\r\n下载地址如果无法打开，请尝试反复刷新几次\r\n可能会被系统或杀毒软件误报为病毒，请放心使用", s_newver_info);
 	if (MessageBox(NULL, tempstr, "友情提示", MB_SYSTEMMODAL | MB_YESNO | MB_ICONQUESTION) == IDYES) {
 		ShellExecute(NULL, _T("open"), s_update_link, NULL, NULL, SW_SHOW);
 	}

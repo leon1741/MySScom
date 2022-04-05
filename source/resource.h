@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by MySScom.rc
+// Microsoft Visual C++ 生成的包含文件。
+// 供 MySScom.rc 使用
 //
 #define IDD_MYSSCOM_DIALOG              102
 #define IDP_SOCKETS_INIT_FAILED         103
@@ -48,12 +48,10 @@
 #define IDS_STRING_034                  141
 #define IDS_STRING_035                  142
 #define IDB_BITMAP_LINE                 152
-#define IDB_BITMAP_LEON                 153
 #define IDD_DIALOG_FILTER               154
 #define IDD_DIALOG_DSPLFILT             154
 #define IDD_DIALOG_DISPLAYFILT          154
 #define IDD_DIALOG_AUTOREPLY            155
-#define IDD_DIALOG_ABOUTME              156
 #define IDR_MENU_EDIT                   157
 #define IDD_DIALOG_KEYWORDS             158
 #define IDC_STATIC_CONTROL              1000
@@ -86,7 +84,6 @@
 #define IDC_BUTTON_ELSE                 1028
 #define IDC_BUTTON_SRSEND               1028
 #define IDC_BUTTON_COUNT                1029
-#define IDC_BUTTON_READOK               1029
 #define IDC_BUTTON_FRAME                1029
 #define IDC_CHECK_AUTOCLER              1030
 #define IDC_STATIC_MAIN                 1031
@@ -99,10 +96,6 @@
 #define IDC_STATIC_LINES                1136
 #define IDC_CHECK_CRLFSEND              1139
 #define IDC_CHECK_SHOWTIME              1140
-#define IDC_STATIC_MAINFRAME            1141
-#define IDC_STATIC_ABOUT                1142
-#define IDC_EDIT_ABOUT                  1143
-#define IDC_BUTTON_SWITCH               1144
 #define IDC_COMBO_CHECKBIT              1145
 #define IDC_SLIDER1                     1146
 #define IDC_BUTTON_HELP                 1147

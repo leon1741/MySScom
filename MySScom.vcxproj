@@ -146,51 +146,44 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DialogAutoReply.cpp" />
-    <ClCompile Include="DialogExtrafunct.cpp" />
-    <ClCompile Include="DialogDisplayFilt.cpp" />
-    <ClCompile Include="DialogKeywords.cpp" />
-    <ClCompile Include="DialogSuperSend.cpp" />
-    <ClCompile Include="MySScom.cpp" />
-    <ClCompile Include="MySScomDlg.cpp" />
-    <ClCompile Include="MySScomTool.cpp" />
-    <ClCompile Include="StdAfx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="ThreadSerial.cpp" />
-    <ClCompile Include="UpdateManage.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="MySScom.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Basetsd.h" />
-    <ClInclude Include="DialogAutoReply.h" />
-    <ClInclude Include="DialogExtrafunct.h" />
-    <ClInclude Include="DialogDisplaylFilt.h" />
-    <ClInclude Include="DialogKeywords.h" />
-    <ClInclude Include="DialogSuperSend.h" />
-    <ClInclude Include="EasySize.h" />
-    <ClInclude Include="MySScom.h" />
-    <ClInclude Include="MySScomDlg.h" />
-    <ClInclude Include="MySScomTool.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="ThreadSerial.h" />
-    <ClInclude Include="UpdateManage.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="res\MySScom.ico" />
     <CustomBuild Include="res\MySScom.rc2">
       <FileType>RC</FileType>
     </CustomBuild>
-    <CustomBuild Include="res\YAXON.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\LEON.bmp" />
+    <ClCompile Include="source\DialogAutoReply.cpp" />
+    <ClCompile Include="source\DialogDisplayFilt.cpp" />
+    <ClCompile Include="source\DialogExtrafunct.cpp" />
+    <ClCompile Include="source\DialogKeywords.cpp" />
+    <ClCompile Include="source\DialogSuperSend.cpp" />
+    <ClCompile Include="source\MySScom.cpp" />
+    <ClCompile Include="source\MySScomDlg.cpp" />
+    <ClCompile Include="source\MySScomTool.cpp" />
+    <ClCompile Include="source\StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="source\ThreadSerial.cpp" />
+    <ClCompile Include="source\UpdateManage.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\Basetsd.h" />
+    <ClInclude Include="source\DialogAutoReply.h" />
+    <ClInclude Include="source\DialogDisplaylFilt.h" />
+    <ClInclude Include="source\DialogExtrafunct.h" />
+    <ClInclude Include="source\DialogKeywords.h" />
+    <ClInclude Include="source\DialogSuperSend.h" />
+    <ClInclude Include="source\EasySize.h" />
+    <ClInclude Include="source\MySScom.h" />
+    <ClInclude Include="source\MySScomDlg.h" />
+    <ClInclude Include="source\MySScomTool.h" />
+    <ClInclude Include="source\resource.h" />
+    <ClInclude Include="source\StdAfx.h" />
+    <ClInclude Include="source\ThreadSerial.h" />
+    <ClInclude Include="source\UpdateManage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

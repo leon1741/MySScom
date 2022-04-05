@@ -47,7 +47,7 @@ static UINT SerailDevHdlProc(LPVOID pParam)
 				::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_COMDEVLIST, 0, 0);
 			} else {
 				::SendMessage(AfxGetMainWnd()->m_hWnd, WM_USERMSG_COMDEVWAIT, 0, 0);
-				MessageBox(NULL, "检测到串口设备发生变化！\r\n程序将在当前串口关闭之后自动更新设备列表...", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
+				MessageBox(NULL, "检测到串口设备发生变化！\r\n程序将在当前串口关闭之后自动更新设备列表... ", "系统提示", MB_SYSTEMMODAL | MB_ICONEXCLAMATION | MB_OK);
 			}
 		}
 	}

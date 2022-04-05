@@ -140,7 +140,7 @@ static UINT UpdateManageProc(LPVOID pParam)
 	DWORD dwStatusCode;
 	CString tempstr, filestr;
 
-	#if RELEASE_VERSION == 1
+	#if RELEASE_VERSION == 1                                                   /* 先延时一段，以免影响用户其他操作 */
 	Sleep(30 * 1000);
 	#else
 	Sleep(3 * 1000);

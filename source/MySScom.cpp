@@ -1,5 +1,3 @@
-// MySScom.cpp : Defines the class behaviors for the application.
-//
 
 #include "stdafx.h"
 #include "MySScom.h"
@@ -11,8 +9,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-// CMySScomApp
 
 BEGIN_MESSAGE_MAP(CMySScomApp, CWinApp)
 	//{{AFX_MSG_MAP(CMySScomApp)
@@ -22,14 +18,11 @@ BEGIN_MESSAGE_MAP(CMySScomApp, CWinApp)
 	ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CMySScomApp construction
 
 CMySScomApp::CMySScomApp()
 {
 	;
 }
-
 
 CMySScomApp theApp;
 

@@ -276,7 +276,7 @@ void CDialogSuperSend::TrytoSendData(int index)
 		return;
 	}
 
-	if (ishex == TRUE) {                                                       /* 16进制数据要先转换成字符 */
+	if (ishex == TRUE) {                                                       /* 16进制的数据要先转换成字符 */
 		TempStr = HexToChar(TempStr);
 	}
 

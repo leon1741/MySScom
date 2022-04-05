@@ -202,7 +202,7 @@ void CDialogExtrafunct::OnRADIODispChar()
 	
     UpdateData(TRUE);
 
-	if (InputStrValid(m_Edit_Change, MAX_CHKSUM_BYTE) == FALSE) {            /* 输入为空，或者数据太长，或者内容非法 */
+	if (InputStrValid(m_Edit_Change, MAX_CHKSUM_BYTE) == FALSE) {              /* 输入为空，或者数据太长，或者内容非法 */
 		m_Radio_Dispmode = _DISPLAY_HEX;
 		UpdateData(FALSE);
 		return;

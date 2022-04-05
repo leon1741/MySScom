@@ -618,3 +618,4 @@ CString FormatQuotesStrWrite(CString tmpstr)
 
 	return fmtstr;
 }
+

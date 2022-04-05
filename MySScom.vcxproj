@@ -170,6 +170,7 @@
     <ClCompile Include="source\UpdateManage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="source\Basetsd.h" />
     <ClInclude Include="source\DialogAutoReply.h" />
     <ClInclude Include="source\DialogDisplaylFilt.h" />

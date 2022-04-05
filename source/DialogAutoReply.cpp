@@ -6,7 +6,7 @@
 
 IMPLEMENT_DYNAMIC(CDialogAutoReply, CDialog)
 
-CDialogAutoReply::CDialogAutoReply(CWnd* pParent /*=NULL*/)
+CDialogAutoReply::CDialogAutoReply(CWnd* pParent /* =NULL */)
 	: CDialog(CDialogAutoReply::IDD, pParent)
 {
 

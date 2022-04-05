@@ -489,7 +489,7 @@ LRESULT CMySScomDlg::OnUsrMsgHdlSSDlgClose(WPARAM wParam, LPARAM lParam)
 
 /**************************************************************************************************
 **  函数名称:  ShowAboutMeDialog
-**  功能描述:  显示关于我的对话框
+**  功能描述:  显示“关于我”的对话框
 **************************************************************************************************/
 void CMySScomDlg::ShowAboutMeDialog(void)
 {
@@ -556,7 +556,7 @@ void CMySScomDlg::AttractAttention(void)
 	ShakeMainWindow();
 
 	if (s_PDlgKeyWords->IsWindowVisible() == FALSE) {
-		s_PDlgKeyWords->ShowHideDlgWindow(TRUE);                               /* 弹出窗体，用于展示匹配结果 */
+		s_PDlgKeyWords->ShowHideDlgWindow(TRUE);                               /* 弹出窗体，用于展示匹配成功的结果 */
 	}
 }
 

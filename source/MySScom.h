@@ -4,7 +4,7 @@
 	#error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h"
+#include "../resource.h"
 #include "mysscomtool.h"
 #include "afxdialogex.h"
 

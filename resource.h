@@ -1,6 +1,6 @@
-//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ ���ɵİ����ļ���
-// �� MySScom.rc ʹ��
+﻿//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ 生成的包含文件。
+// 供 MySScom.rc 使用
 //
 #define IDD_MYSSCOM_DIALOG              102
 #define IDP_SOCKETS_INIT_FAILED         103

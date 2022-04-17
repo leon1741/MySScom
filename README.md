@@ -32,9 +32,9 @@ gitee：https://gitee.com/leon1741/MySScom
 
 # 使用说明
 
-1、MySScom依赖于Microsoft Visual C++ 运行环境，如果程序启动时提示“找不到MSVC*.dll”，请点击以下链接下载并安装Microsoft Visual C++ 运行环境（请注意选择你电脑操作系统对应的版本，32位或64位）；
+1、MySScom依赖于Microsoft Visual C++ 运行环境，如果程序启动时提示“找不到MSVC*.dll”，请点击以下链接下载并安装Microsoft Visual C++ 运行环境【[最新的Microsoft Visual C++可再发行程序包](https://docs.microsoft.com/zh-CN/cpp/windows/latest-supported-vc-redist?view=msvc-150)】。请注意选择你电脑操作系统对应的版本，32位系统选择X86版本，64位系统选择X64版本：
 
-[最新的Microsoft Visual C++可再发行程序包](https://docs.microsoft.com/zh-CN/cpp/windows/latest-supported-vc-redist?view=msvc-150)
+![](./res/user_help_A.jpg)
 
 2、本程序为绿色程序，无需安装，双击即可运行。为防止意外关闭，提高调试过程中的可靠性，运行之后点击关闭按钮，程序不会全部退出，而是隐藏到任务栏中。想要完全退出，必须在任务栏处右击菜单中选择退出；
 
